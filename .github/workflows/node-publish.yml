@@ -5,10 +5,6 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version to publish (e.g., 0.1.0)'
-        required: true
-        type: string
       dry-run:
         description: 'Dry run (do not actually publish)'
         required: false
@@ -23,6 +19,8 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    # Required for npm trusted publishing (OIDC)
+    environment: npm-publish
     permissions:
       contents: read
       id-token: write
@@ -54,7 +52,7 @@ jobs:
       - name: Verify package
         run: pnpm pack --dry-run
 
-      - name: Publish to npm
+      - name: Publish to npm (with provenance)
         if: ${{ !inputs.dry-run }}
         run: pnpm publish --provenance --access public --no-git-checks
         env:
@@ -63,5 +61,3 @@ jobs:
       - name: Dry run publish
         if: ${{ inputs.dry-run }}
         run: pnpm publish --dry-run
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

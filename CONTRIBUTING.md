@@ -99,6 +99,21 @@ your-language/
 - Add comments for complex logic
 - Keep functions focused and small
 
+## Releasing (Maintainers)
+
+### npm (Node.js SDK)
+
+The Node.js SDK is published to npm using GitHub Actions with provenance attestation.
+
+**Publishing a release:**
+1. Update version in `node/package.json`
+2. Update `node/CHANGELOG.md`
+3. Commit and push to `main`
+4. Create a GitHub release with tag `node-vX.Y.Z`
+5. The `node-publish.yml` workflow runs automatically
+
+**Note:** The `NPM_TOKEN` secret in the `npm-publish` environment expires after 90 days. Regenerate it on npmjs.com when needed.
+
 ## Questions?
 
 If you have questions about contributing, please open an issue or contact us at support@darkstrata.io.
