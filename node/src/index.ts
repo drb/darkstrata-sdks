@@ -13,6 +13,7 @@ export { DarkStrataCredentialCheck } from './client.js';
 export type {
   ClientOptions,
   Credential,
+  CheckOptions,
   CheckResult,
   CheckMetadata,
 } from './types.js';

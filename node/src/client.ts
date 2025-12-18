@@ -35,11 +35,17 @@ import type {
   ApiResponseHeaders,
   CacheEntry,
   CheckMetadata,
+  CheckOptions,
   CheckResult,
   ClientOptions,
   Credential,
   ResolvedConfig,
 } from './types.js';
+
+/**
+ * Minimum length for client-provided HMAC key (256 bits = 64 hex chars).
+ */
+const MIN_CLIENT_HMAC_LENGTH = 64;
 
 /**
  * DarkStrata credential check client.
@@ -103,6 +109,7 @@ export class DarkStrataCredentialCheck {
    *
    * @param email - The email address or username
    * @param password - The password to check
+   * @param options - Optional check options (client HMAC, date filter)
    * @returns A promise that resolves with the check result
    * @throws {ValidationError} If the email or password is empty
    * @throws {AuthenticationError} If the API key is invalid
@@ -110,21 +117,30 @@ export class DarkStrataCredentialCheck {
    *
    * @example
    * ```typescript
+   * // Basic usage
    * const result = await client.check('user@example.com', 'password123');
    *
-   * if (result.found) {
-   *   console.log('This credential was found in a data breach!');
-   *   console.log(`Checked at: ${result.metadata.checkedAt}`);
-   * } else {
-   *   console.log('Credential not found in known breaches.');
-   * }
+   * // With client-provided HMAC for deterministic results
+   * const result = await client.check('user@example.com', 'password123', {
+   *   clientHmac: 'your-256-bit-hex-key...',
+   * });
+   *
+   * // Filter to only breaches from 2024 onwards
+   * const result = await client.check('user@example.com', 'password123', {
+   *   since: new Date('2024-01-01'),
+   * });
    * ```
    */
-  async check(email: string, password: string): Promise<CheckResult> {
+  async check(
+    email: string,
+    password: string,
+    options?: CheckOptions
+  ): Promise<CheckResult> {
     this.validateCredential(email, password);
+    this.validateCheckOptions(options);
 
     const hash = hashCredential(email, password);
-    return this.checkHashInternal(hash, email);
+    return this.checkHashInternal(hash, email, options);
   }
 
   /**
@@ -134,6 +150,7 @@ export class DarkStrataCredentialCheck {
    * the credential (`email:password`).
    *
    * @param hash - The SHA-256 hash of `email:password` (64 hex characters)
+   * @param options - Optional check options (client HMAC, date filter)
    * @returns A promise that resolves with the check result
    * @throws {ValidationError} If the hash is invalid
    *
@@ -142,9 +159,14 @@ export class DarkStrataCredentialCheck {
    * // If you've already computed the hash
    * const hash = '5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8...';
    * const result = await client.checkHash(hash);
+   *
+   * // With options
+   * const result = await client.checkHash(hash, {
+   *   since: new Date('2024-01-01'),
+   * });
    * ```
    */
-  async checkHash(hash: string): Promise<CheckResult> {
+  async checkHash(hash: string, options?: CheckOptions): Promise<CheckResult> {
     const normalisedHash = hash.toUpperCase();
 
     if (!isValidHash(normalisedHash)) {
@@ -154,7 +176,9 @@ export class DarkStrataCredentialCheck {
       );
     }
 
-    return this.checkHashInternal(normalisedHash);
+    this.validateCheckOptions(options);
+
+    return this.checkHashInternal(normalisedHash, undefined, options);
   }
 
   /**
@@ -163,6 +187,7 @@ export class DarkStrataCredentialCheck {
    * Credentials are grouped by their hash prefix to minimise API calls.
    *
    * @param credentials - Array of credential objects to check
+   * @param options - Optional check options applied to all credentials
    * @returns A promise that resolves with an array of check results
    * @throws {ValidationError} If any credential is invalid
    *
@@ -173,6 +198,11 @@ export class DarkStrataCredentialCheck {
    *   { email: 'user2@example.com', password: 'pass2' },
    * ]);
    *
+   * // With date filter applied to all credentials
+   * const results = await client.checkBatch(credentials, {
+   *   since: new Date('2024-01-01'),
+   * });
+   *
    * for (const result of results) {
    *   if (result.found) {
    *     console.log(`${result.credential.email} was compromised!`);
@@ -180,7 +210,10 @@ export class DarkStrataCredentialCheck {
    * }
    * ```
    */
-  async checkBatch(credentials: Credential[]): Promise<CheckResult[]> {
+  async checkBatch(
+    credentials: Credential[],
+    options?: CheckOptions
+  ): Promise<CheckResult[]> {
     if (credentials.length === 0) {
       return [];
     }
@@ -189,6 +222,7 @@ export class DarkStrataCredentialCheck {
     for (const credential of credentials) {
       this.validateCredential(credential.email, credential.password);
     }
+    this.validateCheckOptions(options);
 
     // Hash all credentials and group by prefix
     const hashedCredentials = credentials.map((cred) => ({
@@ -204,7 +238,7 @@ export class DarkStrataCredentialCheck {
 
     for (const prefix of groupedByPrefix.keys()) {
       prefixPromises.push(
-        this.fetchPrefixData(prefix).then((response) => {
+        this.fetchPrefixData(prefix, options).then((response) => {
           prefixResponses.set(prefix, response);
         })
       );
@@ -228,6 +262,7 @@ export class DarkStrataCredentialCheck {
             {
               prefix,
               totalResults: 0,
+              hmacSource: 'server',
               cachedResult: false,
               checkedAt: new Date(),
             }
@@ -246,7 +281,9 @@ export class DarkStrataCredentialCheck {
         this.createCheckResult(found, credential.email, {
           prefix,
           totalResults: response.headers.totalResults,
+          hmacSource: response.headers.hmacSource,
           timeWindow: response.headers.timeWindow,
+          filterSince: response.headers.filterSince,
           cachedResult: false, // Batch doesn't use caching for individual results
           checkedAt: new Date(),
         })
@@ -283,25 +320,38 @@ export class DarkStrataCredentialCheck {
 
   private async checkHashInternal(
     hash: string,
-    email?: string
+    email?: string,
+    options?: CheckOptions
   ): Promise<CheckResult> {
     const prefix = extractPrefix(hash);
-    const response = await this.fetchPrefixData(prefix);
+    const response = await this.fetchPrefixData(prefix, options);
 
     const found = isHashInSet(hash, response.headers.hmacKey, response.hashes);
 
     return this.createCheckResult(found, email, {
       prefix,
       totalResults: response.headers.totalResults,
+      hmacSource: response.headers.hmacSource,
       timeWindow: response.headers.timeWindow,
+      filterSince: response.headers.filterSince,
       cachedResult: false, // TODO: Track this properly
       checkedAt: new Date(),
     });
   }
 
-  private async fetchPrefixData(prefix: string): Promise<ApiResponse> {
+  private async fetchPrefixData(
+    prefix: string,
+    options?: CheckOptions
+  ): Promise<ApiResponse> {
+    // Don't use cache when client provides custom options
+    // (clientHmac or since would change the response)
+    const useCache =
+      this.config.enableCaching &&
+      !options?.clientHmac &&
+      options?.since === undefined;
+
     // Check cache first
-    if (this.config.enableCaching) {
+    if (useCache) {
       const cached = this.getCachedResponse(prefix);
       if (cached) {
         return cached;
@@ -309,23 +359,26 @@ export class DarkStrataCredentialCheck {
     }
 
     // Fetch from API
-    const response = await this.fetchWithRetry(prefix);
+    const response = await this.fetchWithRetry(prefix, options);
 
-    // Cache the response
-    if (this.config.enableCaching && response.headers.timeWindow) {
+    // Cache the response (only if no custom options and server HMAC)
+    if (useCache && response.headers.timeWindow) {
       this.cacheResponse(prefix, response, response.headers.timeWindow);
     }
 
     return response;
   }
 
-  private async fetchWithRetry(prefix: string): Promise<ApiResponse> {
+  private async fetchWithRetry(
+    prefix: string,
+    options?: CheckOptions
+  ): Promise<ApiResponse> {
     let lastError: Error | undefined;
     let delay: number = RETRY_DEFAULTS.INITIAL_DELAY;
 
     for (let attempt = 0; attempt <= this.config.retries; attempt++) {
       try {
-        return await this.fetch(prefix);
+        return await this.fetch(prefix, options);
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
 
@@ -345,13 +398,26 @@ export class DarkStrataCredentialCheck {
     throw lastError ?? new Error('Unknown error during fetch');
   }
 
-  private async fetch(prefix: string): Promise<ApiResponse> {
+  private async fetch(
+    prefix: string,
+    options?: CheckOptions
+  ): Promise<ApiResponse> {
     if (!isValidPrefix(prefix)) {
       throw new ValidationError(`Invalid prefix: ${prefix}`, 'prefix');
     }
 
     const url = new URL(CREDENTIAL_CHECK_ENDPOINT, this.config.baseUrl);
     url.searchParams.set('prefix', prefix);
+
+    // Add optional parameters
+    if (options?.clientHmac) {
+      url.searchParams.set('clientHmac', options.clientHmac);
+    }
+
+    if (options?.since !== undefined) {
+      const sinceValue = this.convertToSinceParam(options.since);
+      url.searchParams.set('since', String(sinceValue));
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(
@@ -571,6 +637,68 @@ export class DarkStrataCredentialCheck {
     ) {
       throw new ValidationError('Password is required', 'password');
     }
+  }
+
+  private validateCheckOptions(options?: CheckOptions): void {
+    if (!options) {
+      return;
+    }
+
+    // Validate clientHmac if provided
+    if (options.clientHmac !== undefined) {
+      if (typeof options.clientHmac !== 'string') {
+        throw new ValidationError(
+          'Client HMAC must be a string',
+          'clientHmac'
+        );
+      }
+
+      if (options.clientHmac.length < MIN_CLIENT_HMAC_LENGTH) {
+        throw new ValidationError(
+          `Client HMAC must be at least ${MIN_CLIENT_HMAC_LENGTH} hexadecimal characters (256 bits)`,
+          'clientHmac'
+        );
+      }
+
+      if (!/^[A-Fa-f0-9]+$/.test(options.clientHmac)) {
+        throw new ValidationError(
+          'Client HMAC must be a hexadecimal string',
+          'clientHmac'
+        );
+      }
+    }
+
+    // Validate since if provided
+    if (options.since !== undefined) {
+      if (options.since instanceof Date) {
+        if (isNaN(options.since.getTime())) {
+          throw new ValidationError('Invalid date for since parameter', 'since');
+        }
+      } else if (typeof options.since === 'number') {
+        if (!Number.isInteger(options.since) || options.since < 0) {
+          throw new ValidationError(
+            'Since parameter must be a positive integer (epoch day or Unix timestamp)',
+            'since'
+          );
+        }
+      } else {
+        throw new ValidationError(
+          'Since parameter must be a Date or number',
+          'since'
+        );
+      }
+    }
+  }
+
+  private convertToSinceParam(since: number | Date): number {
+    if (since instanceof Date) {
+      // Convert Date to epoch day (days since 1 January 1970)
+      return Math.floor(since.getTime() / 1000 / 86400);
+    }
+
+    // Already a number - could be epoch day or Unix timestamp
+    // The API auto-detects based on value (>100000 = timestamp)
+    return since;
   }
 
   private normaliseBaseUrl(url: string): string {

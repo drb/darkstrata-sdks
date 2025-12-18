@@ -461,4 +461,341 @@ describe('DarkStrataCredentialCheck', () => {
       );
     });
   });
+
+  describe('CheckOptions - clientHmac', () => {
+    it('should include clientHmac in request URL', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const clientHmac = 'a'.repeat(64);
+      const hmacKey = clientHmac; // Server echoes back client key
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': hmacKey,
+          'X-HMAC-Source': 'client',
+          'X-Total-Results': '0',
+        }),
+        json: async () => [],
+      });
+
+      await client.check('user@test.com', 'password', { clientHmac });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(`clientHmac=${clientHmac}`),
+        expect.anything()
+      );
+    });
+
+    it('should return hmacSource as client when using clientHmac', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const clientHmac = 'b'.repeat(64);
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': clientHmac,
+          'X-HMAC-Source': 'client',
+          'X-Total-Results': '0',
+        }),
+        json: async () => [],
+      });
+
+      const result = await client.check('user@test.com', 'password', { clientHmac });
+
+      expect(result.metadata.hmacSource).toBe('client');
+      expect(result.metadata.timeWindow).toBeUndefined();
+    });
+
+    it('should throw ValidationError for clientHmac that is too short', async () => {
+      const client = new DarkStrataCredentialCheck({ apiKey: API_KEY });
+
+      await expect(
+        client.check('user@test.com', 'password', { clientHmac: 'a'.repeat(63) })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for non-hex clientHmac', async () => {
+      const client = new DarkStrataCredentialCheck({ apiKey: API_KEY });
+
+      await expect(
+        client.check('user@test.com', 'password', { clientHmac: 'g'.repeat(64) })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it('should not cache when clientHmac is provided', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: true,
+      });
+
+      const clientHmac = 'c'.repeat(64);
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': clientHmac,
+          'X-HMAC-Source': 'client',
+          'X-Total-Results': '0',
+        }),
+        json: async () => [],
+      });
+
+      // Make two requests with clientHmac
+      await client.check('user@test.com', 'password', { clientHmac });
+      await client.check('user@test.com', 'password', { clientHmac });
+
+      // Both should hit the API (no caching with custom options)
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('CheckOptions - since', () => {
+    it('should include since parameter as epoch day when Date provided', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const sinceDate = new Date('2024-01-01T00:00:00Z');
+      // 2024-01-01 = epoch day 19724
+      const expectedEpochDay = Math.floor(sinceDate.getTime() / 1000 / 86400);
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': 'd'.repeat(64),
+          'X-HMAC-Source': 'server',
+          'X-Total-Results': '0',
+          'X-Filter-Since': String(expectedEpochDay),
+        }),
+        json: async () => [],
+      });
+
+      await client.check('user@test.com', 'password', { since: sinceDate });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(`since=${expectedEpochDay}`),
+        expect.anything()
+      );
+    });
+
+    it('should include since parameter directly when number provided', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const sinceEpochDay = 19724; // 2024-01-01
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': 'e'.repeat(64),
+          'X-HMAC-Source': 'server',
+          'X-Total-Results': '0',
+          'X-Filter-Since': String(sinceEpochDay),
+        }),
+        json: async () => [],
+      });
+
+      await client.check('user@test.com', 'password', { since: sinceEpochDay });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(`since=${sinceEpochDay}`),
+        expect.anything()
+      );
+    });
+
+    it('should return filterSince in metadata', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const sinceEpochDay = 19724;
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': 'f'.repeat(64),
+          'X-HMAC-Source': 'server',
+          'X-Total-Results': '5',
+          'X-Filter-Since': String(sinceEpochDay),
+        }),
+        json: async () => [],
+      });
+
+      const result = await client.check('user@test.com', 'password', { since: sinceEpochDay });
+
+      expect(result.metadata.filterSince).toBe(sinceEpochDay);
+    });
+
+    it('should throw ValidationError for negative since value', async () => {
+      const client = new DarkStrataCredentialCheck({ apiKey: API_KEY });
+
+      await expect(
+        client.check('user@test.com', 'password', { since: -1 })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for invalid Date', async () => {
+      const client = new DarkStrataCredentialCheck({ apiKey: API_KEY });
+
+      await expect(
+        client.check('user@test.com', 'password', { since: new Date('invalid') })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it('should not cache when since is provided', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: true,
+      });
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': 'g'.repeat(64),
+          'X-HMAC-Source': 'server',
+          'X-Time-Window': '12345',
+          'X-Total-Results': '0',
+          'X-Filter-Since': '19724',
+        }),
+        json: async () => [],
+      });
+
+      // Make two requests with since
+      await client.check('user@test.com', 'password', { since: 19724 });
+      await client.check('user@test.com', 'password', { since: 19724 });
+
+      // Both should hit the API (no caching with custom options)
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('CheckOptions - combined', () => {
+    it('should support both clientHmac and since together', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const clientHmac = 'abcdef01'.repeat(8);
+      const sinceEpochDay = 19724;
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': clientHmac,
+          'X-HMAC-Source': 'client',
+          'X-Total-Results': '10',
+          'X-Filter-Since': String(sinceEpochDay),
+        }),
+        json: async () => [],
+      });
+
+      const result = await client.check('user@test.com', 'password', {
+        clientHmac,
+        since: sinceEpochDay,
+      });
+
+      expect(result.metadata.hmacSource).toBe('client');
+      expect(result.metadata.filterSince).toBe(sinceEpochDay);
+
+      // Verify both params in URL
+      const calledUrl = mockFetch.mock.calls[0]![0] as string;
+      expect(calledUrl).toContain(`clientHmac=${clientHmac}`);
+      expect(calledUrl).toContain(`since=${sinceEpochDay}`);
+    });
+
+    it('should work with checkHash and options', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const hash = 'A'.repeat(64);
+      const sinceEpochDay = 19724;
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'AAAAA',
+          'X-HMAC-Key': 'i'.repeat(64),
+          'X-HMAC-Source': 'server',
+          'X-Total-Results': '0',
+          'X-Filter-Since': String(sinceEpochDay),
+        }),
+        json: async () => [],
+      });
+
+      const result = await client.checkHash(hash, { since: sinceEpochDay });
+
+      expect(result.metadata.filterSince).toBe(sinceEpochDay);
+    });
+
+    it('should work with checkBatch and options', async () => {
+      const client = new DarkStrataCredentialCheck({
+        apiKey: API_KEY,
+        baseUrl: BASE_URL,
+        enableCaching: false,
+      });
+
+      const credentials = [
+        { email: 'user1@test.com', password: 'pass1' },
+      ];
+      const sinceEpochDay = 19724;
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'X-Prefix': 'ABCDE',
+          'X-HMAC-Key': 'j'.repeat(64),
+          'X-HMAC-Source': 'server',
+          'X-Total-Results': '0',
+          'X-Filter-Since': String(sinceEpochDay),
+        }),
+        json: async () => [],
+      });
+
+      const results = await client.checkBatch(credentials, { since: sinceEpochDay });
+
+      expect(results[0]!.metadata.filterSince).toBe(sinceEpochDay);
+    });
+  });
 });

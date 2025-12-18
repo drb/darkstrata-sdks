@@ -57,6 +57,53 @@ export interface Credential {
 }
 
 /**
+ * Options for individual credential check requests.
+ */
+export interface CheckOptions {
+  /**
+   * Client-provided HMAC key for deterministic results.
+   *
+   * When provided, results are consistent across requests (not time-windowed).
+   * Must be a cryptographically strong hex string of at least 64 characters (256 bits).
+   *
+   * Use this when you need:
+   * - Consistent results across multiple requests
+   * - To avoid server-side HMAC key rotation
+   * - Custom key management
+   *
+   * @example
+   * ```typescript
+   * // Generate a secure key (do this once and store securely)
+   * const hmacKey = crypto.randomBytes(32).toString('hex');
+   *
+   * const result = await client.check(email, password, { clientHmac: hmacKey });
+   * ```
+   */
+  clientHmac?: string;
+
+  /**
+   * Filter results to only include breaches from this date onwards.
+   *
+   * Accepts either:
+   * - **Epoch day**: Days since 1 January 1970 (e.g., 19724 = 1 January 2024)
+   * - **Unix timestamp**: Seconds since 1 January 1970 (auto-detected if > 100000)
+   * - **Date object**: Will be converted to epoch day
+   *
+   * @example
+   * ```typescript
+   * // Only check breaches from 2024 onwards
+   * const result = await client.check(email, password, {
+   *   since: new Date('2024-01-01'),
+   * });
+   *
+   * // Or using epoch day directly
+   * const result = await client.check(email, password, { since: 19724 });
+   * ```
+   */
+  since?: number | Date;
+}
+
+/**
  * Result of a credential check.
  */
 export interface CheckResult {
@@ -102,10 +149,23 @@ export interface CheckMetadata {
   totalResults: number;
 
   /**
+   * Source of the HMAC key used for this request.
+   * - `'server'`: Server-generated key (rotates hourly)
+   * - `'client'`: Client-provided key (deterministic)
+   */
+  hmacSource: 'server' | 'client';
+
+  /**
    * Server time window (hour-based) for HMAC key rotation.
    * Only present when using server-generated HMAC.
    */
   timeWindow?: number | undefined;
+
+  /**
+   * The epoch day used for filtering (if `since` was provided).
+   * Epoch day = days since 1 January 1970.
+   */
+  filterSince?: number | undefined;
 
   /**
    * Whether this result was served from cache.

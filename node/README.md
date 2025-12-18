@@ -170,10 +170,23 @@ interface CheckResult {
   metadata: {
     prefix: string;            // The 5-char prefix used
     totalResults: number;      // Total hashes returned by API
-    timeWindow?: number;       // Server time window
+    hmacSource: 'server' | 'client'; // Source of HMAC key
+    timeWindow?: number;       // Server time window (server HMAC only)
+    filterSince?: number;      // Epoch day filter (if since was used)
     cachedResult: boolean;     // Whether result was from cache
     checkedAt: Date;           // When the check was performed
   };
+}
+```
+
+### `CheckOptions`
+
+Optional parameters for check requests.
+
+```typescript
+interface CheckOptions {
+  clientHmac?: string;  // Your own HMAC key (64+ hex chars)
+  since?: number | Date; // Filter by breach date
 }
 ```
 
@@ -265,6 +278,59 @@ console.log(`${compromised.length} credentials were compromised`);
 ```
 
 Batch processing automatically groups credentials by prefix to minimise API calls.
+
+### Client-Provided HMAC Key
+
+By default, the server generates a time-rotating HMAC key. For deterministic results across requests, provide your own key:
+
+```typescript
+import { randomBytes } from 'node:crypto';
+
+// Generate a secure key once and store it securely
+const clientHmac = randomBytes(32).toString('hex');
+
+const result = await client.check('user@example.com', 'password', {
+  clientHmac,
+});
+
+// Results are now deterministic (not time-windowed)
+console.log(result.metadata.hmacSource); // 'client'
+```
+
+**When to use client HMAC:**
+- You need consistent results across multiple requests
+- You're comparing results from different time periods
+- You want to avoid server-side key rotation
+
+### Date Filtering
+
+Filter results to only include breaches from a specific date onwards:
+
+```typescript
+// Only check breaches from 2024 onwards
+const result = await client.check('user@example.com', 'password', {
+  since: new Date('2024-01-01'),
+});
+
+// Or use epoch day (days since 1 January 1970)
+const result = await client.check('user@example.com', 'password', {
+  since: 19724, // 2024-01-01
+});
+
+// Check the filter applied
+console.log(result.metadata.filterSince); // 19724
+```
+
+### Combined Options
+
+You can combine multiple options:
+
+```typescript
+const result = await client.check('user@example.com', 'password', {
+  clientHmac: 'your-256-bit-hex-key...',
+  since: new Date('2024-01-01'),
+});
+```
 
 ### Disabling Cache
 
