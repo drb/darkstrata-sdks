@@ -6,8 +6,8 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 
 | Language | Package | Version | Documentation |
 |----------|---------|---------|---------------|
-| Node.js / TypeScript | `@darkstrata/credential-check` | [![npm](https://badge.fury.io/js/%40darkstrata%2Fcredential-check.svg)](https://www.npmjs.com/package/@darkstrata/credential-check) | [README](./node/README.md) |
-| Python | `darkstrata-credential-check` | [![PyPI](https://badge.fury.io/py/darkstrata-credential-check.svg)](https://pypi.org/project/darkstrata-credential-check/) | [README](./python/README.md) |
+| Node.js / TypeScript | `@darkstrata/credential-check` | [![npm](https://img.shields.io/npm/v/@darkstrata/credential-check.svg)](https://www.npmjs.com/package/@darkstrata/credential-check) | [README](./node/README.md) |
+| Python | `darkstrata-credential-check` | [![PyPI](https://img.shields.io/pypi/v/darkstrata-credential-check.svg)](https://pypi.org/project/darkstrata-credential-check/) | [README](./python/README.md) |
 | Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./rust/README.md) |
 | Go | Coming soon | - | - |
 
