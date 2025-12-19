@@ -11,6 +11,14 @@
 
 ### Bug Fixes
 
+* badges on readme now updating ([befc03b](https://github.com/darkstrata/darkstrata-sdks/commit/befc03b91aa2fc1ea3bc58f4d65ed8a62386610d))
+* correct Rust SDK license to Apache-2.0 ([1f9156c](https://github.com/darkstrata/darkstrata-sdks/commit/1f9156c41c4fd7bcfdb67636a08992c3286d5c8c))
+
+## [1.0.2](https://github.com/darkstrata/darkstrata-sdks/compare/v1.0.1...v1.0.2) (2025-12-19)
+
+
+### Bug Fixes
+
 * correct Rust SDK license to Apache-2.0 ([bebe5e4](https://github.com/darkstrata/darkstrata-sdks/commit/bebe5e4993bc456faf954ad0ede3fd79dca8f7b8))
 
 ## [1.0.1](https://github.com/darkstrata/darkstrata-sdks/compare/v1.0.0...v1.0.1) (2025-12-19)
