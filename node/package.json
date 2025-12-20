@@ -1,6 +1,6 @@
 {
   "name": "@darkstrata/credential-check",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Check if credentials have been exposed in data breaches using k-anonymity",
   "author": "DarkStrata <support@darkstrata.io>",
   "license": "Apache-2.0",

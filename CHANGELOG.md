@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/darkstrata/darkstrata-sdks/compare/v1.1.0...v1.1.1) (2025-12-20)
+
+
+### Bug Fixes
+
+* drop .net version to 8.x ([b4478f4](https://github.com/darkstrata/darkstrata-sdks/commit/b4478f47455fe68fc164061f87889a4e90448624))
+
 # [1.1.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.0.3...v1.1.0) (2025-12-20)
 
 
