@@ -83,6 +83,36 @@ dmypy.json
 .ipynb_checkpoints/
 
 # ===================
+# C# / .NET
+# ===================
+
+# Build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# Visual Studio
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+*.userprefs
+
+# Rider
+.idea/
+
+# Test results
+TestResults/
+
+# ===================
 # Rust
 # ===================
 
@@ -104,6 +134,7 @@ target/
 *~
 .project
 .classpath
+.claude/
 .settings/
 
 # ===================

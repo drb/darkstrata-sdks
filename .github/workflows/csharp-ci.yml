@@ -1,0 +1,79 @@
+name: C# SDK CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'csharp/**'
+      - '.github/workflows/csharp-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'csharp/**'
+      - '.github/workflows/csharp-ci.yml'
+
+defaults:
+  run:
+    working-directory: csharp
+
+jobs:
+  format:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Check formatting
+        run: dotnet format --verify-no-changes
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Verify package
+        run: |
+          dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --no-build --configuration Release
+          test -f src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg || exit 1
+          echo "✓ NuGet package created successfully"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          directory: csharp/tests/DarkStrata.CredentialCheck.Tests/TestResults
+          flags: csharp
+        continue-on-error: true

@@ -13,6 +13,9 @@ on:
       # Rust SDK
       - 'rust/src/**'
       - 'rust/Cargo.toml'
+      # C# SDK
+      - 'csharp/src/**'
+      - 'csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj'
       # Workflow itself
       - '.github/workflows/release.yml'
       - 'release.config.js'
@@ -173,3 +176,38 @@ jobs:
 
       - name: Publish to crates.io
         run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  publish-csharp:
+    name: Publish C# SDK
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    runs-on: ubuntu-latest
+    environment: nuget-publish
+    defaults:
+      run:
+        working-directory: csharp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --configuration Release --no-build
+
+      - name: Push to NuGet
+        run: dotnet nuget push src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

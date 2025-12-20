@@ -1,0 +1,42 @@
+name: C# SDK Publish
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+    secrets:
+      NUGET_API_KEY:
+        required: true
+
+defaults:
+  run:
+    working-directory: csharp
+
+jobs:
+  publish:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --configuration Release --no-build -p:PackageVersion=${{ inputs.version }}
+
+      - name: Push to NuGet
+        run: dotnet nuget push src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.${{ inputs.version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

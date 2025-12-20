@@ -90,4 +90,28 @@ try {
   console.warn(`  Warning: Failed to update Cargo.lock: ${error.message}`);
 }
 
+// Update C# .csproj
+const csharpPath = path.join(rootDir, 'csharp', 'src', 'DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.csproj');
+if (fs.existsSync(csharpPath)) {
+  let csharpContent = fs.readFileSync(csharpPath, 'utf8');
+  csharpContent = csharpContent.replace(
+    /<Version>[^<]+<\/Version>/,
+    `<Version>${version}</Version>`
+  );
+  fs.writeFileSync(csharpPath, csharpContent);
+  console.log(`  Updated csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj`);
+}
+
+// Update C# Constants.cs SDK_VERSION
+const csharpConstantsPath = path.join(rootDir, 'csharp', 'src', 'DarkStrata.CredentialCheck', 'Constants.cs');
+if (fs.existsSync(csharpConstantsPath)) {
+  let constantsContent = fs.readFileSync(csharpConstantsPath, 'utf8');
+  constantsContent = constantsContent.replace(
+    /SdkVersion\s*=\s*"[^"]+"/,
+    `SdkVersion = "${version}"`
+  );
+  fs.writeFileSync(csharpConstantsPath, constantsContent);
+  console.log(`  Updated csharp/src/DarkStrata.CredentialCheck/Constants.cs`);
+}
+
 console.log(`\nAll SDKs updated to version ${version}`);

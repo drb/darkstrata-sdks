@@ -9,6 +9,7 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 | Node.js / TypeScript | `@darkstrata/credential-check` | [![npm](https://img.shields.io/npm/v/@darkstrata/credential-check.svg)](https://www.npmjs.com/package/@darkstrata/credential-check) | [README](./node/README.md) |
 | Python | `darkstrata-credential-check` | [![PyPI](https://img.shields.io/pypi/v/darkstrata-credential-check.svg)](https://pypi.org/project/darkstrata-credential-check/) | [README](./python/README.md) |
 | Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./rust/README.md) |
+| C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./csharp/README.md) |
 | Go | Coming soon | - | - |
 
 ## Credential Check SDK
@@ -77,6 +78,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+#### C# / .NET
+
+```csharp
+using DarkStrata.CredentialCheck;
+
+using var client = new DarkStrataCredentialCheck(new ClientOptions
+{
+    ApiKey = "your-api-key"
+});
+
+var result = await client.CheckAsync("user@example.com", "password123");
+
+if (result.Found)
+{
+    Console.WriteLine("Credential found in breach database!");
+}
+```
+
 ### How K-Anonymity Works
 
 ```
@@ -110,6 +129,7 @@ Only **5 characters** of a 64-character hash are sent. This provides:
 - [Node.js SDK Documentation](./node/README.md)
 - [Python SDK Documentation](./python/README.md)
 - [Rust SDK Documentation](./rust/README.md)
+- [C# SDK Documentation](./csharp/README.md)
 - [API Documentation](https://docs.darkstrata.io)
 - [DarkStrata Dashboard](https://app.darkstrata.io)
 

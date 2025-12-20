@@ -46,6 +46,7 @@ module.exports = {
         'python/pyproject.toml',
         'rust/Cargo.toml',
         'rust/Cargo.lock',
+        'csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj',
       ],
       message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
     }],
