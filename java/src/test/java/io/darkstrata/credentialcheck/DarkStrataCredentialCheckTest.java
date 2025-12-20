@@ -184,15 +184,18 @@ class DarkStrataCredentialCheckTest {
     void checkBatchReturnsResultsInOrder() throws Exception {
         String hmacKey = "A".repeat(64);
 
-        // Both credentials will have the same prefix for simplicity
-        mockServer.enqueue(new MockResponse()
+        // Queue responses for each unique prefix (credentials have different prefixes)
+        MockResponse mockResponse = new MockResponse()
                 .setResponseCode(200)
                 .setHeader("X-Prefix", "12345")
                 .setHeader("X-HMAC-Key", hmacKey)
                 .setHeader("X-HMAC-Source", "server")
                 .setHeader("X-Total-Results", "0")
-                .setBody("[]")
-        );
+                .setBody("[]");
+
+        // Queue multiple responses since credentials will have different prefixes
+        mockServer.enqueue(mockResponse);
+        mockServer.enqueue(mockResponse);
 
         List<Credential> credentials = Arrays.asList(
                 new Credential("user1@example.com", "pass1"),
