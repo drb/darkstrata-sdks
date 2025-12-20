@@ -11,6 +11,7 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 | Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./rust/README.md) |
 | C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./csharp/README.md) |
 | Go | `github.com/darkstrata/darkstrata-sdks/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/go) | [README](./go/README.md) |
+| Java | `io.darkstrata:credential-check` | 1.0.0 | [README](./java/README.md) |
 
 ## Credential Check SDK
 
@@ -21,7 +22,7 @@ Check if credentials have been exposed in data breaches using k-anonymity.
 - **Privacy-first**: Only a 5-character hash prefix is sent to our servers
 - **No credential exposure**: Your passwords never leave your system
 - **Batch processing**: Efficiently check multiple credentials
-- **Full type safety**: TypeScript types, Python type hints, Rust's strong typing, and Go's static types
+- **Full type safety**: TypeScript types, Python type hints, Rust's strong typing, Go's static types, and Java's strong typing
 
 ### Quick Example
 
@@ -128,6 +129,26 @@ func main() {
 }
 ```
 
+#### Java
+
+```java
+import io.darkstrata.credentialcheck.*;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        try (DarkStrataCredentialCheck client = new DarkStrataCredentialCheck(
+                ClientOptions.builder("your-api-key").build()
+        )) {
+            CheckResult result = client.check("user@example.com", "password123");
+
+            if (result.isFound()) {
+                System.out.println("Credential found in breach database!");
+            }
+        }
+    }
+}
+```
+
 ### How K-Anonymity Works
 
 ```
@@ -163,6 +184,7 @@ Only **5 characters** of a 64-character hash are sent. This provides:
 - [Rust SDK Documentation](./rust/README.md)
 - [C# SDK Documentation](./csharp/README.md)
 - [Go SDK Documentation](./go/README.md)
+- [Java SDK Documentation](./java/README.md)
 - [API Documentation](https://docs.darkstrata.io)
 - [DarkStrata Dashboard](https://app.darkstrata.io)
 
