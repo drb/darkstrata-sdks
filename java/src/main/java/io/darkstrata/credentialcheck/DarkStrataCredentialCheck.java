@@ -410,7 +410,7 @@ public class DarkStrataCredentialCheck implements Closeable {
                 return new ApiResponse(hashes != null ? hashes : Collections.emptyList(), headers);
             }
         } catch (java.net.SocketTimeoutException e) {
-            throw new TimeoutException(config.getTimeout(), e);
+            throw new io.darkstrata.credentialcheck.exception.TimeoutException(config.getTimeout(), e);
         } catch (IOException e) {
             throw new NetworkException("Network error: " + e.getMessage(), e);
         }
