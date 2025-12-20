@@ -10,7 +10,7 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 | Python | `darkstrata-credential-check` | [![PyPI](https://img.shields.io/pypi/v/darkstrata-credential-check.svg)](https://pypi.org/project/darkstrata-credential-check/) | [README](./python/README.md) |
 | Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./rust/README.md) |
 | C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./csharp/README.md) |
-| Go | Coming soon | - | - |
+| Go | `github.com/darkstrata/darkstrata-sdks/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/go) | [README](./go/README.md) |
 
 ## Credential Check SDK
 
@@ -21,7 +21,7 @@ Check if credentials have been exposed in data breaches using k-anonymity.
 - **Privacy-first**: Only a 5-character hash prefix is sent to our servers
 - **No credential exposure**: Your passwords never leave your system
 - **Batch processing**: Efficiently check multiple credentials
-- **Full type safety**: TypeScript types, Python type hints, and Rust's strong typing
+- **Full type safety**: TypeScript types, Python type hints, Rust's strong typing, and Go's static types
 
 ### Quick Example
 
@@ -96,6 +96,38 @@ if (result.Found)
 }
 ```
 
+#### Go
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+
+    credentialcheck "github.com/darkstrata/darkstrata-sdks/go"
+)
+
+func main() {
+    client, err := credentialcheck.NewClient(credentialcheck.ClientOptions{
+        APIKey: "your-api-key",
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    result, err := client.Check(context.Background(), "user@example.com", "password123", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    if result.Found {
+        fmt.Println("Credential found in breach database!")
+    }
+}
+```
+
 ### How K-Anonymity Works
 
 ```
@@ -130,6 +162,7 @@ Only **5 characters** of a 64-character hash are sent. This provides:
 - [Python SDK Documentation](./python/README.md)
 - [Rust SDK Documentation](./rust/README.md)
 - [C# SDK Documentation](./csharp/README.md)
+- [Go SDK Documentation](./go/README.md)
 - [API Documentation](https://docs.darkstrata.io)
 - [DarkStrata Dashboard](https://app.darkstrata.io)
 
