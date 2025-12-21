@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.0...v1.2.1) (2025-12-21)
+
+
+### Bug Fixes
+
+* don't wait for Maven Central publishing to complete ([cea90b0](https://github.com/darkstrata/darkstrata-sdks/commit/cea90b02e7ce2f93f3ecbd0c1a618123f810dbc6))
+
 # [1.2.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.1.1...v1.2.0) (2025-12-21)
 
 
