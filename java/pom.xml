@@ -11,7 +11,7 @@
 
     <name>DarkStrata Credential Check SDK</name>
     <description>Java SDK for checking credentials against the DarkStrata breach database using k-anonymity</description>
-    <url>https://github.com/darkstrata/darkstrata-sdks</url>
+    <url>https://github.com/darkstrata/darkstrata-sdks/tree/main/java</url>
 
     <licenses>
         <license>
@@ -33,7 +33,7 @@
     <scm>
         <connection>scm:git:git://github.com/darkstrata/darkstrata-sdks.git</connection>
         <developerConnection>scm:git:ssh://github.com:darkstrata/darkstrata-sdks.git</developerConnection>
-        <url>https://github.com/darkstrata/darkstrata-sdks</url>
+        <url>https://github.com/darkstrata/darkstrata-sdks/tree/main/java</url>
     </scm>
 
     <properties>

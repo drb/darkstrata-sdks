@@ -11,7 +11,7 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 | Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./rust/README.md) |
 | C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./csharp/README.md) |
 | Go | `github.com/darkstrata/darkstrata-sdks/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/go) | [README](./go/README.md) |
-| Java | `io.darkstrata:credential-check` | 1.0.0 | [README](./java/README.md) |
+| Java | `io.darkstrata:credential-check` | [![Maven Central](https://img.shields.io/maven-central/v/io.darkstrata/credential-check.svg)](https://central.sonatype.com/artifact/io.darkstrata/credential-check) | [README](./java/README.md) |
 
 ## Credential Check SDK
 
