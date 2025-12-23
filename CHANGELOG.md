@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.1...v1.2.2) (2025-12-23)
+
+
+### Bug Fixes
+
+* updated paths in pom.xml ([defc332](https://github.com/darkstrata/darkstrata-sdks/commit/defc332bce371e308df5620ae490900fc7175186))
+
 ## [1.2.1](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.0...v1.2.1) (2025-12-21)
 
 
