@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.2...v1.2.3) (2026-01-05)
+
+
+### Bug Fixes
+
+* incorrect backlinks ([f028255](https://github.com/darkstrata/darkstrata-sdks/commit/f028255dabcec46d760930662ae1528ed7033d62))
+
 ## [1.2.2](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.1...v1.2.2) (2025-12-23)
 
 
