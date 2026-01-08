@@ -1,3 +1,5 @@
+using System;
+
 namespace DarkStrata.CredentialCheck;
 
 /// <summary>
@@ -63,7 +65,7 @@ internal static class Constants
     /// <summary>
     /// HTTP status codes that indicate retryable errors.
     /// </summary>
-    public static readonly int[] RetryableStatusCodes = [408, 429, 500, 502, 503, 504];
+    public static readonly int[] RetryableStatusCodes = new[] { 408, 429, 500, 502, 503, 504 };
 
     /// <summary>
     /// Response header names.

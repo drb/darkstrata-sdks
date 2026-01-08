@@ -1,3 +1,5 @@
+using System;
+
 namespace DarkStrata.CredentialCheck;
 
 /// <summary>
