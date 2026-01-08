@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'python/**'
+      - 'credential-check/python/**'
       - '.github/workflows/python-ci.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'python/**'
+      - 'credential-check/python/**'
       - '.github/workflows/python-ci.yml'
 
 defaults:
   run:
-    working-directory: python
+    working-directory: credential-check/python
 
 jobs:
   lint:

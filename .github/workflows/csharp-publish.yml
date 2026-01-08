@@ -12,7 +12,7 @@ on:
 
 defaults:
   run:
-    working-directory: csharp
+    working-directory: credential-check/csharp
 
 jobs:
   publish:

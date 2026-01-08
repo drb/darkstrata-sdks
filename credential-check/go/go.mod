@@ -1,4 +1,4 @@
-module github.com/darkstrata/darkstrata-sdks/go
+module github.com/darkstrata/darkstrata-sdks/credential-check/go
 
 go 1.21
 

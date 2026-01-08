@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'java/**'
+      - 'credential-check/java/**'
       - '.github/workflows/java-ci.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'java/**'
+      - 'credential-check/java/**'
       - '.github/workflows/java-ci.yml'
 
 defaults:
   run:
-    working-directory: java
+    working-directory: credential-check/java
 
 jobs:
   build:

@@ -6,12 +6,12 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 
 | Language | Package | Version | Documentation |
 |----------|---------|---------|---------------|
-| Node.js / TypeScript | `@darkstrata/credential-check` | [![npm](https://img.shields.io/npm/v/@darkstrata/credential-check.svg)](https://www.npmjs.com/package/@darkstrata/credential-check) | [README](./node/README.md) |
-| Python | `darkstrata-credential-check` | [![PyPI](https://img.shields.io/pypi/v/darkstrata-credential-check.svg)](https://pypi.org/project/darkstrata-credential-check/) | [README](./python/README.md) |
-| Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./rust/README.md) |
-| C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./csharp/README.md) |
-| Go | `github.com/darkstrata/darkstrata-sdks/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/go) | [README](./go/README.md) |
-| Java | `io.darkstrata:credential-check` | [![Maven Central](https://img.shields.io/maven-central/v/io.darkstrata/credential-check.svg)](https://central.sonatype.com/artifact/io.darkstrata/credential-check) | [README](./java/README.md) |
+| Node.js / TypeScript | `@darkstrata/credential-check` | [![npm](https://img.shields.io/npm/v/@darkstrata/credential-check.svg)](https://www.npmjs.com/package/@darkstrata/credential-check) | [README](./credential-check/node/README.md) |
+| Python | `darkstrata-credential-check` | [![PyPI](https://img.shields.io/pypi/v/darkstrata-credential-check.svg)](https://pypi.org/project/darkstrata-credential-check/) | [README](./credential-check/python/README.md) |
+| Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./credential-check/rust/README.md) |
+| C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./credential-check/csharp/README.md) |
+| Go | `github.com/darkstrata/darkstrata-sdks/credential-check/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/credential-check/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/credential-check/go) | [README](./credential-check/go/README.md) |
+| Java | `io.darkstrata:credential-check` | [![Maven Central](https://img.shields.io/maven-central/v/io.darkstrata/credential-check.svg)](https://central.sonatype.com/artifact/io.darkstrata/credential-check) | [README](./credential-check/java/README.md) |
 
 > **Note:** The C# SDK supports both modern .NET (8.0+) and .NET Framework (4.6.1+) via multi-targeting.
 
@@ -109,7 +109,7 @@ import (
     "fmt"
     "log"
 
-    credentialcheck "github.com/darkstrata/darkstrata-sdks/go"
+    credentialcheck "github.com/darkstrata/darkstrata-sdks/credential-check/go"
 )
 
 func main() {
@@ -181,12 +181,12 @@ Only **5 characters** of a 64-character hash are sent. This provides:
 
 ## Documentation
 
-- [Node.js SDK Documentation](./node/README.md)
-- [Python SDK Documentation](./python/README.md)
-- [Rust SDK Documentation](./rust/README.md)
-- [C# SDK Documentation](./csharp/README.md)
-- [Go SDK Documentation](./go/README.md)
-- [Java SDK Documentation](./java/README.md)
+- [Node.js SDK Documentation](./credential-check/node/README.md)
+- [Python SDK Documentation](./credential-check/python/README.md)
+- [Rust SDK Documentation](./credential-check/rust/README.md)
+- [C# SDK Documentation](./credential-check/csharp/README.md)
+- [Go SDK Documentation](./credential-check/go/README.md)
+- [Java SDK Documentation](./credential-check/java/README.md)
 - [API Documentation](https://docs.darkstrata.io)
 - [DarkStrata Dashboard](https://app.darkstrata.io)
 

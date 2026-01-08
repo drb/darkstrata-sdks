@@ -14,7 +14,7 @@ on:
 
 defaults:
   run:
-    working-directory: rust
+    working-directory: credential-check/rust
 
 jobs:
   test:

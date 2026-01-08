@@ -42,11 +42,11 @@ module.exports = {
     ['@semantic-release/git', {
       assets: [
         'CHANGELOG.md',
-        'node/package.json',
-        'python/pyproject.toml',
-        'rust/Cargo.toml',
-        'rust/Cargo.lock',
-        'csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj',
+        'credential-check/node/package.json',
+        'credential-check/python/pyproject.toml',
+        'credential-check/rust/Cargo.toml',
+        'credential-check/rust/Cargo.lock',
+        'credential-check/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj',
       ],
       message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
     }],
