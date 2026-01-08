@@ -15,9 +15,17 @@ Check if credentials have been exposed in data breaches using k-anonymity to pro
 - **Retry Logic**: Automatic retries with exponential backoff
 - **Comprehensive Errors**: Typed exceptions for all error scenarios
 
+## Supported Platforms
+
+- .NET 8.0+
+- .NET 7.0, 6.0, 5.0
+- .NET Core 2.0+
+- .NET Framework 4.6.1+
+
+The SDK uses multi-targeting to provide optimized builds for modern .NET while maintaining full compatibility with .NET Framework.
+
 ## Prerequisites
 
-- .NET 8.0 or later
 - DarkStrata API key (obtain from your dashboard)
 
 ## Installation

@@ -13,6 +13,8 @@ Official SDKs for integrating with [DarkStrata](https://darkstrata.io) services.
 | Go | `github.com/darkstrata/darkstrata-sdks/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/go) | [README](./go/README.md) |
 | Java | `io.darkstrata:credential-check` | [![Maven Central](https://img.shields.io/maven-central/v/io.darkstrata/credential-check.svg)](https://central.sonatype.com/artifact/io.darkstrata/credential-check) | [README](./java/README.md) |
 
+> **Note:** The C# SDK supports both modern .NET (8.0+) and .NET Framework (4.6.1+) via multi-targeting.
+
 ## Credential Check SDK
 
 Check if credentials have been exposed in data breaches using k-anonymity.

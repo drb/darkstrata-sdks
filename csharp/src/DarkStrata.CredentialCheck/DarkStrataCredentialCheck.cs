@@ -1,7 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DarkStrata.CredentialCheck;
 
@@ -25,11 +31,19 @@ namespace DarkStrata.CredentialCheck;
 /// }
 /// </code>
 /// </example>
+#if NETSTANDARD2_0
+public sealed class DarkStrataCredentialCheck : IDisposable
+#else
 public sealed partial class DarkStrataCredentialCheck : IDisposable
+#endif
 {
     private readonly ResolvedConfig _config;
     private readonly HttpClient _httpClient;
     private readonly Dictionary<string, CacheEntry> _cache = new();
+
+#if NETSTANDARD2_0
+    private static readonly Regex HexPatternRegex = new Regex("^[A-Fa-f0-9]+$", RegexOptions.Compiled);
+#endif
     private readonly object _cacheLock = new();
     private bool _disposed;
 
@@ -140,7 +154,7 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
         var credentialList = credentials.ToList();
         if (credentialList.Count == 0)
         {
-            return [];
+            return Array.Empty<CheckResult>();
         }
 
         // Validate all credentials first
@@ -384,7 +398,7 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
         // Add optional parameters
         if (!string.IsNullOrEmpty(options?.ClientHmac))
         {
-            queryParams.Add($"clientHmac={options.ClientHmac}");
+            queryParams.Add($"clientHmac={options!.ClientHmac}");
         }
 
         if (options?.SinceEpochDay.HasValue == true)
@@ -421,7 +435,7 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
             throw new AuthenticationException();
         }
 
-        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        if ((int)response.StatusCode == 429) // TooManyRequests
         {
             int? retryAfter = null;
             if (response.Headers.TryGetValues("Retry-After", out var retryAfterValues))
@@ -460,7 +474,7 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
 
         // Parse response body
         var content = await response.Content.ReadAsStringAsync();
-        var hashes = JsonSerializer.Deserialize<string[]>(content) ?? [];
+        var hashes = JsonSerializer.Deserialize<string[]>(content) ?? Array.Empty<string>();
 
         return new ApiResponse(hashes, headers);
     }
@@ -545,8 +559,11 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
         var now = DateTimeOffset.UtcNow;
         var keysToRemove = new List<string>();
 
-        foreach (var (key, entry) in _cache)
+        foreach (var kvp in _cache)
         {
+            var key = kvp.Key;
+            var entry = kvp.Value;
+
             // Remove entries from old time windows
             if (entry.TimeWindow != currentTimeWindow)
             {
@@ -635,7 +652,11 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
                     "clientHmac");
             }
 
+#if NETSTANDARD2_0
+            if (!HexPatternRegex.IsMatch(options.ClientHmac))
+#else
             if (!HexPattern().IsMatch(options.ClientHmac))
+#endif
             {
                 throw new ValidationException(
                     "Client HMAC must be a hexadecimal string",
@@ -661,11 +682,13 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
     private static string NormalizeBaseUrl(string url)
     {
         // Ensure URL ends with a slash
-        return url.EndsWith('/') ? url : $"{url}/";
+        return url.EndsWith("/", StringComparison.Ordinal) ? url : $"{url}/";
     }
 
-    [GeneratedRegex("^[A-Fa-f0-9]+$")]
+#if !NETSTANDARD2_0
+    [System.Text.RegularExpressions.GeneratedRegex("^[A-Fa-f0-9]+$")]
     private static partial Regex HexPattern();
+#endif
 
     // ============================================================
     // Internal types
