@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "darkstrata-credential-check"
-version = "1.2.3"
+version = "1.3.0"
 description = "Check if credentials have been exposed in data breaches using k-anonymity"
 readme = "README.md"
 license = { text = "Apache-2.0" }

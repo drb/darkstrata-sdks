@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.3...v1.3.0) (2026-01-08)
+
+
+### Features
+
+* **csharp:** add .NET Framework support via multi-targeting ([f70d744](https://github.com/darkstrata/darkstrata-sdks/commit/f70d7446f221eea69c22044c3db2aa63f581931e))
+
 ## [1.2.3](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.2...v1.2.3) (2026-01-05)
 
 
