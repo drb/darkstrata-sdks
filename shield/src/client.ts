@@ -15,7 +15,7 @@ import type {
   ScoreRequestPayload,
 } from './types.js';
 
-const DEFAULT_BASE_URL = 'https://shield.darkstrata.io';
+const DEFAULT_BASE_URL = 'https://api.darkstrata.io';
 const DEFAULT_TIMEOUT = 10000;
 
 /**
@@ -149,7 +149,7 @@ export class DarkStrataShield {
     this.log('Sending score request', { credentialHash: credentialHash.slice(0, 8) + '...' });
 
     // Send request
-    const result = await this.request<ScoreResult>('/v1/score', payload);
+    const result = await this.request<ScoreResult>('/v1/shield', payload);
 
     this.log('Score result', {
       riskScore: result.riskScore,
