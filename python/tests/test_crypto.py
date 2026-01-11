@@ -1,10 +1,10 @@
 """Tests for crypto utilities."""
 
 from darkstrata_credential_check.crypto import (
+    HashedCredential,
     extract_prefix,
     group_by_prefix,
     hash_credential,
-    HashedCredential,
     hmac_sha256,
     is_hash_in_set,
     is_valid_hash,

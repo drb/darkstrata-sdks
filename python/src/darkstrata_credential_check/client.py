@@ -7,7 +7,7 @@ import re
 import time
 from datetime import datetime
 from types import TracebackType
-from typing import Dict, List, Literal, Optional, Type
+from typing import Literal
 from urllib.parse import urlencode, urljoin
 
 import httpx
@@ -20,17 +20,17 @@ from .constants import (
     DEFAULT_RETRIES,
     DEFAULT_TIMEOUT,
     RETRYABLE_STATUS_CODES,
-    ResponseHeaders,
-    RetryDefaults,
     SDK_NAME,
     SDK_VERSION,
     TIME_WINDOW_SECONDS,
+    ResponseHeaders,
+    RetryDefaults,
 )
 from .crypto import (
+    HashedCredential,
     extract_prefix,
     group_by_prefix,
     hash_credential,
-    HashedCredential,
     is_hash_in_set,
     is_valid_hash,
     is_valid_prefix,
@@ -130,8 +130,8 @@ class DarkStrataCredentialCheck:
             cache_ttl=options.cache_ttl,
         )
 
-        self._cache: Dict[str, CacheEntry] = {}
-        self._http_client: Optional[httpx.AsyncClient] = None
+        self._cache: dict[str, CacheEntry] = {}
+        self._http_client: httpx.AsyncClient | None = None
 
     async def __aenter__(self) -> "DarkStrataCredentialCheck":
         """Enter async context manager."""
@@ -139,9 +139,9 @@ class DarkStrataCredentialCheck:
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         """Exit async context manager."""
         await self.close()
@@ -156,7 +156,7 @@ class DarkStrataCredentialCheck:
         self,
         email: str,
         password: str,
-        options: Optional[CheckOptions] = None,
+        options: CheckOptions | None = None,
     ) -> CheckResult:
         """
         Check if a credential has been exposed in a data breach.
@@ -198,7 +198,7 @@ class DarkStrataCredentialCheck:
     async def check_hash(
         self,
         hash_value: str,
-        options: Optional[CheckOptions] = None,
+        options: CheckOptions | None = None,
     ) -> CheckResult:
         """
         Check if a pre-computed hash has been exposed in a data breach.
@@ -239,9 +239,9 @@ class DarkStrataCredentialCheck:
 
     async def check_batch(
         self,
-        credentials: List[Credential],
-        options: Optional[CheckOptions] = None,
-    ) -> List[CheckResult]:
+        credentials: list[Credential],
+        options: CheckOptions | None = None,
+    ) -> list[CheckResult]:
         """
         Check multiple credentials in a single batch.
 
@@ -292,17 +292,17 @@ class DarkStrataCredentialCheck:
         grouped_by_prefix = group_by_prefix(hashed_credentials)
 
         # Fetch data for each unique prefix
-        prefix_responses: Dict[str, ApiResponse] = {}
+        prefix_responses: dict[str, ApiResponse] = {}
 
         async def fetch_prefix(prefix: str) -> None:
             response = await self._fetch_prefix_data(prefix, options)
             prefix_responses[prefix] = response
 
         # Fetch all prefixes concurrently
-        await asyncio.gather(*[fetch_prefix(prefix) for prefix in grouped_by_prefix.keys()])
+        await asyncio.gather(*[fetch_prefix(prefix) for prefix in grouped_by_prefix])
 
         # Check each credential against its prefix's response
-        results: List[CheckResult] = []
+        results: list[CheckResult] = []
 
         for hashed_cred in hashed_credentials:
             prefix = extract_prefix(hashed_cred.hash)
@@ -387,8 +387,8 @@ class DarkStrataCredentialCheck:
     async def _check_hash_internal(
         self,
         hash_value: str,
-        email: Optional[str],
-        options: Optional[CheckOptions],
+        email: str | None,
+        options: CheckOptions | None,
     ) -> CheckResult:
         """Internal method to check a hash."""
         prefix = extract_prefix(hash_value)
@@ -413,7 +413,7 @@ class DarkStrataCredentialCheck:
     async def _fetch_prefix_data(
         self,
         prefix: str,
-        options: Optional[CheckOptions],
+        options: CheckOptions | None,
     ) -> ApiResponse:
         """Fetch data for a prefix from the API or cache."""
         # Don't use cache when client provides custom options
@@ -442,10 +442,10 @@ class DarkStrataCredentialCheck:
     async def _fetch_with_retry(
         self,
         prefix: str,
-        options: Optional[CheckOptions],
+        options: CheckOptions | None,
     ) -> ApiResponse:
         """Fetch with retry logic."""
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         delay = RetryDefaults.INITIAL_DELAY
 
         for attempt in range(self._config.retries + 1):
@@ -466,7 +466,7 @@ class DarkStrataCredentialCheck:
     async def _fetch(
         self,
         prefix: str,
-        options: Optional[CheckOptions],
+        options: CheckOptions | None,
     ) -> ApiResponse:
         """Perform the actual API request."""
         if not is_valid_prefix(prefix):
@@ -474,7 +474,7 @@ class DarkStrataCredentialCheck:
 
         # Build URL with query parameters
         url = urljoin(self._config.base_url, CREDENTIAL_CHECK_ENDPOINT)
-        params: Dict[str, str] = {"prefix": prefix}
+        params: dict[str, str] = {"prefix": prefix}
 
         if options is not None:
             if options.client_hmac is not None:
@@ -532,7 +532,7 @@ class DarkStrataCredentialCheck:
         headers = self._parse_response_headers(response)
 
         # Parse response body
-        hashes: List[str] = response.json()
+        hashes: list[str] = response.json()
 
         return ApiResponse(hashes=hashes, headers=headers)
 
@@ -557,7 +557,7 @@ class DarkStrataCredentialCheck:
             filter_since=int(filter_since_raw) if filter_since_raw else None,
         )
 
-    def _get_cached_response(self, prefix: str) -> Optional[ApiResponse]:
+    def _get_cached_response(self, prefix: str) -> ApiResponse | None:
         """Get a cached response if available and valid."""
         current_time_window = self._get_current_time_window()
         cache_key = f"{prefix}:{current_time_window}"
@@ -622,7 +622,7 @@ class DarkStrataCredentialCheck:
     def _create_check_result(
         self,
         found: bool,
-        email: Optional[str],
+        email: str | None,
         metadata: CheckMetadata,
     ) -> CheckResult:
         """Create a check result."""
@@ -660,7 +660,7 @@ class DarkStrataCredentialCheck:
         if not password or not isinstance(password, str) or password == "":
             raise ValidationError("Password is required", field="password")
 
-    def _validate_check_options(self, options: Optional[CheckOptions]) -> None:
+    def _validate_check_options(self, options: CheckOptions | None) -> None:
         """Validate check options."""
         if options is None:
             return

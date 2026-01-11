@@ -3,7 +3,7 @@ Error classes for the DarkStrata credential check SDK.
 """
 
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class ErrorCode(str, Enum):
@@ -31,9 +31,9 @@ class DarkStrataError(Exception):
         message: str,
         code: ErrorCode,
         *,
-        status_code: Optional[int] = None,
+        status_code: int | None = None,
         retryable: bool = False,
-        cause: Optional[Exception] = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Create a new DarkStrata error.
@@ -79,7 +79,7 @@ class AuthenticationError(DarkStrataError):
 class ValidationError(DarkStrataError):
     """Error thrown when input validation fails."""
 
-    def __init__(self, message: str, field: Optional[str] = None) -> None:
+    def __init__(self, message: str, field: str | None = None) -> None:
         """
         Create a new validation error.
 
@@ -103,9 +103,9 @@ class ApiError(DarkStrataError):
         message: str,
         status_code: int,
         *,
-        response_body: Optional[Any] = None,
+        response_body: Any | None = None,
         retryable: bool = False,
-        cause: Optional[Exception] = None,
+        cause: Exception | None = None,
     ) -> None:
         """
         Create a new API error.
@@ -130,7 +130,7 @@ class ApiError(DarkStrataError):
 class TimeoutError(DarkStrataError):
     """Error thrown when a request times out."""
 
-    def __init__(self, timeout_seconds: float, cause: Optional[Exception] = None) -> None:
+    def __init__(self, timeout_seconds: float, cause: Exception | None = None) -> None:
         """
         Create a new timeout error.
 
@@ -150,7 +150,7 @@ class TimeoutError(DarkStrataError):
 class NetworkError(DarkStrataError):
     """Error thrown when a network error occurs."""
 
-    def __init__(self, message: str, cause: Optional[Exception] = None) -> None:
+    def __init__(self, message: str, cause: Exception | None = None) -> None:
         """
         Create a new network error.
 
@@ -169,7 +169,7 @@ class NetworkError(DarkStrataError):
 class RateLimitError(DarkStrataError):
     """Error thrown when rate limit is exceeded."""
 
-    def __init__(self, retry_after: Optional[int] = None) -> None:
+    def __init__(self, retry_after: int | None = None) -> None:
         """
         Create a new rate limit error.
 

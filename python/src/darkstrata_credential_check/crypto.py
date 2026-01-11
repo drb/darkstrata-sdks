@@ -6,7 +6,7 @@ import hashlib
 import hmac
 import re
 import secrets
-from typing import Dict, List, TypeVar
+from typing import TypeVar
 
 from .constants import PREFIX_LENGTH
 
@@ -84,7 +84,7 @@ def extract_prefix(hash_value: str) -> str:
     return hash_value[:PREFIX_LENGTH].upper()
 
 
-def is_hash_in_set(hash_value: str, hmac_key: str, hmac_hashes: List[str]) -> bool:
+def is_hash_in_set(hash_value: str, hmac_key: str, hmac_hashes: list[str]) -> bool:
     """
     Check if a hash is in a set of HMAC'd hashes.
 
@@ -180,7 +180,7 @@ class HashedCredential:
         self.hash = hash_value
 
 
-def group_by_prefix(credentials: List[HashedCredential]) -> Dict[str, List[HashedCredential]]:
+def group_by_prefix(credentials: list[HashedCredential]) -> dict[str, list[HashedCredential]]:
     """
     Group credentials by their hash prefix for efficient batch processing.
 
@@ -190,7 +190,7 @@ def group_by_prefix(credentials: List[HashedCredential]) -> Dict[str, List[Hashe
     Returns:
         Dictionary mapping prefix to list of credentials.
     """
-    groups: Dict[str, List[HashedCredential]] = {}
+    groups: dict[str, list[HashedCredential]] = {}
 
     for credential in credentials:
         prefix = extract_prefix(credential.hash)

@@ -1,20 +1,19 @@
 """Tests for DarkStrataCredentialCheck client."""
 
-import pytest
 import httpx
+import pytest
 import respx
 
 from darkstrata_credential_check import (
-    DarkStrataCredentialCheck,
-    AuthenticationError,
-    ValidationError,
     ApiError,
-    RateLimitError,
-    Credential,
+    AuthenticationError,
     CheckOptions,
+    Credential,
+    DarkStrataCredentialCheck,
+    RateLimitError,
+    ValidationError,
 )
 from darkstrata_credential_check.crypto import hash_credential, hmac_sha256
-
 
 API_KEY = "test-api-key"
 BASE_URL = "https://api.test.com/v1/"
