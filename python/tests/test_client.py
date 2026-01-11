@@ -468,18 +468,14 @@ class TestCheckOptionsClientHmac:
         """Should raise ValidationError for clientHmac that is too short."""
         async with DarkStrataCredentialCheck(api_key=API_KEY) as client:
             with pytest.raises(ValidationError):
-                await client.check(
-                    "user@test.com", "password", CheckOptions(client_hmac="a" * 63)
-                )
+                await client.check("user@test.com", "password", CheckOptions(client_hmac="a" * 63))
 
     @pytest.mark.asyncio
     async def test_should_raise_validation_error_for_non_hex_client_hmac(self) -> None:
         """Should raise ValidationError for non-hex clientHmac."""
         async with DarkStrataCredentialCheck(api_key=API_KEY) as client:
             with pytest.raises(ValidationError):
-                await client.check(
-                    "user@test.com", "password", CheckOptions(client_hmac="g" * 64)
-                )
+                await client.check("user@test.com", "password", CheckOptions(client_hmac="g" * 64))
 
     @respx.mock
     @pytest.mark.asyncio

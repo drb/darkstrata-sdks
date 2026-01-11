@@ -691,8 +691,7 @@ class DarkStrataCredentialCheck:
             elif isinstance(options.since, int):
                 if options.since < 0:
                     raise ValidationError(
-                        "Since parameter must be a positive integer "
-                        "(epoch day or Unix timestamp)",
+                        "Since parameter must be a positive integer (epoch day or Unix timestamp)",
                         field="since",
                     )
             else:
