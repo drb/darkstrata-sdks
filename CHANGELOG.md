@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.3.0...v2.0.0) (2026-01-11)
+
+
+### Bug Fixes
+
+* normalize email (trim + lowercase) before hashing in all SDKs ([5b412c5](https://github.com/darkstrata/darkstrata-sdks/commit/5b412c5395bd1b3e9e15ba90c9dfa0f1cb92e11b))
+
+
+### BREAKING CHANGES
+
+* Hashes for emails with uppercase characters will change.
+
 # [1.3.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.3...v1.3.0) (2026-01-08)
 
 
