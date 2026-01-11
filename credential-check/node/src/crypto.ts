@@ -5,6 +5,7 @@ import { PREFIX_LENGTH } from './constants.js';
  * Compute SHA-256 hash of a credential pair.
  *
  * The credential is formatted as `email:password` before hashing.
+ * The email is normalized (lowercased and trimmed) before hashing.
  *
  * @param email - The email address or username
  * @param password - The password
@@ -17,7 +18,8 @@ import { PREFIX_LENGTH } from './constants.js';
  * ```
  */
 export function hashCredential(email: string, password: string): string {
-  const credential = `${email}:${password}`;
+  const normalizedEmail = email.trim().toLowerCase();
+  const credential = `${normalizedEmail}:${password}`;
   return createHash('sha256').update(credential).digest('hex').toUpperCase();
 }
 

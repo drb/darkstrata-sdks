@@ -35,8 +35,10 @@ pub fn hmac_sha256(message: &str, key: &str) -> Result<String> {
 }
 
 /// Hash a credential (email:password) using SHA-256.
+/// The email is normalized (lowercased and trimmed) before hashing.
 pub fn hash_credential(email: &str, password: &str) -> String {
-    let credential = format!("{}:{}", email, password);
+    let normalized_email = email.trim().to_lowercase();
+    let credential = format!("{}:{}", normalized_email, password);
     sha256(&credential)
 }
 

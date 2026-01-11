@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace DarkStrata.CredentialCheck;
 
 /// <summary>
@@ -5,6 +7,18 @@ namespace DarkStrata.CredentialCheck;
 /// </summary>
 public sealed class CheckResult
 {
+    public CheckResult()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public CheckResult(bool found, string email, CheckMetadata metadata)
+    {
+        Found = found;
+        Email = email;
+        Metadata = metadata;
+    }
+
     /// <summary>
     /// Whether the credential was found in a data breach.
     /// True means the credential has been compromised.

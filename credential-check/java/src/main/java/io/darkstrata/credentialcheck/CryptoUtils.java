@@ -27,13 +27,15 @@ public final class CryptoUtils {
 
     /**
      * Hash a credential (email:password) using SHA-256.
+     * The email is normalized (lowercased and trimmed) before hashing.
      *
      * @param email    the email address
      * @param password the password
      * @return uppercase hex-encoded SHA-256 hash
      */
     public static String hashCredential(String email, String password) {
-        return sha256(email + ":" + password);
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
+        return sha256(normalizedEmail + ":" + password);
     }
 
     /**

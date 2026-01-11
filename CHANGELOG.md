@@ -1,3 +1,37 @@
+## [2.0.2](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.1...v2.0.2) (2026-01-11)
+
+
+### Bug Fixes
+
+* python linting checks fixed ([6793ec8](https://github.com/darkstrata/darkstrata-sdks/commit/6793ec8ceed5df9ae510fb112cafca134a4a7583))
+
+## [2.0.1](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.0...v2.0.1) (2026-01-11)
+
+
+### Bug Fixes
+
+* all Python lint checks pass now. The fixes include: ([af9e381](https://github.com/darkstrata/darkstrata-sdks/commit/af9e381d474adaa87c05a63a0352b9abc7721b96))
+* removed the unused pytest imports from both files ([79427cb](https://github.com/darkstrata/darkstrata-sdks/commit/79427cb502275ea4996cebfc102f7ebfc46acd4c))
+
+# [2.0.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.3.0...v2.0.0) (2026-01-11)
+
+
+### Bug Fixes
+
+* normalize email (trim + lowercase) before hashing in all SDKs ([5b412c5](https://github.com/darkstrata/darkstrata-sdks/commit/5b412c5395bd1b3e9e15ba90c9dfa0f1cb92e11b))
+
+
+### BREAKING CHANGES
+
+* Hashes for emails with uppercase characters will change.
+
+# [1.3.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.3...v1.3.0) (2026-01-08)
+
+
+### Features
+
+* **csharp:** add .NET Framework support via multi-targeting ([f70d744](https://github.com/darkstrata/darkstrata-sdks/commit/f70d7446f221eea69c22044c3db2aa63f581931e))
+
 ## [1.2.3](https://github.com/darkstrata/darkstrata-sdks/compare/v1.2.2...v1.2.3) (2026-01-05)
 
 

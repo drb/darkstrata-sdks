@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -696,6 +697,21 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
 
     private sealed record ResolvedConfig
     {
+        public ResolvedConfig()
+        {
+        }
+
+        [SetsRequiredMembers]
+        public ResolvedConfig(string apiKey, string baseUrl, TimeSpan timeout, int retries, bool enableCaching, TimeSpan cacheTtl)
+        {
+            ApiKey = apiKey;
+            BaseUrl = baseUrl;
+            Timeout = timeout;
+            Retries = retries;
+            EnableCaching = enableCaching;
+            CacheTtl = cacheTtl;
+        }
+
         public required string ApiKey { get; init; }
         public required string BaseUrl { get; init; }
         public required TimeSpan Timeout { get; init; }
@@ -708,6 +724,21 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
 
     private sealed record ApiResponseHeaders
     {
+        public ApiResponseHeaders()
+        {
+        }
+
+        [SetsRequiredMembers]
+        public ApiResponseHeaders(string prefix, string hmacKey, HmacSource hmacSource, int? timeWindow, int totalResults, int? filterSince)
+        {
+            Prefix = prefix;
+            HmacKey = hmacKey;
+            HmacSource = hmacSource;
+            TimeWindow = timeWindow;
+            TotalResults = totalResults;
+            FilterSince = filterSince;
+        }
+
         public required string Prefix { get; init; }
         public required string HmacKey { get; init; }
         public required HmacSource HmacSource { get; init; }

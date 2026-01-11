@@ -27,13 +27,15 @@ public static partial class CryptoUtils
     /// <summary>
     /// Compute SHA-256 hash of a credential pair.
     /// The credential is formatted as "email:password" before hashing.
+    /// The email is normalized (lowercased and trimmed) before hashing.
     /// </summary>
     /// <param name="email">The email address or username.</param>
     /// <param name="password">The password.</param>
     /// <returns>The SHA-256 hash as an uppercase hexadecimal string.</returns>
     public static string HashCredential(string email, string password)
     {
-        var credential = $"{email}:{password}";
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var credential = $"{normalizedEmail}:{password}";
         return Sha256(credential);
     }
 

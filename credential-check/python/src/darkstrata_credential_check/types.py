@@ -4,7 +4,7 @@ Type definitions for the DarkStrata credential check SDK.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Literal, Optional, Union
+from typing import Literal
 
 from .constants import (
     DEFAULT_BASE_URL,
@@ -80,8 +80,8 @@ class CheckOptions:
             - datetime object: Will be converted to epoch day
     """
 
-    client_hmac: Optional[str] = None
-    since: Optional[Union[int, datetime]] = None
+    client_hmac: str | None = None
+    since: int | datetime | None = None
 
 
 @dataclass
@@ -122,8 +122,8 @@ class CheckMetadata:
     hmac_source: Literal["server", "client"]
     cached_result: bool
     checked_at: datetime
-    time_window: Optional[int] = None
-    filter_since: Optional[int] = None
+    time_window: int | None = None
+    filter_since: int | None = None
 
 
 @dataclass
@@ -163,8 +163,8 @@ class ApiResponseHeaders:
     hmac_key: str
     hmac_source: Literal["server", "client"]
     total_results: int
-    time_window: Optional[int] = None
-    filter_since: Optional[int] = None
+    time_window: int | None = None
+    filter_since: int | None = None
 
 
 @dataclass
@@ -179,7 +179,7 @@ class ApiResponse:
         headers: Response headers from the API.
     """
 
-    hashes: List[str]
+    hashes: list[str]
     headers: ApiResponseHeaders
 
 

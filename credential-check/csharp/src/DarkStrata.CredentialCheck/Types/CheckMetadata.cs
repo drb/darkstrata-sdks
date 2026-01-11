@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DarkStrata.CredentialCheck;
 
@@ -7,6 +8,22 @@ namespace DarkStrata.CredentialCheck;
 /// </summary>
 public sealed class CheckMetadata
 {
+    public CheckMetadata()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public CheckMetadata(string prefix, int totalResults, HmacSource hmacSource, int? timeWindow, int? filterSince, bool cachedResult, DateTimeOffset checkedAt)
+    {
+        Prefix = prefix;
+        TotalResults = totalResults;
+        HmacSource = hmacSource;
+        TimeWindow = timeWindow;
+        FilterSince = filterSince;
+        CachedResult = cachedResult;
+        CheckedAt = checkedAt;
+    }
+
     /// <summary>
     /// The 5-character hash prefix used for the k-anonymity lookup.
     /// </summary>
