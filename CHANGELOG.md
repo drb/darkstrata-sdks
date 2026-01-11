@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.1...v2.0.2) (2026-01-11)
+
+
+### Bug Fixes
+
+* python linting checks fixed ([6793ec8](https://github.com/darkstrata/darkstrata-sdks/commit/6793ec8ceed5df9ae510fb112cafca134a4a7583))
+
 ## [2.0.1](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.0...v2.0.1) (2026-01-11)
 
 
