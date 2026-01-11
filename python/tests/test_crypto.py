@@ -1,7 +1,5 @@
 """Tests for crypto utilities."""
 
-import pytest
-
 from darkstrata_credential_check.crypto import (
     extract_prefix,
     group_by_prefix,

@@ -1,7 +1,5 @@
 """Tests for error classes."""
 
-import pytest
-
 from darkstrata_credential_check.errors import (
     ApiError,
     AuthenticationError,
