@@ -1,3 +1,11 @@
+## [2.0.1](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.0...v2.0.1) (2026-01-11)
+
+
+### Bug Fixes
+
+* all Python lint checks pass now. The fixes include: ([af9e381](https://github.com/darkstrata/darkstrata-sdks/commit/af9e381d474adaa87c05a63a0352b9abc7721b96))
+* removed the unused pytest imports from both files ([79427cb](https://github.com/darkstrata/darkstrata-sdks/commit/79427cb502275ea4996cebfc102f7ebfc46acd4c))
+
 # [2.0.0](https://github.com/darkstrata/darkstrata-sdks/compare/v1.3.0...v2.0.0) (2026-01-11)
 
 

@@ -1,6 +1,6 @@
 [package]
 name = "darkstrata-credential-check"
-version = "2.0.0"
+version = "2.0.1"
 edition = "2021"
 authors = ["DarkStrata <support@darkstrata.io>"]
 description = "Rust SDK for DarkStrata credential breach checking API with k-anonymity privacy protection"
