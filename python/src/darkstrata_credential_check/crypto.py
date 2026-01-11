@@ -18,6 +18,7 @@ def hash_credential(email: str, password: str) -> str:
     Compute SHA-256 hash of a credential pair.
 
     The credential is formatted as `email:password` before hashing.
+    The email is normalized (lowercased and trimmed) before hashing.
 
     Args:
         email: The email address or username.
@@ -30,7 +31,8 @@ def hash_credential(email: str, password: str) -> str:
         >>> hash = hash_credential('user@example.com', 'password123')
         >>> print(hash)  # '5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8...'
     """
-    credential = f"{email}:{password}"
+    normalized_email = email.strip().lower()
+    credential = f"{normalized_email}:{password}"
     return hashlib.sha256(credential.encode()).hexdigest().upper()
 
 

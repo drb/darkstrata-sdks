@@ -57,10 +57,10 @@ describe('crypto utilities', () => {
       expect(hash1).not.toBe(hash2);
     });
 
-    it('should be case-sensitive for email', () => {
+    it('should normalize email to lowercase', () => {
       const hash1 = hashCredential('User@test.com', 'pass');
       const hash2 = hashCredential('user@test.com', 'pass');
-      expect(hash1).not.toBe(hash2);
+      expect(hash1).toBe(hash2);
     });
 
     it('should handle special characters in password', () => {

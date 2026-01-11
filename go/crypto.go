@@ -12,9 +12,11 @@ import (
 var hexPattern = regexp.MustCompile(`^[a-fA-F0-9]+$`)
 
 // HashCredential computes the SHA-256 hash of email:password
+// The email is normalized (lowercased and trimmed) before hashing.
 // Returns uppercase hex string to match server expectations
 func HashCredential(email, password string) string {
-	input := email + ":" + password
+	normalizedEmail := strings.ToLower(strings.TrimSpace(email))
+	input := normalizedEmail + ":" + password
 	return SHA256(input)
 }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DarkStrata.CredentialCheck;
 
@@ -7,6 +8,21 @@ namespace DarkStrata.CredentialCheck;
 /// </summary>
 public sealed class ClientOptions
 {
+    public ClientOptions()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public ClientOptions(string apiKey, string? baseUrl = null, TimeSpan? timeout = null, int? retries = null, bool? enableCaching = null, TimeSpan? cacheTtl = null)
+    {
+        ApiKey = apiKey;
+        BaseUrl = baseUrl;
+        Timeout = timeout;
+        Retries = retries;
+        EnableCaching = enableCaching;
+        CacheTtl = cacheTtl;
+    }
+
     /// <summary>
     /// Your DarkStrata API key (JWT token).
     /// Obtain this from your DarkStrata dashboard.

@@ -66,11 +66,11 @@ class TestHashCredential:
         hash2 = hash_credential("user2@test.com", "pass")
         assert hash1 != hash2
 
-    def test_should_be_case_sensitive_for_email(self) -> None:
-        """Should be case-sensitive for email."""
+    def test_should_normalize_email_to_lowercase(self) -> None:
+        """Should normalize email to lowercase."""
         hash1 = hash_credential("User@test.com", "pass")
         hash2 = hash_credential("user@test.com", "pass")
-        assert hash1 != hash2
+        assert hash1 == hash2
 
     def test_should_handle_special_characters_in_password(self) -> None:
         """Should handle special characters in password."""
