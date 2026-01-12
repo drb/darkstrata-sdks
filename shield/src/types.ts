@@ -10,7 +10,7 @@ export interface ShieldConfig {
   apiKey: string;
   /** Customer HMAC salt for user ID hashing */
   salt: string;
-  /** Base URL for Shield API (default: https://shield.darkstrata.io) */
+  /** Base URL for Shield API (default: https://api.darkstrata.io) */
   baseUrl?: string;
   /** Request timeout in milliseconds (default: 10000) */
   timeout?: number;
