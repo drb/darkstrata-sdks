@@ -1,0 +1,141 @@
+name: Splunk TA Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+      dry-run:
+        description: 'Dry run (do not create release artifacts)'
+        required: false
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: splunk-ta
+
+jobs:
+  build-and-package:
+    name: Build and Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install splunk-add-on-ucc-framework splunk-appinspect pytest pytest-cov pytest-mock responses requests
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            # Strip 'v' prefix if present
+            VERSION="${VERSION#v}"
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update version in files
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Update app.manifest
+          jq --arg ver "$VERSION" '.info.id.version = $ver' app.manifest > app.manifest.tmp && mv app.manifest.tmp app.manifest
+
+          # Update globalConfig.json
+          jq --arg ver "$VERSION" '.meta.version = $ver' globalConfig.json > globalConfig.json.tmp && mv globalConfig.json.tmp globalConfig.json
+
+          # Update app.conf
+          sed -i "s/^version = .*/version = $VERSION/" package/default/app.conf
+
+      - name: Build TA package
+        run: ucc-gen build --source package
+
+      - name: Run AppInspect validation
+        run: |
+          cd output
+          splunk-appinspect inspect TA-darkstrata \
+            --mode precert \
+            --included-tags cloud \
+            --output-file appinspect-results.json
+
+      - name: Check AppInspect results
+        run: |
+          cd output
+          python3 << 'EOF'
+          import json
+          import sys
+
+          with open('appinspect-results.json', 'r') as f:
+              results = json.load(f)
+
+          summary = results.get('summary', {})
+          failures = summary.get('failure', 0)
+          errors = summary.get('error', 0)
+
+          if failures > 0 or errors > 0:
+              print("❌ AppInspect validation failed!")
+              sys.exit(1)
+          print("✅ AppInspect validation passed!")
+          EOF
+
+      - name: Create tarball
+        if: ${{ !inputs.dry-run }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          cd output
+          tar -czvf "TA-darkstrata-${VERSION}.tar.gz" TA-darkstrata
+
+          # Calculate checksums
+          sha256sum "TA-darkstrata-${VERSION}.tar.gz" > "TA-darkstrata-${VERSION}.tar.gz.sha256"
+
+      - name: Upload release artifact
+        if: ${{ !inputs.dry-run }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: TA-darkstrata-${{ steps.version.outputs.version }}
+          path: |
+            splunk-ta/output/TA-darkstrata-*.tar.gz
+            splunk-ta/output/TA-darkstrata-*.tar.gz.sha256
+            splunk-ta/output/appinspect-results.json
+          retention-days: 90
+
+      - name: Attach to GitHub Release
+        if: github.event_name == 'release' && !inputs.dry-run
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            splunk-ta/output/TA-darkstrata-*.tar.gz
+            splunk-ta/output/TA-darkstrata-*.tar.gz.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [build-and-package]
+    if: github.event_name == 'release'
+    steps:
+      - name: Post release notes
+        run: |
+          echo "📦 Splunk TA Release ${{ github.event.release.tag_name }} complete!"
+          echo ""
+          echo "Download the package from the GitHub Release page."
+          echo ""
+          echo "Note: Splunkbase submission requires manual upload."
+          echo "Visit https://splunkbase.splunk.com/app/submit to upload the .tar.gz package."

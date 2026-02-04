@@ -1,0 +1,38 @@
+{
+  "name": "@darkstrata/splunk-ta",
+  "version": "1.0.0",
+  "description": "DarkStrata Technology Add-on for Splunk Enterprise Security",
+  "private": true,
+  "scripts": {
+    "build": "ucc-gen build --source package",
+    "clean": "rm -rf output",
+    "test": "pytest tests/ -v",
+    "test:cov": "pytest tests/ --cov=package/bin --cov-report=html",
+    "lint": "ruff check package/bin tests",
+    "lint:fix": "ruff check --fix package/bin tests",
+    "format": "ruff format package/bin tests",
+    "format:check": "ruff format --check package/bin tests",
+    "typecheck": "mypy package/bin",
+    "validate": "splunk-appinspect inspect output/TA-darkstrata --mode precert --included-tags cloud",
+    "package": "cd output && tar -czvf TA-darkstrata-$(cat ../app.manifest | jq -r '.info.id.version').tar.gz TA-darkstrata"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/darkstrata/darkstrata-sdks.git",
+    "directory": "splunk-ta"
+  },
+  "keywords": [
+    "splunk",
+    "siem",
+    "threat-intelligence",
+    "darkstrata",
+    "credential-exposure",
+    "stix"
+  ],
+  "author": "DarkStrata <support@darkstrata.io>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/darkstrata/darkstrata-sdks/issues"
+  },
+  "homepage": "https://darkstrata.io/docs/integrations/splunk"
+}

@@ -1,0 +1,193 @@
+name: Splunk TA CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'splunk-ta/**'
+      - '.github/workflows/splunk-ta-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'splunk-ta/**'
+      - '.github/workflows/splunk-ta-ci.yml'
+
+defaults:
+  run:
+    working-directory: splunk-ta
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install ruff mypy types-requests
+
+      - name: Run Ruff linter
+        run: ruff check package/bin tests
+
+      - name: Run Ruff formatter check
+        run: ruff format --check package/bin tests
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install mypy types-requests
+
+      - name: Run mypy
+        run: mypy package/bin --ignore-missing-imports
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov pytest-mock responses requests
+
+      - name: Run tests
+        run: pytest tests/ -v --cov=package/bin --cov-report=xml
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          files: splunk-ta/coverage.xml
+          flags: splunk-ta
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  build:
+    name: Build TA Package
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install UCC Framework
+        run: pip install splunk-add-on-ucc-framework
+
+      - name: Build TA package
+        run: ucc-gen build --source package
+
+      - name: Verify build output
+        run: |
+          test -d output/TA-darkstrata || exit 1
+          echo "Build output structure:"
+          find output -type f | head -50
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TA-darkstrata-build
+          path: splunk-ta/output/TA-darkstrata/
+          retention-days: 7
+
+  validate:
+    name: AppInspect Validation
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: TA-darkstrata-build
+          path: splunk-ta/output/TA-darkstrata
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install AppInspect
+        run: pip install splunk-appinspect
+
+      - name: Run AppInspect (precert mode)
+        run: |
+          cd output
+          splunk-appinspect inspect TA-darkstrata \
+            --mode precert \
+            --included-tags cloud \
+            --output-file appinspect-results.json \
+            || true
+
+      - name: Upload AppInspect results
+        uses: actions/upload-artifact@v4
+        with:
+          name: appinspect-results
+          path: splunk-ta/output/appinspect-results.json
+          retention-days: 30
+
+      - name: Check AppInspect results
+        run: |
+          cd output
+          # Parse results and check for failures
+          python3 << 'EOF'
+          import json
+          import sys
+
+          with open('appinspect-results.json', 'r') as f:
+              results = json.load(f)
+
+          summary = results.get('summary', {})
+          failures = summary.get('failure', 0)
+          errors = summary.get('error', 0)
+          warnings = summary.get('warning', 0)
+
+          print(f"AppInspect Results:")
+          print(f"  Failures: {failures}")
+          print(f"  Errors: {errors}")
+          print(f"  Warnings: {warnings}")
+          print(f"  Passed: {summary.get('success', 0)}")
+          print(f"  Skipped: {summary.get('skipped', 0)}")
+
+          if failures > 0 or errors > 0:
+              print("\n❌ AppInspect validation failed!")
+              # Print failure details
+              for report in results.get('reports', []):
+                  for group in report.get('groups', []):
+                      for check in group.get('checks', []):
+                          if check.get('result') in ('failure', 'error'):
+                              print(f"\n{check.get('name')}:")
+                              for msg in check.get('messages', []):
+                                  print(f"  - {msg.get('message')}")
+              sys.exit(1)
+          else:
+              print("\n✅ AppInspect validation passed!")
+          EOF
