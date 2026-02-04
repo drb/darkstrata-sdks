@@ -57,5 +57,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Proxy passwords encrypted
 - No secrets committed to package
 
-[Unreleased]: https://github.com/darkstrata/darkstrata-sdks/compare/splunk-ta-v1.0.0...HEAD
-[1.0.0]: https://github.com/darkstrata/darkstrata-sdks/releases/tag/splunk-ta-v1.0.0
+[Unreleased]: https://github.com/drb/darkstrata-sdks/compare/splunk-ta-v1.0.0...HEAD
+[1.0.0]: https://github.com/drb/darkstrata-sdks/releases/tag/splunk-ta-v1.0.0

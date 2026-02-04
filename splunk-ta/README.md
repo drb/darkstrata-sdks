@@ -139,7 +139,7 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
 
 ### Option 2: Manual Installation
 
-1. Download the latest release from [GitHub Releases](https://github.com/darkstrata/darkstrata-sdks/releases)
+1. Download the latest release from [GitHub Releases](https://github.com/drb/darkstrata-sdks/releases?q=splunk-ta)
    ```
    TA-darkstrata-x.x.x.tar.gz
    ```
@@ -162,7 +162,7 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
 
 For Splunk Cloud deployments:
 
-1. Download the package from GitHub Releases
+1. Download the Splunk TA package from [GitHub Releases](https://github.com/drb/darkstrata-sdks/releases?q=splunk-ta)
 2. Submit to Splunk Cloud via the **Install App** feature
 3. Wait for Splunk Cloud Operations to approve and deploy
 
@@ -1123,7 +1123,7 @@ sha256sum TA-darkstrata-1.0.0.tar.gz > TA-darkstrata-1.0.0.tar.gz.sha256
 
 ### Getting Help
 
-- **GitHub Issues**: [https://github.com/darkstrata/darkstrata-sdks/issues](https://github.com/darkstrata/darkstrata-sdks/issues)
+- **GitHub Issues**: [https://github.com/drb/darkstrata-sdks/issues](https://github.com/drb/darkstrata-sdks/issues)
 - **Email Support**: support@darkstrata.io
 - **Slack Community**: [https://darkstrata.io/slack](https://darkstrata.io/slack)
 

@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/darkstrata/darkstrata-sdks.git",
+    "url": "https://github.com/drb/darkstrata-sdks.git",
     "directory": "splunk-ta"
   },
   "keywords": [
@@ -32,7 +32,7 @@
   "author": "DarkStrata <support@darkstrata.io>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/darkstrata/darkstrata-sdks/issues"
+    "url": "https://github.com/drb/darkstrata-sdks/issues"
   },
   "homepage": "https://darkstrata.io/docs/integrations/splunk"
 }
