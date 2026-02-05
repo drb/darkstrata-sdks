@@ -19,6 +19,8 @@ on:
       # Java SDK
       - 'sdks/java/src/**'
       - 'sdks/java/pom.xml'
+      # Go SDK
+      - 'sdks/go/**'
       # Workflow itself
       - '.github/workflows/release.yml'
       - 'release.config.js'
@@ -254,3 +256,35 @@ jobs:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+  publish-go:
+    name: Publish Go SDK
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    runs-on: ubuntu-latest
+    environment: go-publish
+    defaults:
+      run:
+        working-directory: sdks/go
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Run tests
+        run: go test -v -race ./...
+
+      - name: Tag Go module
+        run: |
+          VERSION="v${{ needs.release.outputs.new_release_version }}"
+          git tag "sdks/go/${VERSION}"
+          git push origin "sdks/go/${VERSION}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

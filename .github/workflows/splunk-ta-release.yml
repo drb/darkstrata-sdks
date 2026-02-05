@@ -75,24 +75,7 @@ jobs:
             --output-file appinspect-results.json
 
       - name: Check AppInspect results
-        run: |
-          cd output
-          python3 << 'EOF'
-          import json
-          import sys
-
-          with open('appinspect-results.json', 'r') as f:
-              results = json.load(f)
-
-          summary = results.get('summary', {})
-          failures = summary.get('failure', 0)
-          errors = summary.get('error', 0)
-
-          if failures > 0 or errors > 0:
-              print("❌ AppInspect validation failed!")
-              sys.exit(1)
-          print("✅ AppInspect validation passed!")
-          EOF
+        run: python3 ${{ github.workspace }}/scripts/check-appinspect.py output/appinspect-results.json
 
       - name: Create tarball
         if: ${{ !inputs.dry-run }}

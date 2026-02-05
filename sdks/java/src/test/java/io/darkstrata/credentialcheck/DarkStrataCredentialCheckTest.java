@@ -281,4 +281,79 @@ class DarkStrataCredentialCheckTest {
         assertEquals(19000L, metadata.getFilterSince());
         assertNotNull(metadata.getCheckedAt());
     }
+
+    @Test
+    @DisplayName("check with clientHmac option sends correct query parameter")
+    void checkWithClientHmacSendsCorrectQueryParameter() throws Exception {
+        String hmacKey = "A".repeat(64);
+        String clientHmac = "B".repeat(64);
+
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader("X-Prefix", "12345")
+                .setHeader("X-HMAC-Key", hmacKey)
+                .setHeader("X-HMAC-Source", "client")
+                .setHeader("X-Total-Results", "0")
+                .setBody("[]")
+        );
+
+        CheckOptions options = CheckOptions.builder()
+                .clientHmac(clientHmac)
+                .build();
+
+        client.check("test@example.com", "password123", options);
+
+        RecordedRequest request = mockServer.takeRequest();
+        assertTrue(request.getPath().contains("clientHmac=" + clientHmac),
+                "Request should contain clientHmac parameter, got: " + request.getPath());
+    }
+
+    @Test
+    @DisplayName("check with since option sends correct query parameter")
+    void checkWithSinceSendsCorrectQueryParameter() throws Exception {
+        String hmacKey = "A".repeat(64);
+
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader("X-Prefix", "12345")
+                .setHeader("X-HMAC-Key", hmacKey)
+                .setHeader("X-HMAC-Source", "server")
+                .setHeader("X-Total-Results", "0")
+                .setBody("[]")
+        );
+
+        CheckOptions options = CheckOptions.builder()
+                .since(java.time.LocalDate.of(2023, 6, 15))
+                .build();
+
+        client.check("test@example.com", "password123", options);
+
+        RecordedRequest request = mockServer.takeRequest();
+        assertTrue(request.getPath().contains("since="),
+                "Request should contain since parameter, got: " + request.getPath());
+    }
+
+    @Test
+    @DisplayName("checkHash with mock server returning found result")
+    void checkHashWithMockServerFound() throws Exception {
+        String email = "test@example.com";
+        String password = "password123";
+        String hash = CryptoUtils.hashCredential(email, password);
+        String hmacKey = "A".repeat(64);
+        String hmacOfHash = CryptoUtils.hmacSha256(hash, hmacKey);
+
+        mockServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader("X-Prefix", CryptoUtils.extractPrefix(hash))
+                .setHeader("X-HMAC-Key", hmacKey)
+                .setHeader("X-HMAC-Source", "server")
+                .setHeader("X-Total-Results", "1")
+                .setBody("[\"" + hmacOfHash + "\"]")
+        );
+
+        CheckResult result = client.checkHash(hash);
+
+        assertTrue(result.isFound());
+        assertEquals("[hash-only]", result.getCredential().getEmail());
+    }
 }

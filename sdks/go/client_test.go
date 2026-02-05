@@ -382,3 +382,132 @@ func TestCacheValidation(t *testing.T) {
 		t.Error("Expired entry should be invalid")
 	}
 }
+
+func TestMockAPICheckHash(t *testing.T) {
+	testEmail := "test@example.com"
+	testPassword := "password123"
+	testHash := HashCredential(testEmail, testPassword)
+	hmacKey := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+	expectedHMAC, _ := HMACSHA256(testHash, hmacKey)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Verify prefix parameter
+		prefix := r.URL.Query().Get("prefix")
+		if len(prefix) != 5 {
+			t.Errorf("Prefix length = %d, want 5", len(prefix))
+		}
+
+		w.Header().Set(HeaderPrefix, prefix)
+		w.Header().Set(HeaderHMACKey, hmacKey)
+		w.Header().Set(HeaderHMACSource, "server")
+		w.Header().Set(HeaderTotalResults, "1")
+
+		json.NewEncoder(w).Encode([]string{expectedHMAC})
+	}))
+	defer server.Close()
+
+	client, _ := NewClient(ClientOptions{
+		APIKey:  "test-key",
+		BaseURL: server.URL + "/",
+	})
+
+	result, err := client.CheckHash(context.Background(), testHash, nil)
+	if err != nil {
+		t.Fatalf("CheckHash() error = %v", err)
+	}
+
+	if !result.Found {
+		t.Error("CheckHash() found = false, want true")
+	}
+	if result.Credential.Email != "" {
+		t.Errorf("CheckHash() email = %q, want empty", result.Credential.Email)
+	}
+}
+
+func TestMockAPICheckBatch(t *testing.T) {
+	hmacKey := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+	credentials := []Credential{
+		{Email: "user1@example.com", Password: "pass1"},
+		{Email: "user2@example.com", Password: "pass2"},
+	}
+
+	// Precompute hash for user1 so we can mark it as found
+	user1Hash := HashCredential("user1@example.com", "pass1")
+	user1HMAC, _ := HMACSHA256(user1Hash, hmacKey)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		prefix := r.URL.Query().Get("prefix")
+
+		w.Header().Set(HeaderPrefix, prefix)
+		w.Header().Set(HeaderHMACKey, hmacKey)
+		w.Header().Set(HeaderHMACSource, "server")
+		w.Header().Set(HeaderTotalResults, "1")
+
+		// Return user1's HMAC in every prefix response so user1 is found
+		json.NewEncoder(w).Encode([]string{user1HMAC})
+	}))
+	defer server.Close()
+
+	client, _ := NewClient(ClientOptions{
+		APIKey:  "test-key",
+		BaseURL: server.URL + "/",
+	})
+
+	results, err := client.CheckBatch(context.Background(), credentials, nil)
+	if err != nil {
+		t.Fatalf("CheckBatch() error = %v", err)
+	}
+
+	if len(results) != 2 {
+		t.Fatalf("CheckBatch() returned %d results, want 2", len(results))
+	}
+
+	// user1 should be found
+	if !results[0].Found {
+		t.Error("CheckBatch() user1 found = false, want true")
+	}
+	if results[0].Credential.Email != "user1@example.com" {
+		t.Errorf("CheckBatch() user1 email = %q, want user1@example.com", results[0].Credential.Email)
+	}
+
+	// user2 should not be found (different hash)
+	if results[1].Found {
+		t.Error("CheckBatch() user2 found = true, want false")
+	}
+	if results[1].Credential.Email != "user2@example.com" {
+		t.Errorf("CheckBatch() user2 email = %q, want user2@example.com", results[1].Credential.Email)
+	}
+}
+
+func TestMockAPIServerError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error": "internal server error"}`))
+	}))
+	defer server.Close()
+
+	client, _ := NewClient(ClientOptions{
+		APIKey:  "test-key",
+		BaseURL: server.URL + "/",
+		Retries: 0,
+	})
+
+	_, err := client.Check(context.Background(), "test@example.com", "password", nil)
+	if err == nil {
+		t.Fatal("Check() should error with 500")
+	}
+
+	apiErr, ok := err.(*APIError)
+	if !ok {
+		t.Errorf("Expected APIError, got %T: %v", err, err)
+	} else {
+		if apiErr.StatusCode != 500 {
+			t.Errorf("StatusCode = %d, want 500", apiErr.StatusCode)
+		}
+		if !apiErr.Retryable {
+			t.Error("500 error should be retryable")
+		}
+	}
+}

@@ -54,6 +54,14 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
     /// <param name="options">Client configuration options.</param>
     /// <exception cref="ValidationException">If the API key is missing or invalid.</exception>
     public DarkStrataCredentialCheck(ClientOptions options)
+        : this(options, null)
+    {
+    }
+
+    /// <summary>
+    /// Internal constructor for testing with a custom HttpMessageHandler.
+    /// </summary>
+    internal DarkStrataCredentialCheck(ClientOptions options, HttpMessageHandler? handler)
     {
         ValidateOptions(options);
 
@@ -67,11 +75,9 @@ public sealed partial class DarkStrataCredentialCheck : IDisposable
             CacheTtl = options.CacheTtl ?? Constants.DefaultCacheTtl
         };
 
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(_config.BaseUrl),
-            Timeout = _config.Timeout
-        };
+        _httpClient = handler is not null
+            ? new HttpClient(handler) { BaseAddress = new Uri(_config.BaseUrl), Timeout = _config.Timeout }
+            : new HttpClient { BaseAddress = new Uri(_config.BaseUrl), Timeout = _config.Timeout };
 
         _httpClient.DefaultRequestHeaders.Add(Constants.ApiKeyHeader, _config.ApiKey);
         _httpClient.DefaultRequestHeaders.UserAgent.Add(

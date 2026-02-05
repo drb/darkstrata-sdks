@@ -10,6 +10,7 @@
  * - sdks/python/pyproject.toml
  * - sdks/rust/Cargo.toml
  * - sdks/rust/Cargo.lock
+ * - sdks/go/constants.go
  */
 
 const fs = require('fs');
@@ -88,6 +89,18 @@ try {
   console.log(`  Updated sdks/rust/Cargo.lock`);
 } catch (error) {
   console.warn(`  Warning: Failed to update Cargo.lock: ${error.message}`);
+}
+
+// Update Go constants.go
+const goConstantsPath = path.join(rootDir, 'sdks', 'go', 'constants.go');
+if (fs.existsSync(goConstantsPath)) {
+  let goContent = fs.readFileSync(goConstantsPath, 'utf8');
+  goContent = goContent.replace(
+    /Version\s*=\s*"[^"]+"/,
+    `Version = "${version}"`
+  );
+  fs.writeFileSync(goConstantsPath, goContent);
+  console.log(`  Updated sdks/go/constants.go`);
 }
 
 // Update C# .csproj
