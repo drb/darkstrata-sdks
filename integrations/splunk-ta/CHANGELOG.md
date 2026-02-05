@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2024-XX-XX
+## [1.1.0] - 2026-02-05
 
 ### Added
 
@@ -29,10 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated README with comprehensive Phase 3 documentation
+- Updated README with comprehensive documentation
 - Enhanced globalConfig.json with Performance settings tab
 
-## [1.0.0] - 2024-XX-XX
+## [1.0.0] - 2026-02-05
 
 ### Added
 
@@ -57,5 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Proxy passwords encrypted
 - No secrets committed to package
 
-[Unreleased]: https://github.com/drb/darkstrata-sdks/compare/splunk-ta-v1.0.0...HEAD
+[Unreleased]: https://github.com/drb/darkstrata-sdks/compare/splunk-ta-v1.1.0...HEAD
+[1.1.0]: https://github.com/drb/darkstrata-sdks/compare/splunk-ta-v1.0.0...splunk-ta-v1.1.0
 [1.0.0]: https://github.com/drb/darkstrata-sdks/releases/tag/splunk-ta-v1.0.0
