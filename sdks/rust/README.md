@@ -244,4 +244,4 @@ cargo test --all-features
 
 ## License
 
-Apache License 2.0 - see [LICENSE](../LICENSE) for details.
+Apache License 2.0 - see [LICENSE](../../LICENSE) for details.

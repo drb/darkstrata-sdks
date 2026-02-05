@@ -5,7 +5,7 @@ Check if credentials have been exposed in data breaches using k-anonymity to pro
 ## Installation
 
 ```bash
-go get github.com/darkstrata/darkstrata-sdks/go
+go get github.com/darkstrata/darkstrata-sdks/sdks/go
 ```
 
 ## Quick Start
@@ -19,7 +19,7 @@ import (
     "log"
     "os"
 
-    credentialcheck "github.com/darkstrata/darkstrata-sdks/go"
+    credentialcheck "github.com/darkstrata/darkstrata-sdks/sdks/go"
 )
 
 func main() {

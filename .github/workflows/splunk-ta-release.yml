@@ -17,7 +17,7 @@ on:
 
 defaults:
   run:
-    working-directory: splunk-ta
+    working-directory: integrations/splunk-ta
 
 jobs:
   build-and-package:
@@ -110,9 +110,9 @@ jobs:
         with:
           name: TA-darkstrata-${{ steps.version.outputs.version }}
           path: |
-            splunk-ta/output/TA-darkstrata-*.tar.gz
-            splunk-ta/output/TA-darkstrata-*.tar.gz.sha256
-            splunk-ta/output/appinspect-results.json
+            integrations/splunk-ta/output/TA-darkstrata-*.tar.gz
+            integrations/splunk-ta/output/TA-darkstrata-*.tar.gz.sha256
+            integrations/splunk-ta/output/appinspect-results.json
           retention-days: 90
 
       - name: Attach to GitHub Release
@@ -120,8 +120,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            splunk-ta/output/TA-darkstrata-*.tar.gz
-            splunk-ta/output/TA-darkstrata-*.tar.gz.sha256
+            integrations/splunk-ta/output/TA-darkstrata-*.tar.gz
+            integrations/splunk-ta/output/TA-darkstrata-*.tar.gz.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

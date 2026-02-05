@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	credentialcheck "github.com/darkstrata/darkstrata-sdks/go"
+	credentialcheck "github.com/darkstrata/darkstrata-sdks/sdks/go"
 )
 
 func main() {

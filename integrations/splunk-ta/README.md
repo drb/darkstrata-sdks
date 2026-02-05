@@ -1140,7 +1140,7 @@ When reporting issues, please include:
 
 ## Licence
 
-Apache License 2.0 - see [LICENCE](../LICENSE) for details.
+Apache License 2.0 - see [LICENCE](../../LICENSE) for details.
 
 ---
 

@@ -5,20 +5,20 @@ on:
     branches: [main]
     paths:
       # Node.js SDK
-      - 'node/src/**'
-      - 'node/package.json'
+      - 'sdks/node/src/**'
+      - 'sdks/node/package.json'
       # Python SDK
-      - 'python/src/**'
-      - 'python/pyproject.toml'
+      - 'sdks/python/src/**'
+      - 'sdks/python/pyproject.toml'
       # Rust SDK
-      - 'rust/src/**'
-      - 'rust/Cargo.toml'
+      - 'sdks/rust/src/**'
+      - 'sdks/rust/Cargo.toml'
       # C# SDK
-      - 'csharp/src/**'
-      - 'csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj'
+      - 'sdks/csharp/src/**'
+      - 'sdks/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj'
       # Java SDK
-      - 'java/src/**'
-      - 'java/pom.xml'
+      - 'sdks/java/src/**'
+      - 'sdks/java/pom.xml'
       # Workflow itself
       - '.github/workflows/release.yml'
       - 'release.config.js'
@@ -83,7 +83,7 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: node
+        working-directory: sdks/node
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,7 +101,7 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
-          cache-dependency-path: node/pnpm-lock.yaml
+          cache-dependency-path: sdks/node/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -127,7 +127,7 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: python
+        working-directory: sdks/python
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -154,7 +154,7 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: python/dist/
+          packages-dir: sdks/python/dist/
 
   publish-rust:
     name: Publish Rust SDK
@@ -164,7 +164,7 @@ jobs:
     environment: crates-publish
     defaults:
       run:
-        working-directory: rust
+        working-directory: sdks/rust
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -188,7 +188,7 @@ jobs:
     environment: nuget-publish
     defaults:
       run:
-        working-directory: csharp
+        working-directory: sdks/csharp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -223,7 +223,7 @@ jobs:
     environment: maven-publish
     defaults:
       run:
-        working-directory: java
+        working-directory: sdks/java
     steps:
       - name: Checkout
         uses: actions/checkout@v4

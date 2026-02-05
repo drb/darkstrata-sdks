@@ -6,10 +6,10 @@
  * Usage: node scripts/update-versions.js <version>
  *
  * Updates:
- * - node/package.json
- * - python/pyproject.toml
- * - rust/Cargo.toml
- * - rust/Cargo.lock
+ * - sdks/node/package.json
+ * - sdks/python/pyproject.toml
+ * - sdks/rust/Cargo.toml
+ * - sdks/rust/Cargo.lock
  */
 
 const fs = require('fs');
@@ -34,14 +34,14 @@ const rootDir = path.resolve(__dirname, '..');
 console.log(`Updating all SDKs to version ${version}...`);
 
 // Update Node.js package.json
-const nodePackagePath = path.join(rootDir, 'node', 'package.json');
+const nodePackagePath = path.join(rootDir, 'sdks', 'node', 'package.json');
 const nodePackage = JSON.parse(fs.readFileSync(nodePackagePath, 'utf8'));
 nodePackage.version = version;
 fs.writeFileSync(nodePackagePath, JSON.stringify(nodePackage, null, 2) + '\n');
-console.log(`  Updated node/package.json`);
+console.log(`  Updated sdks/node/package.json`);
 
 // Update Python pyproject.toml
-const pythonPath = path.join(rootDir, 'python', 'pyproject.toml');
+const pythonPath = path.join(rootDir, 'sdks', 'python', 'pyproject.toml');
 let pythonContent = fs.readFileSync(pythonPath, 'utf8');
 pythonContent = pythonContent.replace(
   /^version\s*=\s*"[^"]+"/m,
@@ -53,10 +53,10 @@ pythonContent = pythonContent.replace(
   `SDK_VERSION = "${version}"`
 );
 fs.writeFileSync(pythonPath, pythonContent);
-console.log(`  Updated python/pyproject.toml`);
+console.log(`  Updated sdks/python/pyproject.toml`);
 
 // Update Python constants.py SDK_VERSION
-const pythonConstantsPath = path.join(rootDir, 'python', 'src', 'darkstrata_credential_check', 'constants.py');
+const pythonConstantsPath = path.join(rootDir, 'sdks', 'python', 'src', 'darkstrata_credential_check', 'constants.py');
 if (fs.existsSync(pythonConstantsPath)) {
   let constantsContent = fs.readFileSync(pythonConstantsPath, 'utf8');
   constantsContent = constantsContent.replace(
@@ -64,11 +64,11 @@ if (fs.existsSync(pythonConstantsPath)) {
     `SDK_VERSION = "${version}"`
   );
   fs.writeFileSync(pythonConstantsPath, constantsContent);
-  console.log(`  Updated python/src/darkstrata_credential_check/constants.py`);
+  console.log(`  Updated sdks/python/src/darkstrata_credential_check/constants.py`);
 }
 
 // Update Rust Cargo.toml
-const rustPath = path.join(rootDir, 'rust', 'Cargo.toml');
+const rustPath = path.join(rootDir, 'sdks', 'rust', 'Cargo.toml');
 let rustContent = fs.readFileSync(rustPath, 'utf8');
 // Update the version in the [package] section (first occurrence)
 rustContent = rustContent.replace(
@@ -76,22 +76,22 @@ rustContent = rustContent.replace(
   `version = "${version}"`
 );
 fs.writeFileSync(rustPath, rustContent);
-console.log(`  Updated rust/Cargo.toml`);
+console.log(`  Updated sdks/rust/Cargo.toml`);
 
 // Update Rust Cargo.lock by running cargo check
 try {
-  console.log(`  Updating rust/Cargo.lock...`);
+  console.log(`  Updating sdks/rust/Cargo.lock...`);
   execSync('cargo check', {
-    cwd: path.join(rootDir, 'rust'),
+    cwd: path.join(rootDir, 'sdks', 'rust'),
     stdio: 'inherit',
   });
-  console.log(`  Updated rust/Cargo.lock`);
+  console.log(`  Updated sdks/rust/Cargo.lock`);
 } catch (error) {
   console.warn(`  Warning: Failed to update Cargo.lock: ${error.message}`);
 }
 
 // Update C# .csproj
-const csharpPath = path.join(rootDir, 'csharp', 'src', 'DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.csproj');
+const csharpPath = path.join(rootDir, 'sdks', 'csharp', 'src', 'DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.csproj');
 if (fs.existsSync(csharpPath)) {
   let csharpContent = fs.readFileSync(csharpPath, 'utf8');
   csharpContent = csharpContent.replace(
@@ -99,11 +99,11 @@ if (fs.existsSync(csharpPath)) {
     `<Version>${version}</Version>`
   );
   fs.writeFileSync(csharpPath, csharpContent);
-  console.log(`  Updated csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj`);
+  console.log(`  Updated sdks/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj`);
 }
 
 // Update C# Constants.cs SDK_VERSION
-const csharpConstantsPath = path.join(rootDir, 'csharp', 'src', 'DarkStrata.CredentialCheck', 'Constants.cs');
+const csharpConstantsPath = path.join(rootDir, 'sdks', 'csharp', 'src', 'DarkStrata.CredentialCheck', 'Constants.cs');
 if (fs.existsSync(csharpConstantsPath)) {
   let constantsContent = fs.readFileSync(csharpConstantsPath, 'utf8');
   constantsContent = constantsContent.replace(
@@ -111,7 +111,7 @@ if (fs.existsSync(csharpConstantsPath)) {
     `SdkVersion = "${version}"`
   );
   fs.writeFileSync(csharpConstantsPath, constantsContent);
-  console.log(`  Updated csharp/src/DarkStrata.CredentialCheck/Constants.cs`);
+  console.log(`  Updated sdks/csharp/src/DarkStrata.CredentialCheck/Constants.cs`);
 }
 
 console.log(`\nAll SDKs updated to version ${version}`);

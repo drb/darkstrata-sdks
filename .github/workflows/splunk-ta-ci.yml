@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'splunk-ta/**'
+      - 'integrations/splunk-ta/**'
       - '.github/workflows/splunk-ta-ci.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'splunk-ta/**'
+      - 'integrations/splunk-ta/**'
       - '.github/workflows/splunk-ta-ci.yml'
 
 defaults:
   run:
-    working-directory: splunk-ta
+    working-directory: integrations/splunk-ta
 
 jobs:
   lint:
@@ -81,7 +81,7 @@ jobs:
         if: matrix.python-version == '3.12'
         uses: codecov/codecov-action@v4
         with:
-          files: splunk-ta/coverage.xml
+          files: integrations/splunk-ta/coverage.xml
           flags: splunk-ta
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -114,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: TA-darkstrata-build
-          path: splunk-ta/output/TA-darkstrata/
+          path: integrations/splunk-ta/output/TA-darkstrata/
           retention-days: 7
 
   validate:
@@ -128,7 +128,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: TA-darkstrata-build
-          path: splunk-ta/output/TA-darkstrata
+          path: integrations/splunk-ta/output/TA-darkstrata
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -151,7 +151,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: appinspect-results
-          path: splunk-ta/output/appinspect-results.json
+          path: integrations/splunk-ta/output/appinspect-results.json
           retention-days: 30
 
       - name: Check AppInspect results
