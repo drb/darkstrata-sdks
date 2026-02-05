@@ -60,7 +60,7 @@ class TestDarkStrataAPIClient:
             f"{self.api_base_url}/stix/indicators",
             json={"type": "bundle", "objects": []},
             status=200,
-            match=[matchers.header_matcher({"Authorization": "Bearer test-api-key-12345"})],
+            match=[matchers.header_matcher({"x-api-key": "test-api-key-12345"})],
         )
 
         self.client._make_request("/stix/indicators")

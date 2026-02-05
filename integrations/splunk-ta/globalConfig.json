@@ -1,523 +1,546 @@
 {
-  "pages": {
-    "configuration": {
-      "tabs": [
-        {
-          "name": "account",
-          "title": "Account",
-          "table": {
-            "actions": ["edit", "delete", "clone"],
-            "header": [
-              {
-                "label": "Name",
-                "field": "name"
-              },
-              {
-                "label": "API Base URL",
-                "field": "api_base_url"
-              }
-            ]
-          },
-          "entity": [
-            {
-              "type": "text",
-              "label": "Account Name",
-              "validators": [
+    "pages": {
+        "configuration": {
+            "tabs": [
                 {
-                  "type": "string",
-                  "errorMsg": "Length of Account Name should be between 1 and 50",
-                  "minLength": 1,
-                  "maxLength": 50
+                    "name": "account",
+                    "title": "Account",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "API Base URL",
+                                "field": "api_base_url"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Account Name",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Account Name must be between 1 and 50 characters.",
+                                    "minLength": 1,
+                                    "maxLength": 50
+                                },
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Account Name must start with a letter and contain only alphanumeric characters and underscores",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this DarkStrata account configuration",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "API Base URL",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "API Base URL is required and must be under 200 characters.",
+                                    "minLength": 1,
+                                    "maxLength": 200
+                                },
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "API Base URL must be a valid HTTPS URL",
+                                    "pattern": "^https://[\\w.-]+(?:/[\\w.-]*)*$"
+                                }
+                            ],
+                            "field": "api_base_url",
+                            "help": "DarkStrata API base URL (e.g., https://api.darkstrata.io/v1)",
+                            "required": true,
+                            "defaultValue": "https://api.darkstrata.io/v1"
+                        },
+                        {
+                            "type": "text",
+                            "label": "API Key",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "API Key is required. Supports both API keys and JWT tokens (up to 8192 characters).",
+                                    "minLength": 1,
+                                    "maxLength": 8192
+                                }
+                            ],
+                            "field": "api_key",
+                            "help": "Your DarkStrata API key. Obtain this from your DarkStrata dashboard under Settings > API Keys.",
+                            "required": true,
+                            "encrypted": true
+                        }
+                    ]
                 },
                 {
-                  "type": "regex",
-                  "errorMsg": "Account Name must start with a letter and contain only alphanumeric characters and underscores",
-                  "pattern": "^[a-zA-Z]\\w*$"
-                }
-              ],
-              "field": "name",
-              "help": "A unique name for this DarkStrata account configuration",
-              "required": true
-            },
-            {
-              "type": "text",
-              "label": "API Base URL",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "API Base URL is required",
-                  "minLength": 1,
-                  "maxLength": 200
+                    "type": "loggingTab",
+                    "label": "Log Level",
+                    "help": "Set the logging level for the DarkStrata modular inputs"
                 },
                 {
-                  "type": "regex",
-                  "errorMsg": "API Base URL must be a valid HTTPS URL",
-                  "pattern": "^https://[\\w.-]+(?:/[\\w.-]*)*$"
-                }
-              ],
-              "field": "api_base_url",
-              "help": "DarkStrata API base URL (e.g., https://api.darkstrata.io/v1)",
-              "required": true,
-              "defaultValue": "https://api.darkstrata.io/v1"
-            },
-            {
-              "type": "text",
-              "label": "API Key",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "API Key is required",
-                  "minLength": 1,
-                  "maxLength": 200
+                    "name": "proxy",
+                    "title": "Proxy",
+                    "entity": [
+                        {
+                            "type": "checkbox",
+                            "label": "Enable Proxy",
+                            "field": "proxy_enabled"
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Proxy Type",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "http",
+                                        "label": "HTTP"
+                                    },
+                                    {
+                                        "value": "socks5",
+                                        "label": "SOCKS5"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "http",
+                            "field": "proxy_type"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Proxy Host",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Max host length is 4096",
+                                    "minLength": 0,
+                                    "maxLength": 4096
+                                }
+                            ],
+                            "field": "proxy_url"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Proxy Port",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        65535
+                                    ],
+                                    "errorMsg": "Port must be between 1 and 65535"
+                                }
+                            ],
+                            "field": "proxy_port"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Proxy Username",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Max username length is 50",
+                                    "minLength": 0,
+                                    "maxLength": 50
+                                }
+                            ],
+                            "field": "proxy_username"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Proxy Password",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Max password length is 8192",
+                                    "minLength": 0,
+                                    "maxLength": 8192
+                                }
+                            ],
+                            "field": "proxy_password",
+                            "encrypted": true
+                        }
+                    ]
                 },
                 {
-                  "type": "custom",
-                  "validatorName": "darkstrata_api_validator"
+                    "name": "performance",
+                    "title": "Performance",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Batch Size",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        10,
+                                        500
+                                    ],
+                                    "errorMsg": "Batch size must be between 10 and 500"
+                                }
+                            ],
+                            "defaultValue": "100",
+                            "field": "batch_size",
+                            "help": "Number of records to fetch per API request (10-500). Higher values reduce API calls but increase memory usage."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Request Timeout (seconds)",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        10,
+                                        300
+                                    ],
+                                    "errorMsg": "Timeout must be between 10 and 300 seconds"
+                                }
+                            ],
+                            "defaultValue": "30",
+                            "field": "request_timeout",
+                            "help": "Timeout for individual API requests in seconds."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Max Retries",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        0,
+                                        5
+                                    ],
+                                    "errorMsg": "Max retries must be between 0 and 5"
+                                }
+                            ],
+                            "defaultValue": "3",
+                            "field": "max_retries",
+                            "help": "Number of retry attempts for failed API requests. Uses exponential backoff."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Rate Limit (requests/minute)",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        0,
+                                        600
+                                    ],
+                                    "errorMsg": "Rate limit must be between 0 (unlimited) and 600"
+                                }
+                            ],
+                            "defaultValue": "0",
+                            "field": "rate_limit",
+                            "help": "Maximum API requests per minute. Set to 0 for no limit. Recommended: 60 for shared environments."
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Enable Connection Pooling",
+                            "defaultValue": true,
+                            "field": "connection_pooling",
+                            "help": "Reuse HTTP connections for better performance. Disable if experiencing connection issues."
+                        },
+                        {
+                            "type": "text",
+                            "label": "Max Concurrent Connections",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        20
+                                    ],
+                                    "errorMsg": "Max connections must be between 1 and 20"
+                                }
+                            ],
+                            "defaultValue": "5",
+                            "field": "max_connections",
+                            "help": "Maximum number of concurrent HTTP connections to DarkStrata API."
+                        }
+                    ]
                 }
-              ],
-              "field": "api_key",
-              "help": "Your DarkStrata API key. Obtain this from your DarkStrata dashboard under Settings > API Keys.",
-              "required": true,
-              "encrypted": true
-            }
-          ]
+            ],
+            "title": "Configuration",
+            "description": "Configure your DarkStrata account settings, proxy, and performance options"
         },
-        {
-          "name": "logging",
-          "title": "Logging",
-          "entity": [
-            {
-              "type": "singleSelect",
-              "label": "Log Level",
-              "options": {
-                "disableSearch": true,
-                "autoCompleteFields": [
-                  { "value": "DEBUG", "label": "DEBUG" },
-                  { "value": "INFO", "label": "INFO" },
-                  { "value": "WARNING", "label": "WARNING" },
-                  { "value": "ERROR", "label": "ERROR" },
-                  { "value": "CRITICAL", "label": "CRITICAL" }
+        "inputs": {
+            "services": [
+                {
+                    "name": "darkstrata_indicators",
+                    "title": "DarkStrata Indicators",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this input",
+                            "required": true
+                        },
+                        {
+                            "type": "interval",
+                            "label": "Interval",
+                            "defaultValue": "300",
+                            "field": "interval",
+                            "help": "Collection interval in seconds. Minimum recommended: 300 (5 minutes)",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Index",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of index name should be between 1 and 80",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                }
+                            ],
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "field": "index",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select the DarkStrata account to use",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Confidence Threshold",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        0,
+                                        100
+                                    ],
+                                    "errorMsg": "Confidence threshold must be between 0 and 100"
+                                }
+                            ],
+                            "defaultValue": "0",
+                            "field": "confidence_threshold",
+                            "help": "Minimum STIX confidence score (0-100). Only indicators with confidence >= this value will be collected. Maps to DarkStrata threat score: 20=Info, 40=Low, 60=Medium, 80=High, 100=Critical"
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Hash Emails",
+                            "defaultValue": false,
+                            "field": "hash_emails",
+                            "help": "Hash email addresses using SHA-256 for privacy compliance"
+                        }
+                    ]
+                },
+                {
+                    "name": "darkstrata_alerts",
+                    "title": "DarkStrata Alerts",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this input",
+                            "required": true
+                        },
+                        {
+                            "type": "interval",
+                            "label": "Interval",
+                            "defaultValue": "300",
+                            "field": "interval",
+                            "help": "Collection interval in seconds. Minimum recommended: 300 (5 minutes)",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Index",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of index name should be between 1 and 80",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                }
+                            ],
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "field": "index",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select the DarkStrata account to use",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Detail Level",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "summary",
+                                        "label": "Summary"
+                                    },
+                                    {
+                                        "value": "full",
+                                        "label": "Full"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "full",
+                            "field": "detail",
+                            "help": "Level of detail to include in alert reports"
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Include Identities",
+                            "defaultValue": true,
+                            "field": "include_identities",
+                            "help": "Include STIX Identity objects for each compromised credential"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Confidence Threshold",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        0,
+                                        100
+                                    ],
+                                    "errorMsg": "Confidence threshold must be between 0 and 100"
+                                }
+                            ],
+                            "defaultValue": "0",
+                            "field": "confidence_threshold",
+                            "help": "Minimum STIX confidence score (0-100). Only indicators with confidence >= this value will be collected."
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Hash Emails",
+                            "defaultValue": false,
+                            "field": "hash_emails",
+                            "help": "Hash email addresses using SHA-256 for privacy compliance"
+                        }
+                    ]
+                }
+            ],
+            "title": "Inputs",
+            "description": "Configure data inputs for DarkStrata threat intelligence",
+            "table": {
+                "actions": [
+                    "edit",
+                    "delete",
+                    "clone"
+                ],
+                "header": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Account",
+                        "field": "account"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled"
+                    }
+                ],
+                "moreInfo": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled",
+                        "mapping": {
+                            "true": "Disabled",
+                            "false": "Enabled"
+                        }
+                    }
                 ]
-              },
-              "defaultValue": "INFO",
-              "field": "loglevel",
-              "help": "Set the logging level for the DarkStrata modular inputs"
             }
-          ]
-        },
-        {
-          "name": "proxy",
-          "title": "Proxy",
-          "entity": [
-            {
-              "type": "checkbox",
-              "label": "Enable Proxy",
-              "field": "proxy_enabled"
-            },
-            {
-              "type": "singleSelect",
-              "label": "Proxy Type",
-              "options": {
-                "disableSearch": true,
-                "autoCompleteFields": [
-                  { "value": "http", "label": "HTTP" },
-                  { "value": "socks5", "label": "SOCKS5" }
-                ]
-              },
-              "defaultValue": "http",
-              "field": "proxy_type"
-            },
-            {
-              "type": "text",
-              "label": "Proxy Host",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "Max host length is 4096",
-                  "minLength": 0,
-                  "maxLength": 4096
-                }
-              ],
-              "field": "proxy_url"
-            },
-            {
-              "type": "text",
-              "label": "Proxy Port",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [1, 65535],
-                  "errorMsg": "Port must be between 1 and 65535"
-                }
-              ],
-              "field": "proxy_port"
-            },
-            {
-              "type": "text",
-              "label": "Proxy Username",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "Max username length is 50",
-                  "minLength": 0,
-                  "maxLength": 50
-                }
-              ],
-              "field": "proxy_username"
-            },
-            {
-              "type": "text",
-              "label": "Proxy Password",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "Max password length is 8192",
-                  "minLength": 0,
-                  "maxLength": 8192
-                }
-              ],
-              "field": "proxy_password",
-              "encrypted": true
-            }
-          ]
-        },
-        {
-          "name": "performance",
-          "title": "Performance",
-          "entity": [
-            {
-              "type": "text",
-              "label": "Batch Size",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [10, 500],
-                  "errorMsg": "Batch size must be between 10 and 500"
-                }
-              ],
-              "defaultValue": "100",
-              "field": "batch_size",
-              "help": "Number of records to fetch per API request (10-500). Higher values reduce API calls but increase memory usage."
-            },
-            {
-              "type": "text",
-              "label": "Request Timeout (seconds)",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [10, 300],
-                  "errorMsg": "Timeout must be between 10 and 300 seconds"
-                }
-              ],
-              "defaultValue": "30",
-              "field": "request_timeout",
-              "help": "Timeout for individual API requests in seconds."
-            },
-            {
-              "type": "text",
-              "label": "Max Retries",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [0, 5],
-                  "errorMsg": "Max retries must be between 0 and 5"
-                }
-              ],
-              "defaultValue": "3",
-              "field": "max_retries",
-              "help": "Number of retry attempts for failed API requests. Uses exponential backoff."
-            },
-            {
-              "type": "text",
-              "label": "Rate Limit (requests/minute)",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [0, 600],
-                  "errorMsg": "Rate limit must be between 0 (unlimited) and 600"
-                }
-              ],
-              "defaultValue": "0",
-              "field": "rate_limit",
-              "help": "Maximum API requests per minute. Set to 0 for no limit. Recommended: 60 for shared environments."
-            },
-            {
-              "type": "checkbox",
-              "label": "Enable Connection Pooling",
-              "defaultValue": true,
-              "field": "connection_pooling",
-              "help": "Reuse HTTP connections for better performance. Disable if experiencing connection issues."
-            },
-            {
-              "type": "text",
-              "label": "Max Concurrent Connections",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [1, 20],
-                  "errorMsg": "Max connections must be between 1 and 20"
-                }
-              ],
-              "defaultValue": "5",
-              "field": "max_connections",
-              "help": "Maximum number of concurrent HTTP connections to DarkStrata API."
-            }
-          ]
         }
-      ],
-      "title": "Configuration",
-      "description": "Configure your DarkStrata account settings, proxy, and performance options"
     },
-    "inputs": {
-      "services": [
-        {
-          "name": "darkstrata_indicators",
-          "title": "DarkStrata Indicators",
-          "entity": [
-            {
-              "type": "text",
-              "label": "Name",
-              "validators": [
-                {
-                  "type": "regex",
-                  "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores",
-                  "pattern": "^[a-zA-Z]\\w*$"
-                },
-                {
-                  "type": "string",
-                  "errorMsg": "Length of input name should be between 1 and 100",
-                  "minLength": 1,
-                  "maxLength": 100
-                }
-              ],
-              "field": "name",
-              "help": "A unique name for this input",
-              "required": true
-            },
-            {
-              "type": "interval",
-              "label": "Interval",
-              "defaultValue": "300",
-              "field": "interval",
-              "help": "Collection interval in seconds. Minimum recommended: 300 (5 minutes)",
-              "required": true
-            },
-            {
-              "type": "singleSelect",
-              "label": "Index",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "Length of index name should be between 1 and 80",
-                  "minLength": 1,
-                  "maxLength": 80
-                }
-              ],
-              "defaultValue": "default",
-              "options": {
-                "endpointUrl": "data/indexes",
-                "denyList": "^_.*$",
-                "createSearchChoice": true
-              },
-              "field": "index",
-              "required": true
-            },
-            {
-              "type": "singleSelect",
-              "label": "Account",
-              "options": {
-                "referenceName": "account"
-              },
-              "help": "Select the DarkStrata account to use",
-              "field": "account",
-              "required": true
-            },
-            {
-              "type": "text",
-              "label": "Confidence Threshold",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [0, 100],
-                  "errorMsg": "Confidence threshold must be between 0 and 100"
-                }
-              ],
-              "defaultValue": "0",
-              "field": "confidence_threshold",
-              "help": "Minimum STIX confidence score (0-100). Only indicators with confidence >= this value will be collected. Maps to DarkStrata threat score: 20=Info, 40=Low, 60=Medium, 80=High, 100=Critical"
-            },
-            {
-              "type": "checkbox",
-              "label": "Hash Emails",
-              "defaultValue": false,
-              "field": "hash_emails",
-              "help": "Hash email addresses using SHA-256 for privacy compliance"
-            }
-          ]
-        },
-        {
-          "name": "darkstrata_alerts",
-          "title": "DarkStrata Alerts",
-          "entity": [
-            {
-              "type": "text",
-              "label": "Name",
-              "validators": [
-                {
-                  "type": "regex",
-                  "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores",
-                  "pattern": "^[a-zA-Z]\\w*$"
-                },
-                {
-                  "type": "string",
-                  "errorMsg": "Length of input name should be between 1 and 100",
-                  "minLength": 1,
-                  "maxLength": 100
-                }
-              ],
-              "field": "name",
-              "help": "A unique name for this input",
-              "required": true
-            },
-            {
-              "type": "interval",
-              "label": "Interval",
-              "defaultValue": "300",
-              "field": "interval",
-              "help": "Collection interval in seconds. Minimum recommended: 300 (5 minutes)",
-              "required": true
-            },
-            {
-              "type": "singleSelect",
-              "label": "Index",
-              "validators": [
-                {
-                  "type": "string",
-                  "errorMsg": "Length of index name should be between 1 and 80",
-                  "minLength": 1,
-                  "maxLength": 80
-                }
-              ],
-              "defaultValue": "default",
-              "options": {
-                "endpointUrl": "data/indexes",
-                "denyList": "^_.*$",
-                "createSearchChoice": true
-              },
-              "field": "index",
-              "required": true
-            },
-            {
-              "type": "singleSelect",
-              "label": "Account",
-              "options": {
-                "referenceName": "account"
-              },
-              "help": "Select the DarkStrata account to use",
-              "field": "account",
-              "required": true
-            },
-            {
-              "type": "singleSelect",
-              "label": "Detail Level",
-              "options": {
-                "disableSearch": true,
-                "autoCompleteFields": [
-                  { "value": "summary", "label": "Summary" },
-                  { "value": "full", "label": "Full" }
-                ]
-              },
-              "defaultValue": "full",
-              "field": "detail",
-              "help": "Level of detail to include in alert reports"
-            },
-            {
-              "type": "checkbox",
-              "label": "Include Identities",
-              "defaultValue": true,
-              "field": "include_identities",
-              "help": "Include STIX Identity objects for each compromised credential"
-            },
-            {
-              "type": "text",
-              "label": "Confidence Threshold",
-              "validators": [
-                {
-                  "type": "number",
-                  "range": [0, 100],
-                  "errorMsg": "Confidence threshold must be between 0 and 100"
-                }
-              ],
-              "defaultValue": "0",
-              "field": "confidence_threshold",
-              "help": "Minimum STIX confidence score (0-100). Only indicators with confidence >= this value will be collected."
-            },
-            {
-              "type": "checkbox",
-              "label": "Hash Emails",
-              "defaultValue": false,
-              "field": "hash_emails",
-              "help": "Hash email addresses using SHA-256 for privacy compliance"
-            }
-          ]
-        }
-      ],
-      "title": "Inputs",
-      "description": "Configure data inputs for DarkStrata threat intelligence",
-      "table": {
-        "actions": ["edit", "enable", "delete", "clone"],
-        "header": [
-          {
-            "label": "Name",
-            "field": "name"
-          },
-          {
-            "label": "Account",
-            "field": "account"
-          },
-          {
-            "label": "Interval",
-            "field": "interval"
-          },
-          {
-            "label": "Index",
-            "field": "index"
-          },
-          {
-            "label": "Status",
-            "field": "disabled"
-          }
-        ],
-        "moreInfo": [
-          {
-            "label": "Name",
-            "field": "name"
-          },
-          {
-            "label": "Interval",
-            "field": "interval"
-          },
-          {
-            "label": "Index",
-            "field": "index"
-          },
-          {
-            "label": "Status",
-            "field": "disabled",
-            "mapping": {
-              "true": "Disabled",
-              "false": "Enabled"
-            }
-          }
-        ]
-      }
+    "meta": {
+        "name": "TA-darkstrata",
+        "restRoot": "ta_darkstrata",
+        "version": "2.0.2+6fd53e5",
+        "displayName": "DarkStrata Technology Add-on for Splunk",
+        "schemaVersion": "0.0.9",
+        "_uccVersion": "5.52.0"
     }
-  },
-  "meta": {
-    "name": "TA-darkstrata",
-    "restRoot": "ta_darkstrata",
-    "version": "1.0.0",
-    "displayName": "DarkStrata Technology Add-on for Splunk",
-    "schemaVersion": "0.0.3"
-  }
 }
