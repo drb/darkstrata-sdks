@@ -29,7 +29,7 @@ The simplest integration uses Splunk SOAR's built-in HTTP app:
 Name: darkstrata_api
 Base URL: https://api.darkstrata.io/v1
 Headers:
-  Authorization: Bearer YOUR_API_KEY
+  X-Api-Key: YOUR_API_KEY
   Content-Type: application/json
   Accept: application/json
 ```
@@ -40,7 +40,6 @@ Headers:
 |--------|-------------|----------|-------------|
 | List Alerts | GET | `/alerts` | Get list of credential exposure alerts |
 | Get Alert | GET | `/alerts/{id}` | Get alert details |
-| Acknowledge Alert | POST | `/alerts/{id}/acknowledge` | Acknowledge an alert |
 | Update Alert Status | PATCH | `/alerts/{id}` | Change alert status |
 | Get Indicators | GET | `/stix/indicators` | Get STIX indicators |
 
@@ -58,10 +57,10 @@ For platforms requiring a custom connector, use the DarkStrata REST API directly
 
 ### API Authentication
 
-All API requests require Bearer token authentication:
+All API requests require API key authentication:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
+curl -H "X-Api-Key: YOUR_API_KEY" \
      -H "Accept: application/json" \
      https://api.darkstrata.io/v1/alerts
 ```
@@ -81,11 +80,6 @@ Parameters:
 #### Get Alert Details
 ```
 GET /v1/alerts/{alert_id}
-```
-
-#### Acknowledge Alert
-```
-POST /v1/alerts/{alert_id}/acknowledge
 ```
 
 #### Update Alert Status
@@ -202,7 +196,7 @@ Create commands in your integration:
 
 ```bash
 # Test API connectivity
-curl -v -H "Authorization: Bearer YOUR_API_KEY" \
+curl -v -H "X-Api-Key: YOUR_API_KEY" \
      https://api.darkstrata.io/v1/alerts?limit=1
 ```
 

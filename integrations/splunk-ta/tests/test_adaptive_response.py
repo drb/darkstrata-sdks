@@ -3,7 +3,7 @@ Unit tests for DarkStrata Adaptive Response actions.
 
 Tests cover:
 - Action base class functionality
-- Acknowledge alert action
+- Update alert status action
 - Close alert action
 - Reopen alert action
 - Get alert details action
@@ -159,8 +159,8 @@ class TestDarkStrataActionBase:
         """Test POST API request."""
         responses.add(
             responses.POST,
-            "https://api.darkstrata.io/v1/alerts/test123/acknowledge",
-            json={"id": "test123", "status": "UNDER_INVESTIGATION"},
+            "https://api.darkstrata.io/v1/alerts",
+            json={"id": "test123", "status": "ACTIVE"},
             status=200,
         )
 
@@ -171,10 +171,10 @@ class TestDarkStrataActionBase:
         }
 
         result = action.make_api_request(
-            config, "POST", "/alerts/test123/acknowledge"
+            config, "POST", "/alerts"
         )
 
-        assert result["status"] == "UNDER_INVESTIGATION"
+        assert result["status"] == "ACTIVE"
 
     @responses.activate
     def test_make_api_request_patch(self, action):
@@ -254,8 +254,8 @@ class TestDarkStrataActionBase:
         assert result["status_code"] == 400
 
 
-class TestAcknowledgeAlertAction:
-    """Tests for AcknowledgeAlertAction."""
+class TestUpdateAlertStatusAction:
+    """Tests for UpdateAlertStatusAction."""
 
     @pytest.fixture
     def mock_account_config(self):
@@ -267,23 +267,22 @@ class TestAcknowledgeAlertAction:
         }
 
     @responses.activate
-    def test_acknowledge_alert_success(self, mock_account_config):
-        """Test successful alert acknowledgement."""
-        from darkstrata_acknowledge_alert import AcknowledgeAlertAction
+    def test_update_alert_status_success(self, mock_account_config):
+        """Test successful alert status update."""
+        from darkstrata_update_alert_status import UpdateAlertStatusAction
 
         responses.add(
-            responses.POST,
-            "https://api.darkstrata.io/v1/alerts/alert123/acknowledge",
+            responses.PATCH,
+            "https://api.darkstrata.io/v1/alerts/alert123",
             json={
                 "id": "alert123",
                 "status": "UNDER_INVESTIGATION",
-                "acknowledged_at": "2024-01-15T10:00:00Z",
-                "acknowledged_by_user": {"email": "test@example.com"},
+                "updated_at": "2024-01-15T10:00:00Z",
             },
             status=200,
         )
 
-        action = AcknowledgeAlertAction(session_key="test_key")
+        action = UpdateAlertStatusAction(session_key="test_key")
         action.get_account_config = MagicMock(return_value=mock_account_config)
 
         result = action.execute({
@@ -293,29 +292,72 @@ class TestAcknowledgeAlertAction:
 
         assert result["alert_id"] == "alert123"
         assert result["status"] == "UNDER_INVESTIGATION"
-        assert result["acknowledged_by"] == "test@example.com"
+        assert result["updated_at"] == "2024-01-15T10:00:00Z"
 
-    def test_acknowledge_alert_missing_account(self):
-        """Test acknowledge with missing account."""
-        from darkstrata_acknowledge_alert import AcknowledgeAlertAction
+    @responses.activate
+    def test_update_alert_status_closed(self, mock_account_config):
+        """Test updating alert to CLOSED status."""
+        from darkstrata_update_alert_status import UpdateAlertStatusAction
 
-        action = AcknowledgeAlertAction(session_key="test_key")
+        responses.add(
+            responses.PATCH,
+            "https://api.darkstrata.io/v1/alerts/alert123",
+            json={
+                "id": "alert123",
+                "status": "CLOSED",
+                "updated_at": "2024-01-15T10:00:00Z",
+            },
+            status=200,
+        )
+
+        action = UpdateAlertStatusAction(session_key="test_key")
+        action.get_account_config = MagicMock(return_value=mock_account_config)
+
+        result = action.execute({
+            "account": "test_account",
+            "alert_id": "alert123",
+            "status": "CLOSED",
+        })
+
+        assert result["alert_id"] == "alert123"
+        assert result["status"] == "CLOSED"
+
+    def test_update_alert_status_missing_account(self):
+        """Test update with missing account."""
+        from darkstrata_update_alert_status import UpdateAlertStatusAction
+
+        action = UpdateAlertStatusAction(session_key="test_key")
 
         with pytest.raises(DarkStrataActionError) as exc_info:
             action.execute({"alert_id": "alert123"})
 
         assert "Account name is required" in str(exc_info.value)
 
-    def test_acknowledge_alert_missing_alert_id(self):
-        """Test acknowledge with missing alert ID."""
-        from darkstrata_acknowledge_alert import AcknowledgeAlertAction
+    def test_update_alert_status_missing_alert_id(self):
+        """Test update with missing alert ID."""
+        from darkstrata_update_alert_status import UpdateAlertStatusAction
 
-        action = AcknowledgeAlertAction(session_key="test_key")
+        action = UpdateAlertStatusAction(session_key="test_key")
 
         with pytest.raises(DarkStrataActionError) as exc_info:
             action.execute({"account": "test_account"})
 
         assert "Alert ID is required" in str(exc_info.value)
+
+    def test_update_alert_status_invalid_status(self):
+        """Test update with invalid status value."""
+        from darkstrata_update_alert_status import UpdateAlertStatusAction
+
+        action = UpdateAlertStatusAction(session_key="test_key")
+
+        with pytest.raises(DarkStrataActionError) as exc_info:
+            action.execute({
+                "account": "test_account",
+                "alert_id": "alert123",
+                "status": "INVALID",
+            })
+
+        assert "Invalid status" in str(exc_info.value)
 
 
 class TestCloseAlertAction:

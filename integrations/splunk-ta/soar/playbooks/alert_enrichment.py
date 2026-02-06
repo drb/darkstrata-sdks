@@ -59,13 +59,14 @@ def query_email_intel(emails, container):
     """
     phantom.debug(f"Querying threat intel for {len(emails)} emails")
 
-    # Query the indicators endpoint for email matches
-    # In practice, you might need to query each email separately or use a batch endpoint
+    # TODO: The /stix/indicators endpoint does not support email filtering.
+    # Use /alerts endpoint with appropriate filters, or fetch all indicators
+    # and filter client-side. For now, fetch indicators and filter locally.
     for email in emails[:10]:  # Limit to 10 to avoid overwhelming the API
         phantom.act(
             action="get data",
             parameters=[{
-                "location": f"/stix/indicators?format=splunk&email={email}",
+                "location": "/stix/indicators?format=splunk",
                 "verify_certificate": True,
             }],
             assets=["darkstrata_api"],
@@ -80,11 +81,14 @@ def query_domain_intel(domains, container):
     """
     phantom.debug(f"Querying threat intel for {len(domains)} domains")
 
+    # TODO: The /stix/indicators endpoint does not support domain filtering.
+    # Use /alerts endpoint with appropriate filters, or fetch all indicators
+    # and filter client-side. For now, fetch indicators and filter locally.
     for domain in domains[:10]:  # Limit to 10
         phantom.act(
             action="get data",
             parameters=[{
-                "location": f"/stix/indicators?format=splunk&domain={domain}",
+                "location": "/stix/indicators?format=splunk",
                 "verify_certificate": True,
             }],
             assets=["darkstrata_api"],

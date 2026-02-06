@@ -71,10 +71,10 @@ def acknowledge_alert(alert_id, container):
     phantom.debug(f"Auto-acknowledging alert: {alert_id}")
 
     phantom.act(
-        action="post data",
+        action="patch data",
         parameters=[{
-            "location": f"/alerts/{alert_id}/acknowledge",
-            "body": "{}",
+            "location": f"/alerts/{alert_id}",
+            "body": '{"status": "UNDER_INVESTIGATION"}',
             "verify_certificate": True,
         }],
         assets=["darkstrata_api"],

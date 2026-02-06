@@ -39,18 +39,18 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **STIX 2.1 Ingestion** | Native support for STIX observed-data and indicator formats |
-| **Incremental Sync** | Checkpoint-based collection fetches only new data |
-| **CIM Compliance** | Maps to Authentication and Threat_Intelligence data models |
-| **ES Integration** | Pre-built correlation searches and threat intel lookups |
-| **Adaptive Response** | Alert actions for acknowledge, close, reopen alerts in DarkStrata |
-| **SOAR Integration** | Sample playbooks for Splunk SOAR and other platforms |
-| **Privacy Controls** | Optional SHA-256 email hashing for compliance |
-| **Confidence Filtering** | Filter by STIX confidence score (maps to threat severity) |
-| **Performance Tuning** | Configurable batch size, rate limiting, connection pooling |
-| **Connection Validation** | API credentials tested on save |
+| Feature                   | Description                                                        |
+| ------------------------- | ------------------------------------------------------------------ |
+| **STIX 2.1 Ingestion**    | Native support for STIX observed-data and indicator formats        |
+| **Incremental Sync**      | Checkpoint-based collection fetches only new data                  |
+| **CIM Compliance**        | Maps to Authentication and Threat_Intelligence data models         |
+| **ES Integration**        | Pre-built correlation searches and threat intel lookups            |
+| **Adaptive Response**     | Alert actions to update status, close, reopen alerts in DarkStrata |
+| **SOAR Integration**      | Sample playbooks for Splunk SOAR and other platforms               |
+| **Privacy Controls**      | Optional SHA-256 email hashing for compliance                      |
+| **Confidence Filtering**  | Filter by STIX confidence score (maps to threat severity)          |
+| **Performance Tuning**    | Configurable batch size, rate limiting, connection pooling         |
+| **Connection Validation** | API credentials tested on save                                     |
 
 ---
 
@@ -58,12 +58,12 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         DarkStrata Cloud                                 │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
-│  │ Breach Database │  │ Malware Intel   │  │ Threat Scoring  │         │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘         │
+│                         DarkStrata Cloud                                │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐          │
+│  │ Breach Database │  │ Malware Intel   │  │ Threat Scoring  │          │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘          │
 │           └────────────────────┼────────────────────┘                   │
-│                                ▼                                         │
+│                                ▼                                        │
 │                    ┌───────────────────────┐                            │
 │                    │   STIX 2.1 API        │                            │
 │                    │  /stix/indicators     │                            │
@@ -73,30 +73,30 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
                                  │ HTTPS (Bearer Auth)
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                      Splunk Enterprise                                   │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
+│                      Splunk Enterprise                                  │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
 │  │                  TA-DarkStrata                                   │   │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌────────────────┐  │   │
-│  │  │ Indicators      │  │ Alerts Input    │  │ Checkpoints    │  │   │
-│  │  │ Modular Input   │  │ Modular Input   │  │ (KV Store)     │  │   │
-│  │  └────────┬────────┘  └────────┬────────┘  └────────────────┘  │   │
+│  │  ┌─────────────────┐  ┌─────────────────┐  ┌────────────────┐    │   │
+│  │  │ Indicators      │  │ Alerts Input    │  │ Checkpoints    │    │   │
+│  │  │ Modular Input   │  │ Modular Input   │  │ (KV Store)     │    │   │
+│  │  └────────┬────────┘  └────────┬────────┘  └────────────────┘    │   │
 │  └───────────┼────────────────────┼─────────────────────────────────┘   │
-│              ▼                    ▼                                      │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
+│              ▼                    ▼                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
 │  │                     Splunk Indexes                               │   │
-│  │  sourcetype=darkstrata:stix:observed-data                       │   │
-│  │  sourcetype=darkstrata:stix:alert                               │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
+│  │  sourcetype=darkstrata:stix:observed-data                        │   │
+│  │  sourcetype=darkstrata:stix:alert                                │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
 │              │                                                          │
 │              ▼                                                          │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
 │  │              Splunk Enterprise Security                          │   │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌────────────────┐  │   │
-│  │  │ Threat Intel    │  │ Correlation     │  │ Notable        │  │   │
-│  │  │ Framework       │  │ Searches        │  │ Events         │  │   │
-│  │  │ (KV Stores)     │  │                 │  │                │  │   │
-│  │  └─────────────────┘  └─────────────────┘  └────────────────┘  │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
+│  │  ┌─────────────────┐  ┌─────────────────┐  ┌────────────────┐    │   │
+│  │  │ Threat Intel    │  │ Correlation     │  │ Notable        │    │   │
+│  │  │ Framework       │  │ Searches        │  │ Events         │    │   │
+│  │  │ (KV Stores)     │  │                 │  │                │    │   │
+│  │  └─────────────────┘  └─────────────────┘  └────────────────┘    │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -106,11 +106,11 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
 
 ### Splunk Platform
 
-| Component | Minimum Version | Recommended |
-|-----------|-----------------|-------------|
-| Splunk Enterprise | 8.2.0 | 9.0+ |
-| Splunk Cloud | Victoria Experience | Latest |
-| Splunk Enterprise Security | 7.0.0 (optional) | 7.3+ |
+| Component                  | Minimum Version     | Recommended |
+| -------------------------- | ------------------- | ----------- |
+| Splunk Enterprise          | 8.2.0               | 9.0+        |
+| Splunk Cloud               | Victoria Experience | Latest      |
+| Splunk Enterprise Security | 7.0.0 (optional)    | 7.3+        |
 
 ### DarkStrata Account
 
@@ -140,6 +140,7 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
 ### Option 2: Manual Installation
 
 1. Download the latest release from [GitHub Releases](https://github.com/drb/darkstrata-sdks/releases?q=splunk-ta)
+
    ```
    TA-darkstrata-x.x.x.tar.gz
    ```
@@ -150,6 +151,7 @@ The DarkStrata Technology Add-on for Splunk enables security teams to:
    - Restart Splunk if prompted
 
 3. Or install via CLI:
+
    ```bash
    # Extract to apps directory
    tar -xzf TA-darkstrata-x.x.x.tar.gz -C $SPLUNK_HOME/etc/apps/
@@ -187,10 +189,10 @@ For Splunk Cloud deployments:
 
 ### Required Permissions
 
-| Scope | Description | Required |
-|-------|-------------|----------|
-| `siem:read` | Read STIX indicators and alerts | Yes |
-| `data:read` | Read raw credential data | No (optional) |
+| Scope       | Description                     | Required      |
+| ----------- | ------------------------------- | ------------- |
+| `siem:read` | Read STIX indicators and alerts | Yes           |
+| `data:read` | Read raw credential data        | No (optional) |
 
 ---
 
@@ -205,11 +207,11 @@ The account stores your DarkStrata API credentials securely.
 3. Select **Account** > **Add**
 4. Enter:
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| **Account Name** | Unique identifier (alphanumeric + underscore) | `production` |
-| **API Base URL** | DarkStrata API endpoint | `https://api.darkstrata.io/v1` |
-| **API Key** | Your DarkStrata API key | `ds_live_xxxx...` |
+| Field            | Description                                   | Example                        |
+| ---------------- | --------------------------------------------- | ------------------------------ |
+| **Account Name** | Unique identifier (alphanumeric + underscore) | `production`                   |
+| **API Base URL** | DarkStrata API endpoint                       | `https://api.darkstrata.io/v1` |
+| **API Key**      | Your DarkStrata API key                       | `ds_live_xxxx...`              |
 
 5. Click **Add** - the connection will be validated automatically
 
@@ -223,14 +225,14 @@ Collects individual compromised credential indicators from `/stix/indicators`.
 2. Click **Create New Input** > **DarkStrata Indicators**
 3. Configure:
 
-| Field | Description | Recommended |
-|-------|-------------|-------------|
-| **Name** | Unique input name | `darkstrata_indicators` |
-| **Interval** | Collection frequency (seconds) | `300` (5 min) |
-| **Index** | Target Splunk index | `threat_intel` |
-| **Account** | Select configured account | - |
-| **Confidence Threshold** | Minimum STIX confidence (0-100) | `0` (all) |
-| **Hash Emails** | SHA-256 hash emails for privacy | Disabled |
+| Field                    | Description                     | Recommended             |
+| ------------------------ | ------------------------------- | ----------------------- |
+| **Name**                 | Unique input name               | `darkstrata_indicators` |
+| **Interval**             | Collection frequency (seconds)  | `300` (5 min)           |
+| **Index**                | Target Splunk index             | `threat_intel`          |
+| **Account**              | Select configured account       | -                       |
+| **Confidence Threshold** | Minimum STIX confidence (0-100) | `0` (all)               |
+| **Hash Emails**          | SHA-256 hash emails for privacy | Disabled                |
 
 #### Alerts Input
 
@@ -240,16 +242,16 @@ Collects credential exposure alert bundles from `/stix/alerts`.
 2. Click **Create New Input** > **DarkStrata Alerts**
 3. Configure:
 
-| Field | Description | Recommended |
-|-------|-------------|-------------|
-| **Name** | Unique input name | `darkstrata_alerts` |
-| **Interval** | Collection frequency (seconds) | `300` (5 min) |
-| **Index** | Target Splunk index | `threat_intel` |
-| **Account** | Select configured account | - |
-| **Detail Level** | Report detail (`summary` or `full`) | `full` |
-| **Include Identities** | Include STIX Identity objects | Enabled |
-| **Confidence Threshold** | Minimum STIX confidence (0-100) | `0` (all) |
-| **Hash Emails** | SHA-256 hash emails for privacy | Disabled |
+| Field                    | Description                         | Recommended         |
+| ------------------------ | ----------------------------------- | ------------------- |
+| **Name**                 | Unique input name                   | `darkstrata_alerts` |
+| **Interval**             | Collection frequency (seconds)      | `300` (5 min)       |
+| **Index**                | Target Splunk index                 | `threat_intel`      |
+| **Account**              | Select configured account           | -                   |
+| **Detail Level**         | Report detail (`summary` or `full`) | `full`              |
+| **Include Identities**   | Include STIX Identity objects       | Enabled             |
+| **Confidence Threshold** | Minimum STIX confidence (0-100)     | `0` (all)           |
+| **Hash Emails**          | SHA-256 hash emails for privacy     | Disabled            |
 
 ### Step 3: Configure Proxy (Optional)
 
@@ -258,12 +260,12 @@ If your Splunk instance requires a proxy for outbound connections:
 1. Navigate to **Configuration** > **Proxy**
 2. Configure:
 
-| Field | Description |
-|-------|-------------|
-| **Enable Proxy** | Toggle on |
-| **Proxy Type** | `HTTP` or `SOCKS5` |
-| **Proxy Host** | Proxy server hostname |
-| **Proxy Port** | Proxy server port |
+| Field              | Description                        |
+| ------------------ | ---------------------------------- |
+| **Enable Proxy**   | Toggle on                          |
+| **Proxy Type**     | `HTTP` or `SOCKS5`                 |
+| **Proxy Host**     | Proxy server hostname              |
+| **Proxy Port**     | Proxy server port                  |
 | **Proxy Username** | (Optional) Authentication username |
 | **Proxy Password** | (Optional) Authentication password |
 
@@ -282,39 +284,39 @@ If your Splunk instance requires a proxy for outbound connections:
 
 ### Indicators Input Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `name` | string | (required) | Unique input identifier |
-| `interval` | integer | `300` | Collection interval in seconds |
-| `index` | string | `default` | Target Splunk index |
-| `account` | string | (required) | Account configuration to use |
-| `confidence_threshold` | integer | `0` | Minimum STIX confidence (0-100) |
-| `hash_emails` | boolean | `false` | SHA-256 hash email addresses |
+| Parameter              | Type    | Default    | Description                     |
+| ---------------------- | ------- | ---------- | ------------------------------- |
+| `name`                 | string  | (required) | Unique input identifier         |
+| `interval`             | integer | `300`      | Collection interval in seconds  |
+| `index`                | string  | `default`  | Target Splunk index             |
+| `account`              | string  | (required) | Account configuration to use    |
+| `confidence_threshold` | integer | `0`        | Minimum STIX confidence (0-100) |
+| `hash_emails`          | boolean | `false`    | SHA-256 hash email addresses    |
 
 ### Alerts Input Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `name` | string | (required) | Unique input identifier |
-| `interval` | integer | `300` | Collection interval in seconds |
-| `index` | string | `default` | Target Splunk index |
-| `account` | string | (required) | Account configuration to use |
-| `detail` | string | `full` | Report detail level (`summary`/`full`) |
-| `include_identities` | boolean | `true` | Include STIX Identity objects |
-| `confidence_threshold` | integer | `0` | Minimum STIX confidence (0-100) |
-| `hash_emails` | boolean | `false` | SHA-256 hash email addresses |
+| Parameter              | Type    | Default    | Description                            |
+| ---------------------- | ------- | ---------- | -------------------------------------- |
+| `name`                 | string  | (required) | Unique input identifier                |
+| `interval`             | integer | `300`      | Collection interval in seconds         |
+| `index`                | string  | `default`  | Target Splunk index                    |
+| `account`              | string  | (required) | Account configuration to use           |
+| `detail`               | string  | `full`     | Report detail level (`summary`/`full`) |
+| `include_identities`   | boolean | `true`     | Include STIX Identity objects          |
+| `confidence_threshold` | integer | `0`        | Minimum STIX confidence (0-100)        |
+| `hash_emails`          | boolean | `false`    | SHA-256 hash email addresses           |
 
 ### Confidence Threshold Mapping
 
 The confidence threshold maps to DarkStrata threat scores:
 
-| STIX Confidence | DarkStrata Score | Severity | Description |
-|-----------------|------------------|----------|-------------|
-| 0-19 | 1 | Info | Low-risk exposure, possibly old |
-| 20-39 | 2 | Low | Needs review, limited context |
-| 40-59 | 3 | Medium | Confirmed exposure, moderate risk |
-| 60-79 | 4 | High | Recent exposure, high risk |
-| 80-100 | 5 | Critical | Active threat, immediate action |
+| STIX Confidence | DarkStrata Score | Severity | Description                       |
+| --------------- | ---------------- | -------- | --------------------------------- |
+| 0-19            | 1                | Info     | Low-risk exposure, possibly old   |
+| 20-39           | 2                | Low      | Needs review, limited context     |
+| 40-59           | 3                | Medium   | Confirmed exposure, moderate risk |
+| 60-79           | 4                | High     | Recent exposure, high risk        |
+| 80-100          | 5                | Critical | Active threat, immediate action   |
 
 ---
 
@@ -322,10 +324,10 @@ The confidence threshold maps to DarkStrata threat scores:
 
 ### Sourcetypes
 
-| Sourcetype | Description | Volume |
-|------------|-------------|--------|
-| `darkstrata:stix:observed-data` | Individual credential indicators | High |
-| `darkstrata:stix:alert` | Alert bundles (report + indicators) | Low |
+| Sourcetype                      | Description                         | Volume |
+| ------------------------------- | ----------------------------------- | ------ |
+| `darkstrata:stix:observed-data` | Individual credential indicators    | High   |
+| `darkstrata:stix:alert`         | Alert bundles (report + indicators) | Low    |
 
 ### Sample Event: observed-data
 
@@ -361,21 +363,21 @@ The confidence threshold maps to DarkStrata threat scores:
 
 ### Key Fields
 
-| JSON Path | Field | Description |
-|-----------|-------|-------------|
-| `objects.0.account_login` | `user` | Compromised email or username |
-| `objects.0.account_type` | `user_type` | `email` or `username` |
-| `objects.1.value` | `dest` | Service domain where credentials exposed |
-| `labels[]` | `labels` | Metadata tags (source, flow, severity) |
-| `created` | `_time` | Event timestamp |
+| JSON Path                 | Field       | Description                              |
+| ------------------------- | ----------- | ---------------------------------------- |
+| `objects.0.account_login` | `user`      | Compromised email or username            |
+| `objects.0.account_type`  | `user_type` | `email` or `username`                    |
+| `objects.1.value`         | `dest`      | Service domain where credentials exposed |
+| `labels[]`                | `labels`    | Metadata tags (source, flow, severity)   |
+| `created`                 | `_time`     | Event timestamp                          |
 
 ### Labels Reference
 
-| Label Pattern | Values | Description |
-|---------------|--------|-------------|
-| `source:*` | `malware`, `breach` | Credential source |
-| `flow:*` | `inbound`, `outbound` | Exposure direction |
-| `severity-*` | `info`, `low`, `medium`, `high`, `critical` | Risk level |
+| Label Pattern | Values                                      | Description        |
+| ------------- | ------------------------------------------- | ------------------ |
+| `source:*`    | `malware`, `breach`                         | Credential source  |
+| `flow:*`      | `inbound`, `outbound`                       | Exposure direction |
+| `severity-*`  | `info`, `low`, `medium`, `high`, `critical` | Risk level         |
 
 ---
 
@@ -414,15 +416,15 @@ eventtype=darkstrata_authentication
 
 ### CIM Tags
 
-| Event Type | Tags |
-|------------|------|
+| Event Type                       | Tags                    |
+| -------------------------------- | ----------------------- |
 | `darkstrata_credential_exposure` | `threat`, `threatintel` |
-| `darkstrata_alerts` | `threat`, `alert` |
-| `darkstrata_authentication` | `authentication` |
-| `darkstrata_inbound_exposure` | `identity`, `change` |
-| `darkstrata_outbound_exposure` | `web` |
-| `darkstrata_malware_credentials` | `malware`, `attack` |
-| `darkstrata_critical_exposure` | `alert`, `notable` |
+| `darkstrata_alerts`              | `threat`, `alert`       |
+| `darkstrata_authentication`      | `authentication`        |
+| `darkstrata_inbound_exposure`    | `identity`, `change`    |
+| `darkstrata_outbound_exposure`   | `web`                   |
+| `darkstrata_malware_credentials` | `malware`, `attack`     |
+| `darkstrata_critical_exposure`   | `alert`, `notable`      |
 
 ---
 
@@ -430,22 +432,22 @@ eventtype=darkstrata_authentication
 
 ### Threat Intelligence Data Model
 
-| CIM Field | Extraction | Description |
-|-----------|------------|-------------|
-| `threat_key` | `objects.0.account_login` | Compromised identity |
-| `threat_match_value` | `objects.1.value` | Associated domain |
-| `threat_match_type` | `observed-data` | STIX object type |
+| CIM Field            | Extraction                | Description          |
+| -------------------- | ------------------------- | -------------------- |
+| `threat_key`         | `objects.0.account_login` | Compromised identity |
+| `threat_match_value` | `objects.1.value`         | Associated domain    |
+| `threat_match_type`  | `observed-data`           | STIX object type     |
 
 ### Authentication Data Model
 
-| CIM Field | Extraction | Description |
-|-----------|------------|-------------|
-| `user` | `objects.0.account_login` | Compromised user |
-| `dest` | `objects.1.value` | Target service |
-| `action` | `success` | Credential was compromised |
-| `app` | `darkstrata` | Source application |
-| `authentication_method` | `compromised_credential` | Auth type |
-| `signature` | Auto-generated | Human-readable description |
+| CIM Field               | Extraction                | Description                |
+| ----------------------- | ------------------------- | -------------------------- |
+| `user`                  | `objects.0.account_login` | Compromised user           |
+| `dest`                  | `objects.1.value`         | Target service             |
+| `action`                | `success`                 | Credential was compromised |
+| `app`                   | `darkstrata`              | Source application         |
+| `authentication_method` | `compromised_credential`  | Auth type                  |
+| `signature`             | Auto-generated            | Human-readable description |
 
 ---
 
@@ -464,38 +466,41 @@ The add-on integrates with Splunk Enterprise Security through:
 
 The add-on includes saved searches that populate threat intel KV stores every 15 minutes:
 
-| Lookup | Key Field | Use Case |
-|--------|-----------|----------|
-| `darkstrata_email_intel` | `email` | Match compromised emails |
-| `darkstrata_domain_intel` | `domain` | Match compromised domains |
-| `darkstrata_user_intel` | `user` | Match compromised users |
+| Lookup                    | Key Field | Use Case                  |
+| ------------------------- | --------- | ------------------------- |
+| `darkstrata_email_intel`  | `email`   | Match compromised emails  |
+| `darkstrata_domain_intel` | `domain`  | Match compromised domains |
+| `darkstrata_user_intel`   | `user`    | Match compromised users   |
 
 #### Lookup Fields
 
 **darkstrata_email_intel**:
+
 ```
 email, description, threat_key, weight, first_seen, last_seen, source_type, flow_direction
 ```
 
 **darkstrata_domain_intel**:
+
 ```
 domain, description, threat_key, weight, first_seen, last_seen
 ```
 
 **darkstrata_user_intel**:
+
 ```
 user, description, threat_key, weight, first_seen, last_seen, email
 ```
 
 ### Pre-built Correlation Searches
 
-| Search Name | Triggers On | Severity | Risk Score |
-|-------------|-------------|----------|------------|
-| **DarkStrata - Critical Credential Exposure Detected** | High/critical exposures | High | 80 |
-| **DarkStrata - Malware Credential Detected** | Malware-sourced creds | Critical | 100 |
-| **DarkStrata - Third Party Credential Exposure** | Outbound flow | Medium | 50 |
-| **DarkStrata - Potential Malware Campaign** | 3+ users from malware | High | 90 |
-| **DarkStrata - New Alert Received** | New alert bundles | Info | - |
+| Search Name                                            | Triggers On             | Severity | Risk Score |
+| ------------------------------------------------------ | ----------------------- | -------- | ---------- |
+| **DarkStrata - Critical Credential Exposure Detected** | High/critical exposures | High     | 80         |
+| **DarkStrata - Malware Credential Detected**           | Malware-sourced creds   | Critical | 100        |
+| **DarkStrata - Third Party Credential Exposure**       | Outbound flow           | Medium   | 50         |
+| **DarkStrata - Potential Malware Campaign**            | 3+ users from malware   | High     | 90         |
+| **DarkStrata - New Alert Received**                    | New alert bundles       | Info     | -          |
 
 ### Enabling Correlation Searches
 
@@ -517,12 +522,12 @@ user, description, threat_key, weight, first_seen, last_seen, email
 
 The correlation searches assign risk scores to users:
 
-| Exposure Type | Risk Score | Risk Object |
-|---------------|------------|-------------|
-| Malware-sourced credential | 100 | user |
-| Critical severity exposure | 80 | user |
-| High severity exposure | 80 | user |
-| Third-party exposure | 50 | user |
+| Exposure Type              | Risk Score | Risk Object |
+| -------------------------- | ---------- | ----------- |
+| Malware-sourced credential | 100        | user        |
+| Critical severity exposure | 80         | user        |
+| High severity exposure     | 80         | user        |
+| Third-party exposure       | 50         | user        |
 
 ---
 
@@ -532,12 +537,12 @@ The TA includes Adaptive Response actions for automated incident response workfl
 
 ### Available Actions
 
-| Action | Description | Use Case |
-|--------|-------------|----------|
-| **DarkStrata: Acknowledge Alert** | Mark an alert as under investigation | Initial triage response |
-| **DarkStrata: Close Alert** | Close an alert after investigation | Mark resolved cases |
-| **DarkStrata: Reopen Alert** | Reopen a previously closed alert | Re-investigate if needed |
-| **DarkStrata: Get Alert Details** | Retrieve full alert information | Enrichment action |
+| Action                            | Description                          | Use Case                 |
+| --------------------------------- | ------------------------------------ | ------------------------ |
+| **DarkStrata: Acknowledge Alert** | Mark an alert as under investigation | Initial triage response  |
+| **DarkStrata: Close Alert**       | Close an alert after investigation   | Mark resolved cases      |
+| **DarkStrata: Reopen Alert**      | Reopen a previously closed alert     | Re-investigate if needed |
+| **DarkStrata: Get Alert Details** | Retrieve full alert information      | Enrichment action        |
 
 ### Configuring Alert Actions
 
@@ -555,9 +560,9 @@ Add adaptive response to correlation searches:
 ```
 [savedsearches/DarkStrata - Malware Credential Detected]
 # ... existing settings ...
-action.darkstrata_acknowledge_alert = 1
-action.darkstrata_acknowledge_alert.param.account = your_account_name
-action.darkstrata_acknowledge_alert.param.alert_id = $result.alert_id$
+action.darkstrata_update_alert_status = 1
+action.darkstrata_update_alert_status.param.account = your_account_name
+action.darkstrata_update_alert_status.param.alert_id = $result.alert_id$
 ```
 
 ### Using in Notable Event Response
@@ -655,13 +660,12 @@ Trigger: Notable event from ES
 
 ### API Endpoints for SOAR
 
-| Action | Method | Endpoint | Body |
-|--------|--------|----------|------|
-| List Alerts | GET | `/alerts` | - |
-| Get Alert | GET | `/alerts/{id}` | - |
-| Acknowledge | POST | `/alerts/{id}/acknowledge` | - |
-| Update Status | PATCH | `/alerts/{id}` | `{"status": "CLOSED"}` |
-| Get Indicators | GET | `/stix/indicators?format=splunk` | - |
+| Action         | Method | Endpoint                         | Body                   |
+| -------------- | ------ | -------------------------------- | ---------------------- |
+| List Alerts    | GET    | `/alerts`                        | -                      |
+| Get Alert      | GET    | `/alerts/{id}`                   | -                      |
+| Update Status  | PATCH  | `/alerts/{id}`                   | `{"status": "CLOSED"}` |
+| Get Indicators | GET    | `/stix/indicators?format=splunk` | -                      |
 
 ### Error Handling in Playbooks
 
@@ -694,14 +698,14 @@ The TA includes configurable performance settings for large-scale deployments.
 
 Navigate to **Configuration** > **Performance** in the TA settings.
 
-| Setting | Default | Range | Description |
-|---------|---------|-------|-------------|
-| **Batch Size** | 100 | 10-500 | Records per API request |
-| **Request Timeout** | 30s | 10-300s | Individual request timeout |
-| **Max Retries** | 3 | 0-5 | Retry attempts with exponential backoff |
-| **Rate Limit** | 0 (unlimited) | 0-600 | Max requests per minute |
-| **Connection Pooling** | Enabled | - | Reuse HTTP connections |
-| **Max Connections** | 5 | 1-20 | Concurrent connections |
+| Setting                | Default       | Range   | Description                             |
+| ---------------------- | ------------- | ------- | --------------------------------------- |
+| **Batch Size**         | 100           | 10-500  | Records per API request                 |
+| **Request Timeout**    | 30s           | 10-300s | Individual request timeout              |
+| **Max Retries**        | 3             | 0-5     | Retry attempts with exponential backoff |
+| **Rate Limit**         | 0 (unlimited) | 0-600   | Max requests per minute                 |
+| **Connection Pooling** | Enabled       | -       | Reuse HTTP connections                  |
+| **Max Connections**    | 5             | 1-20    | Concurrent connections                  |
 
 ### Tuning Guidelines
 
@@ -735,6 +739,7 @@ Connection Pooling: Disabled (if connection issues)
 ### Monitoring Performance
 
 #### Collection Throughput
+
 ```spl
 index=_internal sourcetype=splunkd component=ModularInputs darkstrata
 | rex "collected (?<count>\d+) events"
@@ -742,6 +747,7 @@ index=_internal sourcetype=splunkd component=ModularInputs darkstrata
 ```
 
 #### API Response Times
+
 ```spl
 index=_internal sourcetype=splunkd component=ModularInputs darkstrata
 | rex "request completed in (?<duration_ms>\d+)ms"
@@ -749,6 +755,7 @@ index=_internal sourcetype=splunkd component=ModularInputs darkstrata
 ```
 
 #### Rate Limit Hits
+
 ```spl
 index=_internal sourcetype=splunkd darkstrata "rate limit"
 | timechart span=1h count as rate_limit_hits
@@ -780,37 +787,37 @@ Reduce batch size if memory consumption is excessive.
 
 ### Base Searches
 
-| Macro | Definition | Description |
-|-------|------------|-------------|
+| Macro                      | Definition                                   | Description              |
+| -------------------------- | -------------------------------------------- | ------------------------ |
 | `darkstrata_observed_data` | `sourcetype="darkstrata:stix:observed-data"` | All observed-data events |
-| `darkstrata_alerts` | `sourcetype="darkstrata:stix:alert"` | All alert bundles |
+| `darkstrata_alerts`        | `sourcetype="darkstrata:stix:alert"`         | All alert bundles        |
 
 ### Field Extraction
 
-| Macro | Description |
-|-------|-------------|
-| `darkstrata_extract_fields` | Extract `user`, `user_type`, `dest` from objects |
+| Macro                       | Description                                                   |
+| --------------------------- | ------------------------------------------------------------- |
+| `darkstrata_extract_fields` | Extract `user`, `user_type`, `dest` from objects              |
 | `darkstrata_extract_labels` | Parse labels into `source_type`, `flow_direction`, `severity` |
-| `darkstrata_full_extract` | Complete extraction pipeline |
-| `darkstrata_threat_weight` | Calculate threat weight (0-100) from severity |
+| `darkstrata_full_extract`   | Complete extraction pipeline                                  |
+| `darkstrata_threat_weight`  | Calculate threat weight (0-100) from severity                 |
 
 ### Filters
 
-| Macro | Description |
-|-------|-------------|
-| `darkstrata_high_severity` | Filter critical/high severity only |
-| `darkstrata_malware_source` | Filter `source:malware` only |
-| `darkstrata_breach_source` | Filter `source:breach` only |
-| `darkstrata_inbound_flow` | Filter `flow:inbound` only |
-| `darkstrata_outbound_flow` | Filter `flow:outbound` only |
+| Macro                       | Description                        |
+| --------------------------- | ---------------------------------- |
+| `darkstrata_high_severity`  | Filter critical/high severity only |
+| `darkstrata_malware_source` | Filter `source:malware` only       |
+| `darkstrata_breach_source`  | Filter `source:breach` only        |
+| `darkstrata_inbound_flow`   | Filter `flow:inbound` only         |
+| `darkstrata_outbound_flow`  | Filter `flow:outbound` only        |
 
 ### Lookups
 
-| Macro | Arguments | Description |
-|-------|-----------|-------------|
-| `darkstrata_email_lookup(field)` | Email field name | Look up email in threat intel |
+| Macro                             | Arguments         | Description                    |
+| --------------------------------- | ----------------- | ------------------------------ |
+| `darkstrata_email_lookup(field)`  | Email field name  | Look up email in threat intel  |
 | `darkstrata_domain_lookup(field)` | Domain field name | Look up domain in threat intel |
-| `darkstrata_user_lookup(field)` | User field name | Look up user in threat intel |
+| `darkstrata_user_lookup(field)`   | User field name   | Look up user in threat intel   |
 
 ### Usage Examples
 
@@ -854,12 +861,14 @@ index=auth_logs sourcetype=linux_secure
 #### No data appearing
 
 1. **Check input status**:
+
    ```spl
    | rest /services/data/inputs/darkstrata_indicators
    | table title, disabled, interval
    ```
 
 2. **Check for errors**:
+
    ```spl
    index=_internal sourcetype=splunkd component=ModularInputs
      (darkstrata_indicators OR darkstrata_alerts) log_level=ERROR
@@ -893,12 +902,14 @@ index=auth_logs sourcetype=linux_secure
 #### Checkpoint issues
 
 View checkpoint state:
+
 ```spl
 | inputlookup ta_darkstrata_checkpoints
 | table _key, last_sync, last_run, event_count
 ```
 
 Reset checkpoint (force full resync):
+
 ```spl
 | inputlookup ta_darkstrata_checkpoints
 | where _key="darkstrata_indicators_YOUR_INPUT_NAME"
@@ -908,18 +919,21 @@ Reset checkpoint (force full resync):
 ### Diagnostic Searches
 
 #### Input health check
+
 ```spl
 index=_internal sourcetype=splunkd component=ModularInputs darkstrata
 | timechart span=1h count by log_level
 ```
 
 #### Data collection rate
+
 ```spl
 index=* sourcetype="darkstrata:*" earliest=-24h
 | timechart span=1h count by sourcetype
 ```
 
 #### Error summary
+
 ```spl
 index=_internal sourcetype=splunkd darkstrata log_level=ERROR
 | stats count by message
@@ -927,6 +941,7 @@ index=_internal sourcetype=splunkd darkstrata log_level=ERROR
 ```
 
 #### API response times
+
 ```spl
 index=_internal sourcetype=splunkd component=ModularInputs darkstrata
 | rex "request.*(?<duration>\d+)ms"
@@ -974,15 +989,16 @@ Enable debug logging temporarily:
 
 Recommended role configuration:
 
-| Role | Permissions |
-|------|-------------|
-| Admin | Full configuration access |
+| Role             | Permissions                                   |
+| ---------------- | --------------------------------------------- |
+| Admin            | Full configuration access                     |
 | Security Analyst | Search DarkStrata indexes, run saved searches |
-| SOC Tier 1 | View notable events, read-only dashboards |
+| SOC Tier 1       | View notable events, read-only dashboards     |
 
 ### Audit Logging
 
 Monitor TA configuration changes:
+
 ```spl
 index=_audit action=edit* path="*ta_darkstrata*"
 | table _time, user, action, path
@@ -995,6 +1011,7 @@ index=_audit action=edit* path="*ta_darkstrata*"
 ### Before Upgrading
 
 1. Note your current version:
+
    ```spl
    | rest /services/apps/local/TA-darkstrata
    | table label, version
@@ -1031,6 +1048,7 @@ $SPLUNK_HOME/bin/splunk restart
 ### After Upgrading
 
 1. Verify inputs are running:
+
    ```spl
    | rest /services/data/inputs/darkstrata_indicators
    ```
@@ -1119,13 +1137,12 @@ sha256sum TA-darkstrata-1.0.0.tar.gz > TA-darkstrata-1.0.0.tar.gz.sha256
 ### Documentation
 
 - **DarkStrata Docs**: [https://darkstrata.io/docs/integrations/splunk](https://darkstrata.io/docs/integrations/splunk)
-- **STIX API Reference**: [https://darkstrata.io/docs/api/stix](https://darkstrata.io/docs/api/stix)
+- **STIX API Reference**: [https://docs.darkstrata.io/](https://docs.darkstrata.io/)
 
 ### Getting Help
 
 - **GitHub Issues**: [https://github.com/drb/darkstrata-sdks/issues](https://github.com/drb/darkstrata-sdks/issues)
 - **Email Support**: support@darkstrata.io
-- **Slack Community**: [https://darkstrata.io/slack](https://darkstrata.io/slack)
 
 ### Reporting Bugs
 

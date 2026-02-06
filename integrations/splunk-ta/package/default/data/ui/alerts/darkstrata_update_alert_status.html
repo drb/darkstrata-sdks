@@ -2,7 +2,7 @@
     <div class="control-group">
         <label class="control-label" for="account">DarkStrata Account</label>
         <div class="controls">
-            <select name="action.darkstrata_acknowledge_alert.param.account" id="account">
+            <select name="action.darkstrata_update_alert_status.param.account" id="account">
                 <option value="">-- Select Account --</option>
             </select>
             <span class="help-block">Select the DarkStrata account to use for this action.</span>
@@ -11,12 +11,23 @@
     <div class="control-group">
         <label class="control-label" for="alert_id">Alert ID</label>
         <div class="controls">
-            <input type="text" name="action.darkstrata_acknowledge_alert.param.alert_id" id="alert_id"
+            <input type="text" name="action.darkstrata_update_alert_status.param.alert_id" id="alert_id"
                    placeholder="$result.alert_id$" />
             <span class="help-block">
-                The DarkStrata alert ID to acknowledge. Use <code>$result.alert_id$</code> to
+                The DarkStrata alert ID to update. Use <code>$result.alert_id$</code> to
                 automatically extract from the triggering event.
             </span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="status">Status</label>
+        <div class="controls">
+            <select name="action.darkstrata_update_alert_status.param.status" id="status">
+                <option value="UNDER_INVESTIGATION" selected>Under Investigation</option>
+                <option value="ACTIVE">Active</option>
+                <option value="CLOSED">Closed</option>
+            </select>
+            <span class="help-block">The status to set on the alert.</span>
         </div>
     </div>
 </form>

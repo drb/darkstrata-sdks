@@ -52,7 +52,7 @@ export = system
 [alert_actions]
 export = system
 
-[alert_actions/darkstrata_acknowledge_alert]
+[alert_actions/darkstrata_update_alert_status]
 export = system
 
 [alert_actions/darkstrata_close_alert]
