@@ -12,6 +12,13 @@ on:
       - 'integrations/splunk-ta/**'
       - '.github/workflows/splunk-ta-ci.yml'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: splunk-ta-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     working-directory: integrations/splunk-ta
@@ -75,7 +82,7 @@ jobs:
           pip install pytest pytest-cov pytest-mock responses requests
 
       - name: Run tests
-        run: pytest tests/ -v --cov=package/bin --cov-report=xml
+        run: pytest tests/ -v --cov=package/bin --cov-report=xml --cov-fail-under=70
 
       - name: Upload coverage
         if: matrix.python-version == '3.12'
@@ -139,13 +146,13 @@ jobs:
         run: pip install splunk-appinspect
 
       - name: Run AppInspect (precert mode)
+        continue-on-error: true
         run: |
           cd output
           splunk-appinspect inspect TA-darkstrata \
             --mode precert \
             --included-tags cloud \
-            --output-file appinspect-results.json \
-            || true
+            --output-file appinspect-results.json
 
       - name: Upload AppInspect results
         uses: actions/upload-artifact@v4
@@ -156,3 +163,20 @@ jobs:
 
       - name: Check AppInspect results
         run: python3 ${{ github.workspace }}/scripts/check-appinspect.py output/appinspect-results.json
+
+  validate-conf:
+    name: Validate Conf & Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pytest
+
+      - name: Run conf validation tests
+        run: pytest tests/test_splunk_conf_validation.py tests/test_package_integrity.py -v

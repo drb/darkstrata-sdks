@@ -37,26 +37,64 @@ def mock_splunk_libs(monkeypatch: pytest.MonkeyPatch) -> dict[str, MagicMock]:
     monkeypatch.setitem(sys.modules, "solnlib.modular_input", mocks["solnlib.modular_input"])
     monkeypatch.setitem(sys.modules, "solnlib.modular_input.checkpointer", mocks["solnlib.modular_input.checkpointer"])
 
-    # Mock splunktaucclib
-    mocks["splunktaucclib"] = MagicMock()
-    mocks["splunktaucclib.rest_handler"] = MagicMock()
-    mocks["splunktaucclib.rest_handler.endpoint"] = MagicMock()
-    mocks["splunktaucclib.rest_handler.endpoint.validator"] = MagicMock()
-    mocks["splunktaucclib.modinput_wrapper"] = MagicMock()
-    mocks["splunktaucclib.modinput_wrapper.base_modinput"] = MagicMock()
+    # Mock splunktaucclib with real base classes for Validator and BaseModInput
+    # so that subclasses defined in the TA code remain real Python classes
+    # (not MagicMock instances) and their methods are accessible for testing.
+    class _StubValidator:
+        def put_msg(self, msg: str) -> None:
+            pass
+
+    class _StubBaseModInput:
+        logger = MagicMock()
+
+    # Build module hierarchy with real base classes wired in
+    splunktaucclib_mock = MagicMock()
+
+    validator_mod = MagicMock()
+    validator_mod.Validator = _StubValidator
+
+    modinput_wrapper_mock = MagicMock()
+    base_modinput_mod = MagicMock()
+    base_modinput_mod.BaseModInput = _StubBaseModInput
+
+    mocks["splunktaucclib"] = splunktaucclib_mock
+    mocks["splunktaucclib.rest_handler"] = splunktaucclib_mock.rest_handler
+    mocks["splunktaucclib.rest_handler.endpoint"] = splunktaucclib_mock.rest_handler.endpoint
+    mocks["splunktaucclib.rest_handler.endpoint.validator"] = validator_mod
+    mocks["splunktaucclib.modinput_wrapper"] = modinput_wrapper_mock
+    mocks["splunktaucclib.modinput_wrapper.base_modinput"] = base_modinput_mod
+
+    # Wire attribute chain so `from X.Y.Z import W` works via attribute access
+    splunktaucclib_mock.rest_handler.endpoint.validator = validator_mod
+    modinput_wrapper_mock.base_modinput = base_modinput_mod
 
     monkeypatch.setitem(sys.modules, "splunktaucclib", mocks["splunktaucclib"])
     monkeypatch.setitem(sys.modules, "splunktaucclib.rest_handler", mocks["splunktaucclib.rest_handler"])
-    monkeypatch.setitem(sys.modules, "splunktaucclib.rest_handler.endpoint", mocks["splunktaucclib.rest_handler.endpoint"])
-    monkeypatch.setitem(sys.modules, "splunktaucclib.rest_handler.endpoint.validator", mocks["splunktaucclib.rest_handler.endpoint.validator"])
+    monkeypatch.setitem(
+        sys.modules, "splunktaucclib.rest_handler.endpoint", mocks["splunktaucclib.rest_handler.endpoint"]
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "splunktaucclib.rest_handler.endpoint.validator",
+        mocks["splunktaucclib.rest_handler.endpoint.validator"],
+    )
     monkeypatch.setitem(sys.modules, "splunktaucclib.modinput_wrapper", mocks["splunktaucclib.modinput_wrapper"])
-    monkeypatch.setitem(sys.modules, "splunktaucclib.modinput_wrapper.base_modinput", mocks["splunktaucclib.modinput_wrapper.base_modinput"])
+    monkeypatch.setitem(
+        sys.modules,
+        "splunktaucclib.modinput_wrapper.base_modinput",
+        mocks["splunktaucclib.modinput_wrapper.base_modinput"],
+    )
 
     # Mock splunklib
     mocks["splunklib"] = MagicMock()
     mocks["splunklib.modularinput"] = MagicMock()
     monkeypatch.setitem(sys.modules, "splunklib", mocks["splunklib"])
     monkeypatch.setitem(sys.modules, "splunklib.modularinput", mocks["splunklib.modularinput"])
+
+    # Force reimport of darkstrata_inputs so classes inherit from real stubs
+    # rather than stale MagicMock base classes from other test modules
+    if "darkstrata_inputs" in sys.modules:
+        monkeypatch.delitem(sys.modules, "darkstrata_inputs")
 
     return mocks
 
