@@ -46,7 +46,7 @@ This monorepo contains everything you need to integrate with DarkStrata:
 
 ### Features
 
-- **Privacy-first**: Only a 5-character hash prefix is sent to our servers
+- **Privacy-first**: Only a 5 or 6-character hash prefix is sent to our servers
 - **No credential exposure**: Your passwords never leave your system
 - **Batch processing**: Efficiently check multiple credentials
 - **Full type safety**: TypeScript types, Python type hints, Rust's strong typing, Go's static types, and Java's strong typing
@@ -184,7 +184,7 @@ Your System                         DarkStrata API
     │  Hash: email:password              │
     │  SHA256 → 5BAA61E4C9B93F3F...     │
     │                                    │
-    │  Send prefix only: "5BAA6"  ──────→│
+    │  Send prefix: "5BAA6" (or "5BAA61") ─→│
     │                                    │
     │  ←────── All hashes with prefix    │
     │                                    │
@@ -193,8 +193,9 @@ Your System                         DarkStrata API
     │                                    │
 ```
 
-Only **5 characters** of a 64-character hash are sent. This provides:
-- 1-in-1,000,000 anonymity set
+Only **5 or 6 characters** of a 64-character hash are sent. This provides:
+- 1-in-1,000,000 anonymity set (5 chars) or 1-in-16,000,000 (6 chars)
+- Using 6 characters returns ~16x fewer results for faster responses
 - Your actual credentials are never transmitted
 - Even if intercepted, the prefix reveals nothing
 

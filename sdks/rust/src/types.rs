@@ -212,7 +212,7 @@ impl CredentialInfo {
 /// Metadata about a check operation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CheckMetadata {
-    /// The 5-character hash prefix used for k-anonymity.
+    /// The 5 or 6-character hash prefix used for k-anonymity.
     pub prefix: String,
     /// Total number of matching hashes returned by the API.
     pub total_results: usize,
@@ -286,7 +286,7 @@ pub(crate) struct HashedCredential {
     pub credential: Option<Credential>,
     /// SHA-256 hash of the credential.
     pub hash: String,
-    /// First 5 characters of the hash (k-anonymity prefix).
+    /// First 5 or 6 characters of the hash (k-anonymity prefix).
     pub prefix: String,
 }
 

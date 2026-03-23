@@ -88,7 +88,7 @@ if (result.Found)
          │                           │                           │
 ```
 
-Your actual credentials never leave your system - only a 5-character prefix of the hash is sent to the API.
+Your actual credentials never leave your system - only a 5 or 6-character prefix of the hash is sent to the API.
 
 ## API Reference
 

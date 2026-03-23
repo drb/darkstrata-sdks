@@ -139,7 +139,7 @@ export interface CheckResult {
  */
 export interface CheckMetadata {
   /**
-   * The 5-character hash prefix used for the k-anonymity lookup.
+   * The 5 or 6-character hash prefix used for the k-anonymity lookup.
    */
   prefix: string;
 

@@ -20,8 +20,16 @@ const (
 	// DefaultCacheTTL is the default cache time-to-live
 	DefaultCacheTTL = 1 * time.Hour
 
-	// PrefixLength is the number of characters used for k-anonymity prefix
+	// PrefixLength is the default number of characters used for k-anonymity prefix
 	PrefixLength = 5
+
+	// MinPrefixLength is the minimum allowed prefix length
+	MinPrefixLength = 5
+
+	// MaxPrefixLength is the maximum allowed prefix length.
+	// Using 6 characters returns ~16x fewer results than 5, reducing response
+	// size at the cost of a smaller anonymity set.
+	MaxPrefixLength = 6
 
 	// TimeWindowSeconds is the server HMAC key rotation interval
 	TimeWindowSeconds = 3600

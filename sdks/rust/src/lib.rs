@@ -5,7 +5,7 @@
 //!
 //! # Overview
 //!
-//! The SDK sends only a 5-character hash prefix to the API (k-anonymity),
+//! The SDK sends only a 5 or 6-character hash prefix to the API (k-anonymity),
 //! ensuring that your actual credentials are never exposed. The API returns
 //! all hashes matching the prefix, and the client checks for a match locally
 //! using timing-safe comparison.
@@ -161,8 +161,8 @@ pub use errors::{is_retryable_status, DarkStrataError, Result};
 /// or implement custom processing logic.
 pub mod crypto_utils {
     pub use crate::crypto::{
-        extract_prefix, hash_credential, hmac_sha256, is_hash_in_set, is_valid_hash,
-        is_valid_prefix, sha256, validate_client_hmac,
+        extract_prefix, extract_prefix_with_length, hash_credential, hmac_sha256, is_hash_in_set,
+        is_valid_hash, is_valid_prefix, sha256, validate_client_hmac,
     };
 }
 
@@ -173,8 +173,9 @@ pub mod crypto_utils {
 pub mod config {
     pub use crate::constants::{
         response_headers, retry, API_KEY_HEADER, CREDENTIAL_CHECK_ENDPOINT, DEFAULT_BASE_URL,
-        DEFAULT_CACHE_TTL, DEFAULT_RETRIES, DEFAULT_TIMEOUT, MIN_CLIENT_HMAC_LENGTH, PREFIX_LENGTH,
-        SHA256_HEX_LENGTH, TIME_WINDOW_SECONDS, USER_AGENT,
+        DEFAULT_CACHE_TTL, DEFAULT_RETRIES, DEFAULT_TIMEOUT, MAX_PREFIX_LENGTH,
+        MIN_CLIENT_HMAC_LENGTH, MIN_PREFIX_LENGTH, PREFIX_LENGTH, SHA256_HEX_LENGTH,
+        TIME_WINDOW_SECONDS, USER_AGENT,
     };
 }
 
@@ -199,5 +200,7 @@ mod tests {
 
         // Verify constants
         assert_eq!(config::PREFIX_LENGTH, 5);
+        assert_eq!(config::MIN_PREFIX_LENGTH, 5);
+        assert_eq!(config::MAX_PREFIX_LENGTH, 6);
     }
 }

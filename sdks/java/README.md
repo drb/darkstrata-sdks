@@ -44,7 +44,7 @@ public class Example {
 
 ## Features
 
-- **Privacy-first**: Only a 5-character hash prefix is sent to our servers
+- **Privacy-first**: Only a 5 or 6-character hash prefix is sent to our servers
 - **No credential exposure**: Your passwords never leave your system
 - **Batch processing**: Efficiently check multiple credentials
 - **Automatic retries**: Built-in retry logic with exponential backoff
@@ -186,7 +186,7 @@ Your System                         DarkStrata API
     |  Hash: email:password              |
     |  SHA256 -> 5BAA61E4C9B93F3F...     |
     |                                    |
-    |  Send prefix only: "5BAA6"  ------>|
+    |  Send prefix: "5BAA6" (or "5BAA61")  ------>|
     |                                    |
     |  <------ All hashes with prefix    |
     |                                    |

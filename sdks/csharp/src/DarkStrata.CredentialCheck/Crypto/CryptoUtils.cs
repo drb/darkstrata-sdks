@@ -18,7 +18,9 @@ public static class CryptoUtils
 public static partial class CryptoUtils
 #endif
 {
-    private const int PrefixLength = 5;
+    private const int PrefixLength = Constants.PrefixLength;
+    private const int MinPrefixLength = Constants.MinPrefixLength;
+    private const int MaxPrefixLength = Constants.MaxPrefixLength;
 
 #if NETSTANDARD2_0
     private static readonly Regex HexPatternRegex = new Regex("^[A-Fa-f0-9]+$", RegexOptions.Compiled);
@@ -78,13 +80,25 @@ public static partial class CryptoUtils
     }
 
     /// <summary>
-    /// Extract the k-anonymity prefix from a hash.
+    /// Extract the k-anonymity prefix from a hash using the default length (5).
     /// </summary>
     /// <param name="hash">The full SHA-256 hash (64 hex characters).</param>
-    /// <returns>The first 5 characters (prefix) in uppercase.</returns>
+    /// <returns>The first 5 characters (prefix) in uppercase (default length).</returns>
     public static string ExtractPrefix(string hash)
     {
-        return hash.Substring(0, PrefixLength).ToUpperInvariant();
+        return ExtractPrefix(hash, PrefixLength);
+    }
+
+    /// <summary>
+    /// Extract the k-anonymity prefix from a hash with a specified length.
+    /// Using 6 characters returns ~16x fewer results for faster responses.
+    /// </summary>
+    /// <param name="hash">The full SHA-256 hash (64 hex characters).</param>
+    /// <param name="length">Prefix length: 5 (default) or 6.</param>
+    /// <returns>The first 5 or 6 characters (prefix) in uppercase.</returns>
+    public static string ExtractPrefix(string hash, int length)
+    {
+        return hash.Substring(0, length).ToUpperInvariant();
     }
 
     /// <summary>
@@ -158,13 +172,13 @@ public static partial class CryptoUtils
     /// Validate that a string is a valid k-anonymity prefix.
     /// </summary>
     /// <param name="prefix">The prefix to validate.</param>
-    /// <returns>True if the prefix is valid (5 hex characters).</returns>
+    /// <returns>True if the prefix is valid (5 or 6 hex characters).</returns>
     public static bool IsValidPrefix(string prefix)
     {
 #if NETSTANDARD2_0
-        return prefix.Length == PrefixLength && HexPatternRegex.IsMatch(prefix);
+        return prefix.Length >= MinPrefixLength && prefix.Length <= MaxPrefixLength && HexPatternRegex.IsMatch(prefix);
 #else
-        return prefix.Length == PrefixLength && HexPattern().IsMatch(prefix);
+        return prefix.Length >= MinPrefixLength && prefix.Length <= MaxPrefixLength && HexPattern().IsMatch(prefix);
 #endif
     }
 

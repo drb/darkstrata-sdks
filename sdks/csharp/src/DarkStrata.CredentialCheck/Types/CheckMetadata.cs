@@ -25,7 +25,7 @@ public sealed class CheckMetadata
     }
 
     /// <summary>
-    /// The 5-character hash prefix used for the k-anonymity lookup.
+    /// The 5 or 6-character hash prefix used for the k-anonymity lookup.
     /// </summary>
     public required string Prefix { get; init; }
 

@@ -1,6 +1,6 @@
 //! Cryptographic utilities for the DarkStrata Credential Check SDK.
 
-use crate::constants::{MIN_CLIENT_HMAC_LENGTH, PREFIX_LENGTH, SHA256_HEX_LENGTH};
+use crate::constants::{MIN_CLIENT_HMAC_LENGTH, MIN_PREFIX_LENGTH, MAX_PREFIX_LENGTH, PREFIX_LENGTH, SHA256_HEX_LENGTH};
 use crate::errors::{DarkStrataError, Result};
 use crate::types::HashedCredential;
 use hmac::{Hmac, Mac};
@@ -43,9 +43,21 @@ pub fn hash_credential(email: &str, password: &str) -> String {
 }
 
 /// Extract the k-anonymity prefix from a hash.
+///
+/// Use `extract_prefix_with_length` to specify a custom length (5 or 6).
+/// Using 6 characters returns ~16x fewer results for faster responses.
 pub fn extract_prefix(hash: &str) -> String {
+    extract_prefix_with_length(hash, PREFIX_LENGTH)
+}
+
+/// Extract the k-anonymity prefix from a hash with a specified length.
+///
+/// # Arguments
+/// * `hash` - The full SHA-256 hash
+/// * `length` - Prefix length: 5 (default) or 6
+pub fn extract_prefix_with_length(hash: &str, length: usize) -> String {
     hash.chars()
-        .take(PREFIX_LENGTH)
+        .take(length)
         .collect::<String>()
         .to_uppercase()
 }
@@ -89,9 +101,9 @@ pub fn is_valid_hash(hash: &str, expected_length: Option<usize>) -> bool {
     hash.chars().all(|c| c.is_ascii_hexdigit())
 }
 
-/// Validate that a string is a valid k-anonymity prefix.
+/// Validate that a string is a valid k-anonymity prefix (5 or 6 hex characters).
 pub fn is_valid_prefix(prefix: &str) -> bool {
-    prefix.len() == PREFIX_LENGTH && prefix.chars().all(|c| c.is_ascii_hexdigit())
+    prefix.len() >= MIN_PREFIX_LENGTH && prefix.len() <= MAX_PREFIX_LENGTH && prefix.chars().all(|c| c.is_ascii_hexdigit())
 }
 
 /// Validate a client HMAC key.
@@ -206,6 +218,13 @@ mod tests {
     }
 
     #[test]
+    fn test_extract_prefix_with_length_6() {
+        let hash = "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8";
+        let prefix = extract_prefix_with_length(hash, 6);
+        assert_eq!(prefix, "5BAA61");
+    }
+
+    #[test]
     fn test_extract_prefix_lowercase() {
         let hash = "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
         let prefix = extract_prefix(hash);
@@ -252,9 +271,14 @@ mod tests {
         assert!(is_valid_prefix("abcde"));
         assert!(is_valid_prefix("12345"));
 
+        // 6-char prefixes are also valid
+        assert!(is_valid_prefix("5BAA61"));
+        assert!(is_valid_prefix("ABCDEF"));
+        assert!(is_valid_prefix("123456"));
+
         // Wrong length
         assert!(!is_valid_prefix("5BAA"));
-        assert!(!is_valid_prefix("5BAA61"));
+        assert!(!is_valid_prefix("5BAA61E"));
 
         // Invalid characters
         assert!(!is_valid_prefix("5BAA!"));
@@ -303,7 +327,7 @@ mod tests {
     fn test_prepare_credential() {
         let result = prepare_credential("test@example.com", "password123").unwrap();
         assert_eq!(result.hash.len(), 64);
-        assert_eq!(result.prefix.len(), 5);
+        assert_eq!(result.prefix.len(), PREFIX_LENGTH);
         assert!(result.credential.is_some());
     }
 

@@ -14,8 +14,16 @@ pub const DEFAULT_RETRIES: u32 = 3;
 /// Default cache TTL (1 hour).
 pub const DEFAULT_CACHE_TTL: Duration = Duration::from_secs(3600);
 
-/// Length of the k-anonymity prefix.
+/// Default length of the k-anonymity prefix.
 pub const PREFIX_LENGTH: usize = 5;
+
+/// Minimum allowed prefix length.
+pub const MIN_PREFIX_LENGTH: usize = 5;
+
+/// Maximum allowed prefix length.
+/// Using 6 characters returns ~16x fewer results than 5, reducing response
+/// size at the cost of a smaller anonymity set.
+pub const MAX_PREFIX_LENGTH: usize = 6;
 
 /// Server time window duration in seconds (1 hour).
 pub const TIME_WINDOW_SECONDS: i64 = 3600;
@@ -76,6 +84,8 @@ mod tests {
         assert_eq!(DEFAULT_RETRIES, 3);
         assert_eq!(DEFAULT_CACHE_TTL, Duration::from_secs(3600));
         assert_eq!(PREFIX_LENGTH, 5);
+        assert_eq!(MIN_PREFIX_LENGTH, 5);
+        assert_eq!(MAX_PREFIX_LENGTH, 6);
     }
 
     #[test]

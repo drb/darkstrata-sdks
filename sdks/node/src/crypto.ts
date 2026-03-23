@@ -1,5 +1,5 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
-import { PREFIX_LENGTH } from './constants.js';
+import { PREFIX_LENGTH, MIN_PREFIX_LENGTH, MAX_PREFIX_LENGTH } from './constants.js';
 
 /**
  * Compute SHA-256 hash of a credential pair.
@@ -57,16 +57,20 @@ export function hmacSha256(message: string, key: string): string {
  * Extract the k-anonymity prefix from a hash.
  *
  * @param hash - The full SHA-256 hash (64 hex characters)
- * @returns The first 5 characters (prefix) in uppercase
+ * @param length - Prefix length: 5 (default) or 6. Using 6 returns ~16x fewer results for faster responses.
+ * @returns The first 5 or 6 characters (prefix) in uppercase
  *
  * @example
  * ```typescript
  * const prefix = extractPrefix('5baa61e4c9b93f3f0682250b6cf8331b...');
  * // Returns: '5BAA6'
+ *
+ * const prefix6 = extractPrefix('5baa61e4c9b93f3f0682250b6cf8331b...', 6);
+ * // Returns: '5BAA61'
  * ```
  */
-export function extractPrefix(hash: string): string {
-  return hash.substring(0, PREFIX_LENGTH).toUpperCase();
+export function extractPrefix(hash: string, length: number = PREFIX_LENGTH): string {
+  return hash.substring(0, length).toUpperCase();
 }
 
 /**
@@ -134,10 +138,10 @@ export function isValidHash(hash: string, expectedLength = 64): boolean {
  * Validate that a string is a valid k-anonymity prefix.
  *
  * @param prefix - The prefix to validate
- * @returns `true` if the prefix is valid (5 hex characters)
+ * @returns `true` if the prefix is valid (5 or 6 hex characters)
  */
 export function isValidPrefix(prefix: string): boolean {
-  return prefix.length === PREFIX_LENGTH && /^[A-Fa-f0-9]+$/.test(prefix);
+  return prefix.length >= MIN_PREFIX_LENGTH && prefix.length <= MAX_PREFIX_LENGTH && /^[A-Fa-f0-9]+$/.test(prefix);
 }
 
 /**

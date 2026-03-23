@@ -47,7 +47,7 @@ func main() {
 
 ## Features
 
-- **Privacy-first k-anonymity** - Only the first 5 characters of the hash are sent to the server
+- **Privacy-first k-anonymity** - Only the first 5 or 6 characters of the hash are sent to the server
 - **Zero external dependencies** - Uses only Go standard library
 - **Batch checking** - Efficiently check multiple credentials with automatic prefix grouping
 - **Automatic retries** - Exponential backoff for transient failures
@@ -115,7 +115,7 @@ type CheckResult struct {
 }
 
 type CheckMetadata struct {
-    Prefix       string    // 5-char hash prefix used
+    Prefix       string    // 5 or 6-char hash prefix used
     TotalResults int       // Number of matching hashes
     HMACSource   string    // "server" or "client"
     TimeWindow   string    // Server HMAC rotation window
@@ -196,7 +196,7 @@ valid := credentialcheck.IsValidPrefix(prefix)
 ## How K-Anonymity Works
 
 1. The SDK computes `SHA-256(email:password)` locally
-2. Only the first 5 characters (prefix) are sent to the server
+2. Only the first 5 or 6 characters (prefix) are sent to the server
 3. The server returns all hashes matching that prefix (typically 50-1000)
 4. The SDK checks if the full hash is in the response using HMAC verification
 5. Your actual credential never leaves your device

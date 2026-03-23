@@ -59,7 +59,7 @@ asyncio.run(main())
 This SDK uses **k-anonymity** to check credentials without exposing them:
 
 1. Your credential is hashed locally: `SHA256(email:password)`
-2. Only the first 5 characters (prefix) of the hash are sent to the API
+2. Only the first 5 or 6 characters (prefix) of the hash are sent to the API
 3. The API returns all hashes matching that prefix (1-in-1,000,000 anonymity)
 4. The SDK checks if your full hash is in the returned set
 
@@ -186,7 +186,7 @@ Metadata returned with check results.
 ```python
 @dataclass
 class CheckMetadata:
-    prefix: str                    # The 5-char prefix used
+    prefix: str                    # The 5 or 6-char prefix used
     total_results: int             # Total hashes returned by API
     hmac_source: Literal['server', 'client']  # Source of HMAC key
     time_window: int | None        # Server time window (server HMAC only)
@@ -375,7 +375,7 @@ client = DarkStrataCredentialCheck(
 
 ### What is sent to the API?
 
-- Only the **first 5 characters** of the SHA-256 hash
+- Only the **first 5 or 6 characters** of the SHA-256 hash
 - Your API key for authentication
 
 ### What is NOT sent?

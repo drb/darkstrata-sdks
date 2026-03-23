@@ -169,7 +169,7 @@ match client.check("user@example.com", "password", None).await {
 The SDK uses k-anonymity to protect your credentials:
 
 1. Your credential is hashed using SHA-256: `SHA256(email:password)`
-2. Only the first 5 characters (prefix) are sent to the API
+2. Only the first 5 or 6 characters (prefix) are sent to the API
 3. The API returns all hashes matching that prefix (1-in-1,000,000 anonymity)
 4. The SDK checks locally if your full hash exists in the returned set
 5. Timing-safe comparison prevents timing attacks

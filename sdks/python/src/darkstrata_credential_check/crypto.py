@@ -8,7 +8,7 @@ import re
 import secrets
 from typing import TypeVar
 
-from .constants import PREFIX_LENGTH
+from .constants import PREFIX_LENGTH, MIN_PREFIX_LENGTH, MAX_PREFIX_LENGTH
 
 T = TypeVar("T")
 
@@ -67,21 +67,25 @@ def hmac_sha256(message: str, key: str) -> str:
     return hmac.new(key_bytes, message.encode(), hashlib.sha256).hexdigest().upper()
 
 
-def extract_prefix(hash_value: str) -> str:
+def extract_prefix(hash_value: str, length: int = PREFIX_LENGTH) -> str:
     """
     Extract the k-anonymity prefix from a hash.
 
     Args:
         hash_value: The full SHA-256 hash (64 hex characters).
+        length: Prefix length: 5 (default) or 6. Using 6 returns ~16x fewer
+            results for faster responses.
 
     Returns:
-        The first 5 characters (prefix) in uppercase.
+        The first 5 or 6 characters (prefix) in uppercase.
 
     Example:
         >>> prefix = extract_prefix('5baa61e4c9b93f3f0682250b6cf8331b...')
         >>> print(prefix)  # '5BAA6'
+        >>> prefix6 = extract_prefix('5baa61e4c9b93f3f0682250b6cf8331b...', 6)
+        >>> print(prefix6)  # '5BAA61'
     """
-    return hash_value[:PREFIX_LENGTH].upper()
+    return hash_value[:length].upper()
 
 
 def is_hash_in_set(hash_value: str, hmac_key: str, hmac_hashes: list[str]) -> bool:
@@ -147,9 +151,9 @@ def is_valid_prefix(prefix: str) -> bool:
         prefix: The prefix to validate.
 
     Returns:
-        True if the prefix is valid (5 hex characters).
+        True if the prefix is valid (5 or 6 hex characters).
     """
-    return len(prefix) == PREFIX_LENGTH and bool(re.match(r"^[A-Fa-f0-9]+$", prefix))
+    return MIN_PREFIX_LENGTH <= len(prefix) <= MAX_PREFIX_LENGTH and bool(re.match(r"^[A-Fa-f0-9]+$", prefix))
 
 
 def secure_wipe(_value: str) -> str:

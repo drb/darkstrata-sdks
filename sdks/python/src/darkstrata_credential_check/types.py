@@ -104,7 +104,7 @@ class CheckMetadata:
     Metadata returned with check results.
 
     Attributes:
-        prefix: The 5-character hash prefix used for the k-anonymity lookup.
+        prefix: The 5 or 6-character hash prefix used for the k-anonymity lookup.
         total_results: Total number of matching hashes returned by the API.
         hmac_source: Source of the HMAC key used for this request.
             'server': Server-generated key (rotates hourly).

@@ -19,7 +19,7 @@ import java.util.concurrent.*;
  * Client for checking credentials against the DarkStrata breach database.
  *
  * <p>This client uses k-anonymity to check credentials without exposing them.
- * Only the first 5 characters of a SHA-256 hash are sent to the API.</p>
+ * Only the first 5 or 6 characters of a SHA-256 hash are sent to the API.</p>
  *
  * <p>Example usage:</p>
  * <pre>{@code

@@ -25,6 +25,9 @@ public final class Constants {
 
     // Hash Configuration
     public static final int PREFIX_LENGTH = 5;
+    public static final int MIN_PREFIX_LENGTH = 5;
+    /** Using 6 characters returns ~16x fewer results than 5, reducing response size at the cost of a smaller anonymity set. */
+    public static final int MAX_PREFIX_LENGTH = 6;
     public static final long TIME_WINDOW_SECONDS = 3600; // 1 hour
 
     // Retry Configuration

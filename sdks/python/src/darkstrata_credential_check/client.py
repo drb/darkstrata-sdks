@@ -162,7 +162,7 @@ class DarkStrataCredentialCheck:
         Check if a credential has been exposed in a data breach.
 
         This method uses k-anonymity to protect the credential being checked.
-        Only the first 5 characters of the hash are sent to the server.
+        Only the first 5 or 6 characters of the hash are sent to the server.
 
         Args:
             email: The email address or username.

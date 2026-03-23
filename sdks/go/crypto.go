@@ -41,12 +41,19 @@ func HMACSHA256(message, hexKey string) (string, error) {
 	return strings.ToUpper(hex.EncodeToString(h.Sum(nil))), nil
 }
 
-// ExtractPrefix returns the first PrefixLength characters of the hash (uppercase)
+// ExtractPrefix returns the first PrefixLength characters of the hash (uppercase).
+// Use ExtractPrefixN to specify a custom length (5 or 6).
 func ExtractPrefix(hash string) string {
-	if len(hash) < PrefixLength {
+	return ExtractPrefixN(hash, PrefixLength)
+}
+
+// ExtractPrefixN returns the first n characters of the hash (uppercase).
+// Using 6 characters returns ~16x fewer results for faster responses.
+func ExtractPrefixN(hash string, n int) string {
+	if len(hash) < n {
 		return strings.ToUpper(hash)
 	}
-	return strings.ToUpper(hash[:PrefixLength])
+	return strings.ToUpper(hash[:n])
 }
 
 // IsHashInSet checks if the hash is in the set using timing-safe comparison
@@ -89,9 +96,9 @@ func IsValidHash(hash string, expectedLength int) bool {
 	return hexPattern.MatchString(hash)
 }
 
-// IsValidPrefix checks if the string is a valid k-anonymity prefix
+// IsValidPrefix checks if the string is a valid k-anonymity prefix (5 or 6 hex characters)
 func IsValidPrefix(prefix string) bool {
-	if len(prefix) != PrefixLength {
+	if len(prefix) < MinPrefixLength || len(prefix) > MaxPrefixLength {
 		return false
 	}
 	return hexPattern.MatchString(prefix)

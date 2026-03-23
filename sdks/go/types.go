@@ -60,7 +60,7 @@ type CredentialInfo struct {
 
 // CheckMetadata contains additional result information
 type CheckMetadata struct {
-	// Prefix is the 5-char hash prefix used
+	// Prefix is the 5 or 6-char hash prefix used
 	Prefix string
 
 	// TotalResults is the number of matching hashes returned

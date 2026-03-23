@@ -38,9 +38,21 @@ internal static class Constants
     public static readonly TimeSpan DefaultCacheTtl = TimeSpan.FromHours(1);
 
     /// <summary>
-    /// Length of the k-anonymity prefix.
+    /// Default length of the k-anonymity prefix.
     /// </summary>
     public const int PrefixLength = 5;
+
+    /// <summary>
+    /// Minimum allowed prefix length.
+    /// </summary>
+    public const int MinPrefixLength = 5;
+
+    /// <summary>
+    /// Maximum allowed prefix length.
+    /// Using 6 characters returns ~16x fewer results than 5, reducing response
+    /// size at the cost of a smaller anonymity set.
+    /// </summary>
+    public const int MaxPrefixLength = 6;
 
     /// <summary>
     /// Time window duration in seconds (for HMAC key rotation).

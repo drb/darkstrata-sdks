@@ -13,6 +13,8 @@ from .constants import (
     DEFAULT_CACHE_TTL,
     DEFAULT_RETRIES,
     DEFAULT_TIMEOUT,
+    MAX_PREFIX_LENGTH,
+    MIN_PREFIX_LENGTH,
     PREFIX_LENGTH,
     TIME_WINDOW_SECONDS,
 )
@@ -87,6 +89,8 @@ __all__ = [
     "DEFAULT_RETRIES",
     "DEFAULT_CACHE_TTL",
     "PREFIX_LENGTH",
+    "MIN_PREFIX_LENGTH",
+    "MAX_PREFIX_LENGTH",
     "TIME_WINDOW_SECONDS",
     # Version
     "__version__",

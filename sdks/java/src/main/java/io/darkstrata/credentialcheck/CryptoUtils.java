@@ -77,16 +77,28 @@ public final class CryptoUtils {
     }
 
     /**
-     * Extract the prefix (first 5 characters) from a hash.
+     * Extract the prefix (first 5 characters) from a hash using the default length.
      *
      * @param hash the full hash
      * @return the 5-character prefix in uppercase
      */
     public static String extractPrefix(String hash) {
-        if (hash == null || hash.length() < Constants.PREFIX_LENGTH) {
-            throw new IllegalArgumentException("Hash must be at least " + Constants.PREFIX_LENGTH + " characters");
+        return extractPrefix(hash, Constants.PREFIX_LENGTH);
+    }
+
+    /**
+     * Extract the prefix from a hash with a specified length.
+     * Using 6 characters returns ~16x fewer results for faster responses.
+     *
+     * @param hash   the full hash
+     * @param length prefix length: 5 (default) or 6
+     * @return the prefix in uppercase
+     */
+    public static String extractPrefix(String hash, int length) {
+        if (hash == null || hash.length() < length) {
+            throw new IllegalArgumentException("Hash must be at least " + length + " characters");
         }
-        return hash.substring(0, Constants.PREFIX_LENGTH).toUpperCase(Locale.ROOT);
+        return hash.substring(0, length).toUpperCase(Locale.ROOT);
     }
 
     /**
@@ -111,10 +123,10 @@ public final class CryptoUtils {
     }
 
     /**
-     * Validate that a string is a valid hash prefix (5 hex characters).
+     * Validate that a string is a valid hash prefix (5 or 6 hex characters).
      */
     public static boolean isValidPrefix(String prefix) {
-        if (prefix == null || prefix.length() != Constants.PREFIX_LENGTH) {
+        if (prefix == null || prefix.length() < Constants.MIN_PREFIX_LENGTH || prefix.length() > Constants.MAX_PREFIX_LENGTH) {
             return false;
         }
         return HEX_PATTERN.matcher(prefix).matches();

@@ -99,10 +99,16 @@ describe('crypto utilities', () => {
   });
 
   describe('extractPrefix', () => {
-    it('should extract first 5 characters', () => {
+    it('should extract first 5 characters by default', () => {
       const hash = '5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8';
       const prefix = extractPrefix(hash);
       expect(prefix).toBe('5BAA6');
+    });
+
+    it('should extract first 6 characters when length is 6', () => {
+      const hash = '5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8';
+      const prefix = extractPrefix(hash, 6);
+      expect(prefix).toBe('5BAA61');
     });
 
     it('should return uppercase', () => {
@@ -157,9 +163,15 @@ describe('crypto utilities', () => {
       expect(isValidPrefix('12345')).toBe(true);
     });
 
+    it('should return true for valid 6-char hex prefix', () => {
+      expect(isValidPrefix('5BAA61')).toBe(true);
+      expect(isValidPrefix('ABCDEF')).toBe(true);
+      expect(isValidPrefix('123456')).toBe(true);
+    });
+
     it('should return false for wrong length', () => {
       expect(isValidPrefix('ABCD')).toBe(false);
-      expect(isValidPrefix('ABCDEF')).toBe(false);
+      expect(isValidPrefix('ABCDEFG')).toBe(false);
       expect(isValidPrefix('')).toBe(false);
     });
 

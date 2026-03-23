@@ -157,8 +157,8 @@ func TestMockAPICheck(t *testing.T) {
 		}
 
 		prefix := r.URL.Query().Get("prefix")
-		if len(prefix) != 5 {
-			t.Errorf("Prefix length = %d, want 5", len(prefix))
+		if len(prefix) < MinPrefixLength || len(prefix) > MaxPrefixLength {
+			t.Errorf("Prefix length = %d, want %d-%d", len(prefix), MinPrefixLength, MaxPrefixLength)
 		}
 
 		// Set response headers
@@ -394,8 +394,8 @@ func TestMockAPICheckHash(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Verify prefix parameter
 		prefix := r.URL.Query().Get("prefix")
-		if len(prefix) != 5 {
-			t.Errorf("Prefix length = %d, want 5", len(prefix))
+		if len(prefix) < MinPrefixLength || len(prefix) > MaxPrefixLength {
+			t.Errorf("Prefix length = %d, want %d-%d", len(prefix), MinPrefixLength, MaxPrefixLength)
 		}
 
 		w.Header().Set(HeaderPrefix, prefix)

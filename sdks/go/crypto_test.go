@@ -153,8 +153,11 @@ func TestIsValidPrefix(t *testing.T) {
 		{"abcde", true},
 		{"12345", true},
 		{"ABCDE", true},
+		{"abcdef", true},   // 6-char prefix is valid
+		{"ABCDEF", true},   // 6-char prefix is valid
+		{"123456", true},   // 6-char prefix is valid
 		{"abc", false},     // Too short
-		{"abcdef", false},  // Too long
+		{"abcdefg", false}, // Too long (7 chars)
 		{"ghijk", false},   // Invalid hex
 		{"", false},        // Empty
 		{"abc de", false},  // Contains space

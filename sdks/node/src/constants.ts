@@ -20,9 +20,21 @@ export const DEFAULT_RETRIES = 3;
 export const DEFAULT_CACHE_TTL = 3600000;
 
 /**
- * Length of the hash prefix for k-anonymity queries.
+ * Default length of the hash prefix for k-anonymity queries.
  */
 export const PREFIX_LENGTH = 5;
+
+/**
+ * Minimum allowed prefix length.
+ */
+export const MIN_PREFIX_LENGTH = 5;
+
+/**
+ * Maximum allowed prefix length.
+ * Using 6 characters returns ~16x fewer results than 5, reducing response
+ * size at the cost of a smaller anonymity set.
+ */
+export const MAX_PREFIX_LENGTH = 6;
 
 /**
  * Server time window duration in seconds (1 hour).

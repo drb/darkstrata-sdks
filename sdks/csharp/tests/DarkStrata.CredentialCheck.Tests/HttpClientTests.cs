@@ -329,11 +329,11 @@ public class HttpClientTests : IDisposable
         var lastUri = _handler.LastRequestUri!;
         var queryString = lastUri.Query;
         Assert.Contains("prefix=", queryString);
-        // Extract prefix value and verify it's 5 characters
+        // Extract prefix value and verify it's 5 or 6 characters
         var prefixStart = queryString.IndexOf("prefix=", StringComparison.Ordinal) + "prefix=".Length;
         var prefixEnd = queryString.IndexOf('&', prefixStart);
         var prefix = prefixEnd == -1 ? queryString[prefixStart..] : queryString[prefixStart..prefixEnd];
-        Assert.Equal(5, prefix.Length);
+        Assert.InRange(prefix.Length, 5, 6);
     }
 
     [Fact]

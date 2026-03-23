@@ -29,7 +29,7 @@ Your SDK should implement:
 
 2. **Protocol implementation**:
    - SHA-256 hashing of credentials (`email:password`)
-   - Extract 5-character prefix for k-anonymity
+   - Extract 5 or 6-character prefix for k-anonymity
    - HMAC-SHA256 for result verification
    - Timing-safe comparison to prevent timing attacks
 

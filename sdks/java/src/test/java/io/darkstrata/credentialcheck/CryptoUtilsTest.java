@@ -53,10 +53,17 @@ class CryptoUtilsTest {
     }
 
     @Test
-    @DisplayName("extractPrefix returns first 5 characters")
+    @DisplayName("extractPrefix returns first 5 characters by default")
     void extractPrefixReturnsFirst5Characters() {
         String hash = "ABCDE12345";
         assertEquals("ABCDE", CryptoUtils.extractPrefix(hash));
+    }
+
+    @Test
+    @DisplayName("extractPrefix returns first 6 characters when length is 6")
+    void extractPrefixReturnsFirst6Characters() {
+        String hash = "ABCDE12345";
+        assertEquals("ABCDE1", CryptoUtils.extractPrefix(hash, 6));
     }
 
     @Test
@@ -93,13 +100,15 @@ class CryptoUtilsTest {
     }
 
     @Test
-    @DisplayName("isValidPrefix validates 5 hex characters")
-    void isValidPrefixValidates5HexCharacters() {
+    @DisplayName("isValidPrefix validates 5 or 6 hex characters")
+    void isValidPrefixValidates5Or6HexCharacters() {
         assertTrue(CryptoUtils.isValidPrefix("ABCDE"));
         assertTrue(CryptoUtils.isValidPrefix("12345"));
         assertTrue(CryptoUtils.isValidPrefix("abcde"));
+        assertTrue(CryptoUtils.isValidPrefix("ABCDEF"));
+        assertTrue(CryptoUtils.isValidPrefix("123456"));
         assertFalse(CryptoUtils.isValidPrefix("ABCD"));
-        assertFalse(CryptoUtils.isValidPrefix("ABCDEF"));
+        assertFalse(CryptoUtils.isValidPrefix("ABCDEFG"));
         assertFalse(CryptoUtils.isValidPrefix("GHIJK"));
         assertFalse(CryptoUtils.isValidPrefix(null));
     }

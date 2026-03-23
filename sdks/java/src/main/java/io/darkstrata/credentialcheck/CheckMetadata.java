@@ -26,7 +26,7 @@ public class CheckMetadata {
     }
 
     /**
-     * Get the 5-character hash prefix that was queried.
+     * Get the hash prefix (5 or 6 characters) that was queried.
      */
     public String getPrefix() {
         return prefix;

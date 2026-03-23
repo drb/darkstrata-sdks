@@ -114,10 +114,16 @@ class TestExtractPrefix:
     """Tests for extract_prefix function."""
 
     def test_should_extract_first_5_characters(self) -> None:
-        """Should extract first 5 characters."""
+        """Should extract first 5 characters by default."""
         hash_value = "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8"
         prefix = extract_prefix(hash_value)
         assert prefix == "5BAA6"
+
+    def test_should_extract_first_6_characters_when_length_is_6(self) -> None:
+        """Should extract first 6 characters when length is 6."""
+        hash_value = "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8"
+        prefix = extract_prefix(hash_value, 6)
+        assert prefix == "5BAA61"
 
     def test_should_return_uppercase(self) -> None:
         """Should return uppercase."""
@@ -175,10 +181,16 @@ class TestIsValidPrefix:
         assert is_valid_prefix("ABCDE") is True
         assert is_valid_prefix("12345") is True
 
+    def test_should_return_true_for_valid_6_char_hex_prefix(self) -> None:
+        """Should return true for valid 6-char hex prefix."""
+        assert is_valid_prefix("5BAA61") is True
+        assert is_valid_prefix("ABCDEF") is True
+        assert is_valid_prefix("123456") is True
+
     def test_should_return_false_for_wrong_length(self) -> None:
         """Should return false for wrong length."""
         assert is_valid_prefix("ABCD") is False
-        assert is_valid_prefix("ABCDEF") is False
+        assert is_valid_prefix("ABCDEFG") is False
         assert is_valid_prefix("") is False
 
     def test_should_return_false_for_non_hex_characters(self) -> None:
