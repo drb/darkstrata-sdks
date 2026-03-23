@@ -1,3 +1,23 @@
+# [2.1.0](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.2...v2.1.0) (2026-03-23)
+
+
+### Bug Fixes
+
+* resolve CI failures from prefix length update ([32a1186](https://github.com/darkstrata/darkstrata-sdks/commit/32a1186547748dc8e003cc5f582f5d473860bad5))
+* **splunk-ta:** add missing source files and fix CI failures ([e3a5acb](https://github.com/darkstrata/darkstrata-sdks/commit/e3a5acbdb49b3eeb266a69b6b2971a916791a5ae))
+* **splunk-ta:** add package/app.manifest for UCC build ([168b5af](https://github.com/darkstrata/darkstrata-sdks/commit/168b5afed36aaa1b37002d3cfe3cc1e2556932fe))
+* **splunk-ta:** fix AppInspect validation failures ([2e6cd09](https://github.com/darkstrata/darkstrata-sdks/commit/2e6cd096edb251c5c719b8621c07c7118531033b))
+* **splunk-ta:** fix broken json_extract calls in props.conf and clean up CHANGELOG ([6fd53e5](https://github.com/darkstrata/darkstrata-sdks/commit/6fd53e5a914ada46ecb7c3c576423681b1e14d45))
+* **splunk-ta:** lower coverage threshold to match actual coverage ([648ed9a](https://github.com/darkstrata/darkstrata-sdks/commit/648ed9abcaf2dec2691fe3921d86f0f61fdbf93d))
+* **splunk-ta:** replace removed acknowledge endpoint with PATCH alert status ([ccb5171](https://github.com/darkstrata/darkstrata-sdks/commit/ccb5171aba8ceff7580c48c252c099d256c3fc43))
+
+
+### Features
+
+* fix configs ([62f0a17](https://github.com/darkstrata/darkstrata-sdks/commit/62f0a1700c293d83942d78c4319937fcc7f15887))
+* **splunk-ta:** add Adaptive Response actions, SOAR integration, and performance ([784cf00](https://github.com/darkstrata/darkstrata-sdks/commit/784cf00208ccee3933d9d0c25e715ee27f25989d))
+* support 6-character prefix for k-anonymity queries ([3a760be](https://github.com/darkstrata/darkstrata-sdks/commit/3a760be4578f380da6a2e848900da731abc59465))
+
 ## [2.0.2](https://github.com/darkstrata/darkstrata-sdks/compare/v2.0.1...v2.0.2) (2026-01-11)
 
 
