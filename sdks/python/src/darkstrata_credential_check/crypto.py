@@ -153,7 +153,9 @@ def is_valid_prefix(prefix: str) -> bool:
     Returns:
         True if the prefix is valid (5 or 6 hex characters).
     """
-    return MIN_PREFIX_LENGTH <= len(prefix) <= MAX_PREFIX_LENGTH and bool(re.match(r"^[A-Fa-f0-9]+$", prefix))
+    return MIN_PREFIX_LENGTH <= len(prefix) <= MAX_PREFIX_LENGTH and bool(
+        re.match(r"^[A-Fa-f0-9]+$", prefix)
+    )
 
 
 def secure_wipe(_value: str) -> str:
