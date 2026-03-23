@@ -1,6 +1,8 @@
 //! Cryptographic utilities for the DarkStrata Credential Check SDK.
 
-use crate::constants::{MIN_CLIENT_HMAC_LENGTH, MIN_PREFIX_LENGTH, MAX_PREFIX_LENGTH, PREFIX_LENGTH, SHA256_HEX_LENGTH};
+use crate::constants::{
+    MAX_PREFIX_LENGTH, MIN_CLIENT_HMAC_LENGTH, MIN_PREFIX_LENGTH, PREFIX_LENGTH, SHA256_HEX_LENGTH,
+};
 use crate::errors::{DarkStrataError, Result};
 use crate::types::HashedCredential;
 use hmac::{Hmac, Mac};
@@ -56,10 +58,7 @@ pub fn extract_prefix(hash: &str) -> String {
 /// * `hash` - The full SHA-256 hash
 /// * `length` - Prefix length: 5 (default) or 6
 pub fn extract_prefix_with_length(hash: &str, length: usize) -> String {
-    hash.chars()
-        .take(length)
-        .collect::<String>()
-        .to_uppercase()
+    hash.chars().take(length).collect::<String>().to_uppercase()
 }
 
 /// Check if a hash exists in a set of HMAC'd hashes using timing-safe comparison.
@@ -103,7 +102,9 @@ pub fn is_valid_hash(hash: &str, expected_length: Option<usize>) -> bool {
 
 /// Validate that a string is a valid k-anonymity prefix (5 or 6 hex characters).
 pub fn is_valid_prefix(prefix: &str) -> bool {
-    prefix.len() >= MIN_PREFIX_LENGTH && prefix.len() <= MAX_PREFIX_LENGTH && prefix.chars().all(|c| c.is_ascii_hexdigit())
+    prefix.len() >= MIN_PREFIX_LENGTH
+        && prefix.len() <= MAX_PREFIX_LENGTH
+        && prefix.chars().all(|c| c.is_ascii_hexdigit())
 }
 
 /// Validate a client HMAC key.

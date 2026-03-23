@@ -129,7 +129,7 @@ func TestIsValidHash(t *testing.T) {
 		{"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", 64, true},
 		{"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", 0, true}, // Default length
 		{"2cf24", 5, true},
-		{"2cf24", 64, false},                                                             // Wrong length
+		{"2cf24", 64, false}, // Wrong length
 		{"xyz24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", 64, false}, // Invalid hex
 		{"", 64, false},
 	}

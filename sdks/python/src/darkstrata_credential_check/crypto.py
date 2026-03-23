@@ -8,7 +8,7 @@ import re
 import secrets
 from typing import TypeVar
 
-from .constants import PREFIX_LENGTH, MIN_PREFIX_LENGTH, MAX_PREFIX_LENGTH
+from .constants import MAX_PREFIX_LENGTH, MIN_PREFIX_LENGTH, PREFIX_LENGTH
 
 T = TypeVar("T")
 

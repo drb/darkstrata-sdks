@@ -110,7 +110,8 @@ public class CryptoTests
     [InlineData("abcde", true)]
     [InlineData("12345", true)]
     [InlineData("5BAA", false)] // Too short
-    [InlineData("5BAA61", false)] // Too long
+    [InlineData("5BAA61", true)] // 6-char prefix is valid
+    [InlineData("ABCDEFG", false)] // Too long (7 chars)
     [InlineData("ZZZZZ", false)] // Invalid chars
     [InlineData("", false)]
     public void IsValidPrefix_ValidatesCorrectly(string prefix, bool expected)
