@@ -1,0 +1,48 @@
+<form class="form-horizontal form-complex">
+    <div class="control-group">
+        <label class="control-label" for="account">DarkStrata Account</label>
+        <div class="controls">
+            <select name="action.darkstrata_get_alert_details.param.account" id="account">
+                <option value="">-- Select Account --</option>
+            </select>
+            <span class="help-block">Select the DarkStrata account to use for this action.</span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="alert_id">Alert ID</label>
+        <div class="controls">
+            <input type="text" name="action.darkstrata_get_alert_details.param.alert_id" id="alert_id"
+                   placeholder="$result.alert_id$" />
+            <span class="help-block">
+                The DarkStrata alert ID to retrieve details for. Use <code>$result.alert_id$</code> to
+                automatically extract from the triggering event.
+            </span>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+require(['jquery', 'splunkjs/mvc/simplexml/ready!'], function($) {
+    // Populate account dropdown from REST API
+    var service = mvc.createService();
+    service.request(
+        '/servicesNS/-/TA-darkstrata/ta_darkstrata_account',
+        'GET',
+        null,
+        null,
+        null,
+        {'output_mode': 'json'},
+        function(err, response) {
+            if (!err && response.data && response.data.entry) {
+                var $select = $('#account');
+                response.data.entry.forEach(function(entry) {
+                    $select.append($('<option>', {
+                        value: entry.name,
+                        text: entry.name
+                    }));
+                });
+            }
+        }
+    );
+});
+</script>

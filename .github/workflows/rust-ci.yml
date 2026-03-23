@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'rust/**'
+      - 'sdks/rust/**'
       - '.github/workflows/rust-ci.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'rust/**'
+      - 'sdks/rust/**'
       - '.github/workflows/rust-ci.yml'
 
 defaults:
   run:
-    working-directory: rust
+    working-directory: sdks/rust
 
 jobs:
   fmt:

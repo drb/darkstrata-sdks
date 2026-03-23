@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'java/**'
+      - 'sdks/java/**'
       - '.github/workflows/java-ci.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'java/**'
+      - 'sdks/java/**'
       - '.github/workflows/java-ci.yml'
 
 defaults:
   run:
-    working-directory: java
+    working-directory: sdks/java
 
 jobs:
   build:

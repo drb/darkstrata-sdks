@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'csharp/**'
+      - 'sdks/csharp/**'
       - '.github/workflows/csharp-ci.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'csharp/**'
+      - 'sdks/csharp/**'
       - '.github/workflows/csharp-ci.yml'
 
 defaults:
   run:
-    working-directory: csharp
+    working-directory: sdks/csharp
 
 jobs:
   format:
@@ -74,6 +74,6 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
-          directory: csharp/tests/DarkStrata.CredentialCheck.Tests/TestResults
+          directory: sdks/csharp/tests/DarkStrata.CredentialCheck.Tests/TestResults
           flags: csharp
         continue-on-error: true

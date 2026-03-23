@@ -8,9 +8,9 @@ We welcome community contributions for SDKs in languages we don't currently supp
 
 ### Getting Started
 
-1. **Fork the repository** and create a new directory for your language (e.g., `/python/`, `/go/`)
+1. **Fork the repository** and create a new directory for your language (e.g., `/sdks/python/`, `/sdks/go/`)
 
-2. **Study the existing Node.js implementation** in `/node/` to understand:
+2. **Study the existing Node.js implementation** in `/sdks/node/` to understand:
    - The k-anonymity protocol flow
    - API endpoints and parameters
    - Error handling patterns
@@ -29,7 +29,7 @@ Your SDK should implement:
 
 2. **Protocol implementation**:
    - SHA-256 hashing of credentials (`email:password`)
-   - Extract 5-character prefix for k-anonymity
+   - Extract 5 or 6-character prefix for k-anonymity
    - HMAC-SHA256 for result verification
    - Timing-safe comparison to prevent timing attacks
 
@@ -106,8 +106,8 @@ your-language/
 The Node.js SDK is published to npm using GitHub Actions with provenance attestation.
 
 **Publishing a release:**
-1. Update version in `node/package.json`
-2. Update `node/CHANGELOG.md`
+1. Update version in `sdks/node/package.json`
+2. Update `sdks/node/CHANGELOG.md`
 3. Commit and push to `main`
 4. Create a GitHub release with tag `node-vX.Y.Z`
 5. The `node-publish.yml` workflow runs automatically
@@ -119,8 +119,8 @@ The Node.js SDK is published to npm using GitHub Actions with provenance attesta
 The Python SDK is published to PyPI using trusted publishing (OIDC) - no tokens required.
 
 **Publishing a release:**
-1. Update version in `python/pyproject.toml`
-2. Update `python/CHANGELOG.md`
+1. Update version in `sdks/python/pyproject.toml`
+2. Update `sdks/python/CHANGELOG.md`
 3. Commit and push to `main`
 4. Create a GitHub release with tag `python-vX.Y.Z`
 5. The `python-publish.yml` workflow runs automatically

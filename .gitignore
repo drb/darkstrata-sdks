@@ -58,7 +58,6 @@ ENV/
 env/
 
 # PyInstaller
-*.manifest
 *.spec
 
 # pip
@@ -87,7 +86,8 @@ dmypy.json
 # ===================
 
 # Build outputs
-bin/
+**/bin/Debug/
+**/bin/Release/
 obj/
 *.dll
 *.exe
