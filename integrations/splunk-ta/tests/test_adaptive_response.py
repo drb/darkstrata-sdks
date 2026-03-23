@@ -170,9 +170,7 @@ class TestDarkStrataActionBase:
             "proxy_settings": None,
         }
 
-        result = action.make_api_request(
-            config, "POST", "/alerts"
-        )
+        result = action.make_api_request(config, "POST", "/alerts")
 
         assert result["status"] == "ACTIVE"
 
@@ -192,9 +190,7 @@ class TestDarkStrataActionBase:
             "proxy_settings": None,
         }
 
-        result = action.make_api_request(
-            config, "PATCH", "/alerts/test123", data={"status": "CLOSED"}
-        )
+        result = action.make_api_request(config, "PATCH", "/alerts/test123", data={"status": "CLOSED"})
 
         assert result["status"] == "CLOSED"
 
@@ -241,9 +237,7 @@ class TestDarkStrataActionBase:
     def test_run_with_error(self, action):
         """Test action run with error."""
         # Override execute to raise an error
-        action.execute = MagicMock(
-            side_effect=DarkStrataActionError("Test error", status_code=400)
-        )
+        action.execute = MagicMock(side_effect=DarkStrataActionError("Test error", status_code=400))
 
         payload = {"configuration": {}}
 
@@ -285,10 +279,12 @@ class TestUpdateAlertStatusAction:
         action = UpdateAlertStatusAction(session_key="test_key")
         action.get_account_config = MagicMock(return_value=mock_account_config)
 
-        result = action.execute({
-            "account": "test_account",
-            "alert_id": "alert123",
-        })
+        result = action.execute(
+            {
+                "account": "test_account",
+                "alert_id": "alert123",
+            }
+        )
 
         assert result["alert_id"] == "alert123"
         assert result["status"] == "UNDER_INVESTIGATION"
@@ -313,11 +309,13 @@ class TestUpdateAlertStatusAction:
         action = UpdateAlertStatusAction(session_key="test_key")
         action.get_account_config = MagicMock(return_value=mock_account_config)
 
-        result = action.execute({
-            "account": "test_account",
-            "alert_id": "alert123",
-            "status": "CLOSED",
-        })
+        result = action.execute(
+            {
+                "account": "test_account",
+                "alert_id": "alert123",
+                "status": "CLOSED",
+            }
+        )
 
         assert result["alert_id"] == "alert123"
         assert result["status"] == "CLOSED"
@@ -351,11 +349,13 @@ class TestUpdateAlertStatusAction:
         action = UpdateAlertStatusAction(session_key="test_key")
 
         with pytest.raises(DarkStrataActionError) as exc_info:
-            action.execute({
-                "account": "test_account",
-                "alert_id": "alert123",
-                "status": "INVALID",
-            })
+            action.execute(
+                {
+                    "account": "test_account",
+                    "alert_id": "alert123",
+                    "status": "INVALID",
+                }
+            )
 
         assert "Invalid status" in str(exc_info.value)
 
@@ -392,10 +392,12 @@ class TestCloseAlertAction:
         action = CloseAlertAction(session_key="test_key")
         action.get_account_config = MagicMock(return_value=mock_account_config)
 
-        result = action.execute({
-            "account": "test_account",
-            "alert_id": "alert123",
-        })
+        result = action.execute(
+            {
+                "account": "test_account",
+                "alert_id": "alert123",
+            }
+        )
 
         assert result["alert_id"] == "alert123"
         assert result["status"] == "CLOSED"
@@ -433,10 +435,12 @@ class TestReopenAlertAction:
         action = ReopenAlertAction(session_key="test_key")
         action.get_account_config = MagicMock(return_value=mock_account_config)
 
-        result = action.execute({
-            "account": "test_account",
-            "alert_id": "alert123",
-        })
+        result = action.execute(
+            {
+                "account": "test_account",
+                "alert_id": "alert123",
+            }
+        )
 
         assert result["alert_id"] == "alert123"
         assert result["status"] == "ACTIVE"
@@ -480,10 +484,12 @@ class TestGetAlertDetailsAction:
         action = GetAlertDetailsAction(session_key="test_key")
         action.get_account_config = MagicMock(return_value=mock_account_config)
 
-        result = action.execute({
-            "account": "test_account",
-            "alert_id": "alert123",
-        })
+        result = action.execute(
+            {
+                "account": "test_account",
+                "alert_id": "alert123",
+            }
+        )
 
         assert result["alert_id"] == "alert123"
         assert result["severity"] == "HIGH"
