@@ -78,6 +78,12 @@ jobs:
           # Update app.conf
           sed -i "s/^version = .*/version = $VERSION/" package/default/app.conf
 
+      - name: Clean Python bytecode from build inputs
+        # The "Run tests" step above imports modules from package/bin, leaving
+        # __pycache__/*.pyc that ucc-gen would otherwise copy into the package
+        # (AppInspect's check_for_compiled_python fails on bundled .pyc files).
+        run: find package -name __pycache__ -type d -prune -exec rm -rf {} +
+
       - name: Build TA package
         # Pin the version explicitly so the built artifact matches the release
         # version exactly, rather than ucc-gen re-deriving it from git describe
