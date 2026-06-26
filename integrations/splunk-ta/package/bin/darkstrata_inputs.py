@@ -42,7 +42,7 @@ DEFAULT_PAGE_LIMIT = 100
 MAX_PAGE_LIMIT = 500
 SOURCETYPE_OBSERVED_DATA = "darkstrata:stix:observed-data"
 SOURCETYPE_ALERT = "darkstrata:stix:alert"
-USER_AGENT = "Splunk/TA-DarkStrata/1.0.0"
+USER_AGENT = "Splunk/TA-DarkStrata/1.1.1"
 
 
 class TLS12Adapter(HTTPAdapter):

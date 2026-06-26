@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import json
 import logging
+import ssl
 import sys
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 import requests
+from requests.adapters import HTTPAdapter
 
 if TYPE_CHECKING:
     pass
@@ -27,10 +29,20 @@ except ImportError:
 
 # Constants
 API_TIMEOUT = 30
-USER_AGENT = "Splunk/TA-DarkStrata/1.0.0 (AdaptiveResponse)"
+USER_AGENT = "Splunk/TA-DarkStrata/1.1.1 (AdaptiveResponse)"
 
 # Logger setup
 logger = logging.getLogger(__name__)
+
+
+class TLS12Adapter(HTTPAdapter):
+    """HTTPS adapter that enforces TLS 1.2 as the minimum protocol version."""
+
+    def init_poolmanager(self, *args: Any, **kwargs: Any) -> None:
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        kwargs["ssl_context"] = ctx
+        super().init_poolmanager(*args, **kwargs)
 
 
 class DarkStrataActionError(Exception):
@@ -105,7 +117,10 @@ class DarkStrataActionBase(ABC):
     ) -> dict[str, Any]:
         """Make an authenticated API request to DarkStrata."""
         session = requests.Session()
-        session.verify = False
+        # Enforce TLS 1.2+ and verify server certificates (requests verifies by
+        # default; kept explicit so the secure posture is unambiguous).
+        session.mount("https://", TLS12Adapter())
+        session.verify = True
 
         # Set up headers
         session.headers.update(

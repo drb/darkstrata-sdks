@@ -71,7 +71,10 @@ jobs:
           sed -i "s/^version = .*/version = $VERSION/" package/default/app.conf
 
       - name: Build TA package
-        run: ucc-gen build --source package
+        # Pin the version explicitly so the built artifact matches the release
+        # version exactly, rather than ucc-gen re-deriving it from git describe
+        # (which would re-introduce repo-wide tags and +<sha> build metadata).
+        run: ucc-gen build --source package --ta-version "${{ steps.version.outputs.version }}"
 
       - name: Run AppInspect validation
         run: |

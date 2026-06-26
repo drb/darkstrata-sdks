@@ -22,7 +22,7 @@ except ImportError:
 
 # Constants
 API_TIMEOUT = 15
-USER_AGENT = "Splunk/TA-DarkStrata/1.0.0"
+USER_AGENT = "Splunk/TA-DarkStrata/1.1.1"
 
 
 class DarkStrataAPIValidator(Validator):

@@ -82,7 +82,7 @@ jobs:
           pip install pytest pytest-cov pytest-mock responses requests
 
       - name: Run tests
-        run: pytest tests/ -v --cov=package/bin --cov-report=xml --cov-fail-under=35
+        run: pytest tests/ -v --cov=package/bin --cov-report=xml --cov-fail-under=60
 
       - name: Upload coverage
         if: matrix.python-version == '3.12'
@@ -109,7 +109,10 @@ jobs:
         run: pip install splunk-add-on-ucc-framework
 
       - name: Build TA package
-        run: ucc-gen build --source package
+        # Pin the add-on version to app.manifest so the build does not derive it
+        # from the repo-wide git tags (which cover the node/python SDKs too) and
+        # does not append +<sha> build metadata that Splunkbase rejects.
+        run: ucc-gen build --source package --ta-version "$(jq -r '.info.id.version' app.manifest)"
 
       - name: Verify build output
         run: |

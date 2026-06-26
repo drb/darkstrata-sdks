@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ta-darkstrata"
-version = "1.0.0"
+version = "1.1.1"
 description = "DarkStrata Technology Add-on for Splunk"
 readme = "README.md"
 license = { text = "Apache-2.0" }
