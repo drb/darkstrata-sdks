@@ -30,6 +30,11 @@ jobs:
   build-and-package:
     name: Build and Package
     runs-on: ubuntu-latest
+    # Only run for a manual dispatch or a release tagged specifically for the
+    # Splunk TA (splunk-ta-vX.Y.Z). This repo is a monorepo whose other SDKs are
+    # released with repo-wide vX.Y.Z tags via semantic-release; without this
+    # guard those releases would rebuild and mis-version this add-on.
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'splunk-ta-v')
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +55,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             VERSION="${{ github.event.release.tag_name }}"
-            # Strip 'v' prefix if present
+            # Strip the splunk-ta-v / v tag prefix (TA release tags are splunk-ta-vX.Y.Z)
+            VERSION="${VERSION#splunk-ta-v}"
             VERSION="${VERSION#v}"
           else
             VERSION="${{ inputs.version }}"
@@ -61,8 +67,10 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
-          # Update app.manifest
-          jq --arg ver "$VERSION" '.info.id.version = $ver' app.manifest > app.manifest.tmp && mv app.manifest.tmp app.manifest
+          # Update app.manifest (version + release date)
+          jq --arg ver "$VERSION" --arg date "$(date -u +%Y-%m-%d)" \
+            '.info.id.version = $ver | .info.releaseDate = $date' \
+            app.manifest > app.manifest.tmp && mv app.manifest.tmp app.manifest
 
           # Update globalConfig.json
           jq --arg ver "$VERSION" '.meta.version = $ver' globalConfig.json > globalConfig.json.tmp && mv globalConfig.json.tmp globalConfig.json
