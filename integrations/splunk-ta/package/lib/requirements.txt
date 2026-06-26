@@ -1,0 +1,9 @@
+# Pinned for reproducible, lean packages.
+#
+# solnlib >= 6 pulls in grpcio + opentelemetry + protobuf as hard dependencies,
+# which bloat the package and trip AppInspect's check_hostnames_and_ips on the
+# vendored binaries. solnlib 5.4.0 has no such dependencies and provides the
+# conf_manager / modular_input APIs this add-on uses. Pinning also keeps the
+# bundled libraries stable across builds.
+splunktaucclib==6.5.3
+solnlib==5.4.0
