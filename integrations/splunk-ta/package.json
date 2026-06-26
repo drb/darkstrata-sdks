@@ -1,10 +1,10 @@
 {
   "name": "@darkstrata/splunk-ta",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "DarkStrata Technology Add-on for Splunk Enterprise Security",
   "private": true,
   "scripts": {
-    "build": "ucc-gen build --source package",
+    "build": "ucc-gen build --source package --ta-version \"$(jq -r '.info.id.version' app.manifest)\" && python3 ../../scripts/inject-python-required.py output/TA-darkstrata",
     "clean": "rm -rf output",
     "test": "pytest tests/ -v",
     "test:cov": "pytest tests/ --cov=package/bin --cov-report=html",
@@ -18,8 +18,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/drb/darkstrata-sdks.git",
-    "directory": "splunk-ta"
+    "url": "https://github.com/darkstrata/darkstrata-sdks.git",
+    "directory": "integrations/splunk-ta"
   },
   "keywords": [
     "splunk",
@@ -32,7 +32,7 @@
   "author": "DarkStrata <support@darkstrata.io>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/drb/darkstrata-sdks/issues"
+    "url": "https://github.com/darkstrata/darkstrata-sdks/issues"
   },
   "homepage": "https://darkstrata.io/docs/integrations/splunk"
 }

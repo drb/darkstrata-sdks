@@ -46,8 +46,11 @@ coverage.xml
 # Type checking
 .mypy_cache/
 
-# UCC generated files (committed after build)
-# package/lib/
+# Track the source lib manifest. The generic `lib/` rule above is meant for
+# setuptools build dirs; ucc-gen emits vendored libraries into output/ (ignored),
+# so the requirements manifest under package/lib/ must stay version-controlled.
+!package/lib/
+!package/lib/requirements.txt
 
 # Local Splunk test files
 local/
