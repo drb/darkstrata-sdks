@@ -4,7 +4,7 @@
   "description": "DarkStrata Technology Add-on for Splunk Enterprise Security",
   "private": true,
   "scripts": {
-    "build": "ucc-gen build --source package",
+    "build": "ucc-gen build --source package --ta-version \"$(jq -r '.info.id.version' app.manifest)\" && python3 ../../scripts/inject-python-required.py output/TA-darkstrata",
     "clean": "rm -rf output",
     "test": "pytest tests/ -v",
     "test:cov": "pytest tests/ --cov=package/bin --cov-report=html",

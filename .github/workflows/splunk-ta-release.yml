@@ -76,6 +76,11 @@ jobs:
         # (which would re-introduce repo-wide tags and +<sha> build metadata).
         run: ucc-gen build --source package --ta-version "${{ steps.version.outputs.version }}"
 
+      - name: Declare python.required (Splunk Enterprise 10.2+)
+        # ucc-gen emits the deprecated python.version; add python.required to the
+        # generated inputs.conf/restmap.conf so AppInspect's cloud profile passes.
+        run: python3 "${{ github.workspace }}/scripts/inject-python-required.py" output/TA-darkstrata
+
       - name: Run AppInspect validation
         run: |
           cd output

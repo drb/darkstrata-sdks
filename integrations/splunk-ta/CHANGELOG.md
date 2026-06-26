@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   TLS 1.2 minimum (previously certificate verification was disabled), matching
   the modular inputs' secure transport posture.
 
+### Changed
+
+- Declared `python.required = 3.9,3.13` on the modular inputs, REST handlers and
+  adaptive-response actions for Splunk Enterprise 10.2+ forward compatibility
+  (the deprecated `python.version` is retained for older Splunk releases).
+
 ### Fixed
 
 - Bundled the Apache-2.0 `LICENSE` file referenced by `app.manifest` so the
