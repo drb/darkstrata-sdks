@@ -1,4 +1,4 @@
-# DarkStrata Technology Add-on for Splunk
+# DarkStrata Threat Intelligence Add-on for Splunk
 
 Ingest DarkStrata threat intelligence into Splunk Enterprise Security. This Technology Add-on (TA) provides modular inputs for credential exposure alerts and indicators, enabling real-time monitoring of compromised credentials affecting your organisation.
 
@@ -29,7 +29,7 @@ Ingest DarkStrata threat intelligence into Splunk Enterprise Security. This Tech
 
 ## Overview
 
-The DarkStrata Technology Add-on for Splunk enables security teams to:
+The DarkStrata Threat Intelligence Add-on for Splunk enables security teams to:
 
 - **Detect compromised credentials** before they're used maliciously
 - **Identify malware infections** through infostealer credential detection
@@ -202,7 +202,7 @@ For Splunk Cloud deployments:
 
 The account stores your DarkStrata API credentials securely.
 
-1. Navigate to **Apps** > **DarkStrata Technology Add-on**
+1. Navigate to **Apps** > **DarkStrata Threat Intelligence Add-on for Splunk**
 2. Click **Configuration** tab
 3. Select **Account** > **Add**
 4. Enter:
@@ -1029,7 +1029,7 @@ index=_audit action=edit* path="*ta_darkstrata*"
 #### Splunkbase Upgrade
 
 1. Navigate to **Apps** > **Manage Apps**
-2. Find **DarkStrata Technology Add-on**
+2. Find **DarkStrata Threat Intelligence Add-on for Splunk**
 3. Click **Update** if available
 
 #### Manual Upgrade
