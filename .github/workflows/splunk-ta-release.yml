@@ -45,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install splunk-add-on-ucc-framework splunk-appinspect pytest pytest-cov pytest-mock responses requests
+          pip install splunk-add-on-ucc-framework splunk-appinspect splunk-packaging-toolkit pytest pytest-cov pytest-mock responses requests
 
       - name: Run tests
         run: pytest tests/ -v
@@ -94,6 +94,11 @@ jobs:
         # ucc-gen emits the deprecated python.version; add python.required to the
         # generated inputs.conf/restmap.conf so AppInspect's cloud profile passes.
         run: python3 "${{ github.workspace }}/scripts/inject-python-required.py" output/TA-darkstrata
+
+      - name: Validate package with SLIM
+        # SLIM validation is part of Splunkbase's Splunk Enterprise vetting; gate
+        # the release on it so manifest errors don't reach the marketplace.
+        run: slim validate output/TA-darkstrata
 
       - name: Run AppInspect validation
         run: |

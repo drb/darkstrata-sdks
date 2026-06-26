@@ -108,7 +108,7 @@ The DarkStrata Threat Intelligence Add-on for Splunk enables security teams to:
 
 | Component                  | Minimum Version     | Recommended |
 | -------------------------- | ------------------- | ----------- |
-| Splunk Enterprise          | 8.2.0               | 9.0+        |
+| Splunk Enterprise          | 9.0.0               | Latest 9.x / 10.x |
 | Splunk Cloud               | Victoria Experience | Latest      |
 | Splunk Enterprise Security | 7.0.0 (optional)    | 7.3+        |
 
@@ -120,7 +120,7 @@ The DarkStrata Threat Intelligence Add-on for Splunk enables security teams to:
 
 ### System Requirements
 
-- Python 3.9+ (included with Splunk 8.2+)
+- Python 3.9+ (included with Splunk 9.0+)
 - Outbound HTTPS connectivity to DarkStrata API
 - Sufficient index storage for credential exposure events
 

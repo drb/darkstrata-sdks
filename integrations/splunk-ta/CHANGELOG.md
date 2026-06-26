@@ -37,6 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reconciled the add-on version across `app.manifest`, `app.conf`,
   `globalConfig.json`, `package.json`, `pyproject.toml`, and the request
   `User-Agent` strings (build metadata removed for a clean semantic version).
+- Fixed `app.manifest` so it passes SLIM validation (Splunkbase's Splunk
+  Enterprise vetting): valid CIM version spec for Authentication, removed the
+  unrecognised Threat_Intelligence CIM entry, a supported platform version
+  range, and release notes referenced by URL. CI and the release workflow now
+  gate on `slim validate`.
 
 ## [1.1.0] - 2026-02-05
 

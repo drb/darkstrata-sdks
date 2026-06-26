@@ -106,7 +106,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install UCC Framework
-        run: pip install splunk-add-on-ucc-framework
+        run: pip install splunk-add-on-ucc-framework splunk-packaging-toolkit
 
       - name: Build TA package
         # Pin the add-on version to app.manifest so the build does not derive it
@@ -118,6 +118,13 @@ jobs:
         # ucc-gen emits the deprecated python.version; add python.required to the
         # generated inputs.conf/restmap.conf so AppInspect's cloud profile passes.
         run: python3 "${{ github.workspace }}/scripts/inject-python-required.py" output/TA-darkstrata
+
+      - name: Validate package with SLIM
+        # SLIM (splunk-packaging-toolkit) validates the manifest as part of
+        # Splunkbase's Splunk Enterprise vetting; run it here so manifest errors
+        # (CIM/platform version specs, missing release notes) fail CI, not the
+        # marketplace submission.
+        run: slim validate output/TA-darkstrata
 
       - name: Verify build output
         run: |

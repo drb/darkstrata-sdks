@@ -22,8 +22,7 @@
       "developmentStatus": "Production/Stable"
     },
     "commonInformationModels": {
-      "Authentication": "4.x",
-      "Threat_Intelligence": "1.x"
+      "Authentication": ">=4.0.0"
     },
     "license": {
       "name": "Apache License 2.0",
@@ -37,8 +36,8 @@
     },
     "releaseNotes": {
       "name": "Release Notes",
-      "text": "./CHANGELOG.md",
-      "uri": null
+      "text": null,
+      "uri": "https://github.com/darkstrata/darkstrata-sdks/blob/main/integrations/splunk-ta/CHANGELOG.md"
     }
   },
   "dependencies": null,
@@ -47,7 +46,7 @@
   "incompatibleApps": null,
   "platformRequirements": {
     "splunk": {
-      "Enterprise": ">=8.2"
+      "Enterprise": ">=8.0"
     }
   },
   "supportedDeployments": ["*"],
