@@ -1,7 +1,7 @@
 {
   "name": "@darkstrata/splunk-ta",
   "version": "1.1.1",
-  "description": "DarkStrata Technology Add-on for Splunk Enterprise Security",
+  "description": "DarkStrata Threat Intelligence Add-on for Splunk Enterprise Security",
   "private": true,
   "scripts": {
     "build": "ucc-gen build --source package --ta-version \"$(jq -r '.info.id.version' app.manifest)\" && python3 ../../scripts/inject-python-required.py output/TA-darkstrata",

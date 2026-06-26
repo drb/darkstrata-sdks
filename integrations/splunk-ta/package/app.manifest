@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "DarkStrata Technology Add-on for Splunk",
+    "title": "DarkStrata Threat Intelligence Add-on for Splunk",
     "id": {
       "group": null,
       "name": "TA-darkstrata",

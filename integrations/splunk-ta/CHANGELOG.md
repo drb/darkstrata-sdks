@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the DarkStrata Technology Add-on for Splunk will be documented in this file.
+All notable changes to the DarkStrata Threat Intelligence Add-on for Splunk will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [1.1.1] - 2026-06-26
+
+### Added
+
+- App icons (`appIcon`/`appIconAlt`, 36×36 and 72×72) for the Splunk launcher and
+  Splunkbase listing, and a valid alert-action `icon_path` (the previous reference
+  pointed at a file that did not exist).
 
 ### Security
 
@@ -20,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Declared `python.required = 3.9,3.13` on the modular inputs, REST handlers and
   adaptive-response actions for Splunk Enterprise 10.2+ forward compatibility
   (the deprecated `python.version` is retained for older Splunk releases).
+- Renamed the add-on to **DarkStrata Threat Intelligence Add-on for Splunk**
+  across `app.manifest`, the `app.conf` label, and the `globalConfig` display
+  name to follow Splunkbase naming conventions.
 
 ### Fixed
 
