@@ -77,7 +77,8 @@ jobs:
   publish-node:
     name: Publish Node.js SDK
     needs: release
-    if: needs.release.outputs.new_release_published == 'true'
+    # workflow_dispatch republishes whatever version is on main (retry after a failed publish)
+    if: needs.release.outputs.new_release_published == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:
