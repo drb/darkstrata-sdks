@@ -12,6 +12,7 @@ Official SDKs and platform integrations for [DarkStrata](https://darkstrata.io) 
   - [How K-Anonymity Works](#how-k-anonymity-works)
 - [Integrations](#integrations)
   - [Splunk Technology Add-on](#splunk-technology-add-on)
+  - [Umbraco CMS Package](#umbraco-cms-package)
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -24,8 +25,8 @@ Official SDKs and platform integrations for [DarkStrata](https://darkstrata.io) 
 
 This monorepo contains everything you need to integrate with DarkStrata:
 
-- **SDKs** — Client libraries for 6 languages to check credentials against the DarkStrata breach database using k-anonymity
-- **Integrations** — Pre-built platform integrations that bring DarkStrata threat intelligence into your existing security tooling
+- **SDKs** - Client libraries for 6 languages to check credentials against the DarkStrata breach database using k-anonymity
+- **Integrations** - Pre-built platform integrations that bring DarkStrata threat intelligence into your existing security tooling
 
 ---
 
@@ -279,6 +280,20 @@ Ingest DarkStrata threat intelligence into Splunk Enterprise Security. The Techn
 
 ---
 
+### Umbraco CMS Package
+
+Block compromised passwords for Umbraco members and backoffice users, check backoffice logins, and receive DarkStrata alert webhooks as Umbraco notifications. Built on the .NET SDK, so every check uses k-anonymity.
+
+| | |
+|---|---|
+| **NuGet** | [DarkStrata.CredentialCheck.Umbraco](https://www.nuget.org/packages/DarkStrata.CredentialCheck.Umbraco) |
+| **Compatibility** | Umbraco 13 LTS (.NET 8), Umbraco 15 and 16 (.NET 9) |
+| **Documentation** | [Umbraco package guide](./sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/README.md) |
+
+```bash
+dotnet add package DarkStrata.CredentialCheck.Umbraco
+```
+
 ## Getting Started
 
 1. **Get an API key** from your [DarkStrata dashboard](https://app.darkstrata.io)
@@ -301,6 +316,7 @@ Ingest DarkStrata threat intelligence into Splunk Enterprise Security. The Techn
 ### Integrations
 
 - [Splunk Technology Add-on Documentation](./integrations/splunk-ta/README.md)
+- [Umbraco CMS Package Documentation](./sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/README.md)
 
 ### General
 

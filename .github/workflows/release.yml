@@ -16,6 +16,7 @@ on:
       # C# SDK
       - 'sdks/csharp/src/**'
       - 'sdks/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj'
+      - 'sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj'
       # Java SDK
       - 'sdks/java/src/**'
       - 'sdks/java/pom.xml'
@@ -202,7 +203,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       - name: Restore dependencies
         run: dotnet restore
@@ -214,10 +217,14 @@ jobs:
         run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Pack
-        run: dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --configuration Release --no-build
+        run: |
+          dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --configuration Release --no-build
+          dotnet pack src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj --configuration Release --no-build
 
       - name: Push to NuGet
-        run: dotnet nuget push src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: |
+          dotnet nuget push src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push src/DarkStrata.CredentialCheck.Umbraco/bin/Release/DarkStrata.CredentialCheck.Umbraco.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   publish-java:
     name: Publish Java SDK

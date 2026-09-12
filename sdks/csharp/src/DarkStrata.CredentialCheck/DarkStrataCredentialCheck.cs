@@ -33,9 +33,9 @@ namespace DarkStrata.CredentialCheck;
 /// </code>
 /// </example>
 #if NETSTANDARD2_0
-public sealed class DarkStrataCredentialCheck : IDisposable
+public sealed class DarkStrataCredentialCheck : IDarkStrataCredentialCheck, IDisposable
 #else
-public sealed partial class DarkStrataCredentialCheck : IDisposable
+public sealed partial class DarkStrataCredentialCheck : IDarkStrataCredentialCheck, IDisposable
 #endif
 {
     private readonly ResolvedConfig _config;

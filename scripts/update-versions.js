@@ -103,16 +103,18 @@ if (fs.existsSync(goConstantsPath)) {
   console.log(`  Updated sdks/go/constants.go`);
 }
 
-// Update C# .csproj
-const csharpPath = path.join(rootDir, 'sdks', 'csharp', 'src', 'DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.csproj');
-if (fs.existsSync(csharpPath)) {
-  let csharpContent = fs.readFileSync(csharpPath, 'utf8');
-  csharpContent = csharpContent.replace(
-    /<Version>[^<]+<\/Version>/,
-    `<Version>${version}</Version>`
-  );
-  fs.writeFileSync(csharpPath, csharpContent);
-  console.log(`  Updated sdks/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj`);
+// Update C# .csproj files (SDK + Umbraco package)
+for (const project of ['DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.Umbraco']) {
+  const csharpPath = path.join(rootDir, 'sdks', 'csharp', 'src', project, `${project}.csproj`);
+  if (fs.existsSync(csharpPath)) {
+    let csharpContent = fs.readFileSync(csharpPath, 'utf8');
+    csharpContent = csharpContent.replace(
+      /<Version>[^<]+<\/Version>/,
+      `<Version>${version}</Version>`
+    );
+    fs.writeFileSync(csharpPath, csharpContent);
+    console.log(`  Updated sdks/csharp/src/${project}/${project}.csproj`);
+  }
 }
 
 // Update C# Constants.cs SDK_VERSION

@@ -26,7 +26,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       - name: Check formatting
         run: dotnet format --verify-no-changes
@@ -40,7 +42,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       - name: Restore dependencies
         run: dotnet restore
@@ -51,7 +55,9 @@ jobs:
       - name: Verify package
         run: |
           dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --no-build --configuration Release
+          dotnet pack src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj --no-build --configuration Release
           test -f src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg || exit 1
+          test -f src/DarkStrata.CredentialCheck.Umbraco/bin/Release/DarkStrata.CredentialCheck.Umbraco.*.nupkg || exit 1
           echo "✓ NuGet package created successfully"
 
   test:
@@ -63,7 +69,9 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       - name: Restore dependencies
         run: dotnet restore
