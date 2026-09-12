@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/darkstrata/darkstrata-sdks/compare/v2.3.0...v2.4.0) (2026-09-12)
+
+
+### Features
+
+* **csharp:** add DarkStrata.CredentialCheck.Umbraco marketplace package ([#16](https://github.com/darkstrata/darkstrata-sdks/issues/16)) ([2ff7bdc](https://github.com/darkstrata/darkstrata-sdks/commit/2ff7bdcbfafd88078bc33e06c1048d28777b7184))
+
 # [2.3.0](https://github.com/darkstrata/darkstrata-sdks/compare/v2.2.0...v2.3.0) (2026-09-05)
 
 

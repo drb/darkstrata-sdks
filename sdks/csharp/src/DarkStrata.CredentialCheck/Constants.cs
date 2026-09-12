@@ -15,7 +15,7 @@ internal static class Constants
     /// <summary>
     /// SDK version.
     /// </summary>
-    public const string SdkVersion = "1.0.2";
+    public const string SdkVersion = "2.4.0";
 
     /// <summary>
     /// Default base URL for the DarkStrata API.
