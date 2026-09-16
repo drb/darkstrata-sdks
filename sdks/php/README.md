@@ -266,7 +266,7 @@ DarkStrata\CredentialCheck\Client:
 
 The package ships a Laravel integration that stops compromised credentials being used on your site, the same as the [Umbraco package](../csharp/src/DarkStrata.CredentialCheck.Umbraco/README.md). When someone logs in or sets a password, the email + password pair is hashed locally and checked against the breach corpus. Passwords never leave your server.
 
-Supports Laravel 10 through 13. The service provider is auto-discovered; nothing to register.
+Supports Laravel 11 through 13 (PHP 8.2+). The service provider is auto-discovered; nothing to register.
 
 ### What it does
 
@@ -371,7 +371,7 @@ See the [`examples/`](./examples) directory:
 ```bash
 composer install
 composer test          # SDK, PHP 7.4+
-composer test:laravel  # Laravel integration, PHP 8.1+
+composer test:laravel  # Laravel integration, PHP 8.2+
 ```
 
 ## Licence

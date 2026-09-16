@@ -327,7 +327,7 @@ Deny or warn on compromised logins, reject compromised passwords with a validati
 | | |
 |---|---|
 | **Packagist** | [darkstrata/credential-check](https://packagist.org/packages/darkstrata/credential-check) |
-| **Compatibility** | Laravel 10, 11, 12 and 13 |
+| **Compatibility** | Laravel 11, 12 and 13 |
 | **Documentation** | [Laravel section of the PHP SDK guide](./sdks/php/README.md#laravel) |
 
 ```bash

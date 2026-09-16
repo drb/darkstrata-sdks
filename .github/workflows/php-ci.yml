@@ -37,9 +37,9 @@ jobs:
       - name: Validate composer.json
         run: composer validate --strict
 
-      # The Laravel integration needs Laravel 10+, which needs PHP 8.1+
-      - name: Drop Laravel test dependencies on PHP < 8.1
-        if: matrix.php == '7.4' || matrix.php == '8.0'
+      # The Laravel integration needs Laravel 11+, which needs PHP 8.2+
+      - name: Drop Laravel test dependencies on PHP < 8.2
+        if: matrix.php == '7.4' || matrix.php == '8.0' || matrix.php == '8.1'
         run: composer remove --dev orchestra/testbench --no-update --no-interaction
 
       - name: Install dependencies
@@ -49,5 +49,5 @@ jobs:
         run: composer test
 
       - name: Run Laravel integration tests
-        if: matrix.php != '7.4' && matrix.php != '8.0'
+        if: matrix.php != '7.4' && matrix.php != '8.0' && matrix.php != '8.1'
         run: composer test:laravel
