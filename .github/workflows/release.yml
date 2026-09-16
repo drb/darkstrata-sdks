@@ -306,7 +306,8 @@ jobs:
   publish-php:
     name: Publish PHP SDK
     needs: release
-    if: needs.release.outputs.new_release_published == 'true'
+    # workflow_dispatch republishes whatever version is on main (retry after a failed publish)
+    if: needs.release.outputs.new_release_published == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: packagist-publish
     steps:
@@ -338,7 +339,8 @@ jobs:
 
       - name: Push subtree to mirror
         run: |
-          VERSION="v${{ needs.release.outputs.new_release_version }}"
+          # On workflow_dispatch there is no new release, so read the version from main
+          VERSION="v$(sed -n "s/.*VERSION = '\([^']*\)'.*/\1/p" sdks/php/src/Constants.php)"
           git branch -f php-split "$(git subtree split --prefix=sdks/php)"
           cd mirror
           git fetch .. php-split
