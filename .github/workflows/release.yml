@@ -123,8 +123,15 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      # A workflow_dispatch retry for another SDK must not fail here on a version npm already has
       - name: Publish to npm
-        run: npm publish --access public
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@darkstrata/credential-check@${VERSION}" version >/dev/null 2>&1; then
+            echo "@darkstrata/credential-check@${VERSION} is already on npm, skipping"
+            exit 0
+          fi
+          npm publish --access public
 
   publish-python:
     name: Publish Python SDK
