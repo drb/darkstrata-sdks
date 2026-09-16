@@ -25,7 +25,7 @@ Official SDKs and platform integrations for [DarkStrata](https://darkstrata.io) 
 
 This monorepo contains everything you need to integrate with DarkStrata:
 
-- **SDKs** - Client libraries for 6 languages to check credentials against the DarkStrata breach database using k-anonymity
+- **SDKs** - Client libraries for 7 languages to check credentials against the DarkStrata breach database using k-anonymity
 - **Integrations** - Pre-built platform integrations that bring DarkStrata threat intelligence into your existing security tooling
 
 ---
@@ -41,6 +41,7 @@ This monorepo contains everything you need to integrate with DarkStrata:
 | Rust | `darkstrata-credential-check` | [![crates.io](https://img.shields.io/crates/v/darkstrata-credential-check.svg)](https://crates.io/crates/darkstrata-credential-check) | [README](./sdks/rust/README.md) |
 | C# / .NET | `DarkStrata.CredentialCheck` | [![NuGet](https://img.shields.io/nuget/v/DarkStrata.CredentialCheck.svg)](https://www.nuget.org/packages/DarkStrata.CredentialCheck) | [README](./sdks/csharp/README.md) |
 | Go | `github.com/darkstrata/darkstrata-sdks/sdks/go` | [![Go Reference](https://pkg.go.dev/badge/github.com/darkstrata/darkstrata-sdks/sdks/go.svg)](https://pkg.go.dev/github.com/darkstrata/darkstrata-sdks/sdks/go) | [README](./sdks/go/README.md) |
+| PHP | `darkstrata/credential-check` | [![Packagist](https://img.shields.io/packagist/v/darkstrata/credential-check.svg)](https://packagist.org/packages/darkstrata/credential-check) | [README](./sdks/php/README.md) |
 | Java | `io.darkstrata:credential-check` | [![Maven Central](https://img.shields.io/maven-central/v/io.darkstrata/credential-check.svg)](https://central.sonatype.com/artifact/io.darkstrata/credential-check) | [README](./sdks/java/README.md) |
 
 > **Note:** The C# SDK supports both modern .NET (8.0+) and .NET Framework (4.6.1+) via multi-targeting.
@@ -50,7 +51,7 @@ This monorepo contains everything you need to integrate with DarkStrata:
 - **Privacy-first**: Only a 5 or 6-character hash prefix is sent to our servers
 - **No credential exposure**: Your passwords never leave your system
 - **Batch processing**: Efficiently check multiple credentials
-- **Full type safety**: TypeScript types, Python type hints, Rust's strong typing, Go's static types, and Java's strong typing
+- **Full type safety**: TypeScript types, Python type hints, Rust's strong typing, Go's static types, Java's strong typing, and PHP typed properties
 
 ### Quick Start
 
@@ -219,6 +220,28 @@ public class Example {
 }
 ```
 
+#### PHP
+
+```php
+use DarkStrata\CredentialCheck\Client;
+use DarkStrata\CredentialCheck\Crypto;
+
+$client = new Client(['apiKey' => 'your-api-key']);
+
+// $email and $password come from your login form and are only ever used here.
+// 1. Hash the credential locally: SHA-256 of "email:password".
+//    The plaintext email and password never leave this process.
+$hash = Crypto::hashCredential($email, $password);
+
+// 2. Check the hash. The SDK sends only the first 5-6 characters (the
+//    k-anonymity prefix) to the API and compares the full hash locally.
+$result = $client->checkHash($hash);
+
+if ($result->found) {
+    echo 'Credential found in breach database!';
+}
+```
+
 ### How K-Anonymity Works
 
 ```
@@ -312,6 +335,7 @@ dotnet add package DarkStrata.CredentialCheck.Umbraco
 - [C# SDK Documentation](./sdks/csharp/README.md)
 - [Go SDK Documentation](./sdks/go/README.md)
 - [Java SDK Documentation](./sdks/java/README.md)
+- [PHP SDK Documentation](./sdks/php/README.md)
 
 ### Integrations
 
