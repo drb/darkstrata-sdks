@@ -3,6 +3,10 @@
   <testsuites>
     <testsuite name="default">
       <directory>tests</directory>
+      <exclude>tests/Laravel</exclude>
+    </testsuite>
+    <testsuite name="laravel">
+      <directory>tests/Laravel</directory>
     </testsuite>
   </testsuites>
 </phpunit>
