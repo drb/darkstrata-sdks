@@ -22,6 +22,10 @@ on:
       - 'sdks/java/pom.xml'
       # Go SDK
       - 'sdks/go/**'
+      # PHP SDK
+      - 'sdks/php/src/**'
+      - 'sdks/php/config/**'
+      - 'sdks/php/composer.json'
       # Workflow itself
       - '.github/workflows/release.yml'
       - 'release.config.js'
@@ -298,3 +302,47 @@ jobs:
           git push origin "sdks/go/${VERSION}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-php:
+    name: Publish PHP SDK
+    needs: release
+    # workflow_dispatch republishes whatever version is on main (retry after a failed publish)
+    if: needs.release.outputs.new_release_published == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: packagist-publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Run tests
+        working-directory: sdks/php
+        run: composer install --no-interaction --prefer-dist && composer test && composer test:laravel
+
+      # Packagist reads composer.json from the root of a git repo, so sdks/php is
+      # mirrored to darkstrata/darkstrata-credential-check-php via subtree split. Packagist's
+      # GitHub hook on the mirror picks up the new tag automatically.
+      - name: Checkout Packagist mirror repo
+        uses: actions/checkout@v4
+        with:
+          repository: darkstrata/darkstrata-credential-check-php
+          token: ${{ secrets.PHP_MIRROR_TOKEN }}
+          path: mirror
+
+      - name: Push subtree to mirror
+        run: |
+          # On workflow_dispatch there is no new release, so read the version from main
+          VERSION="v$(sed -n "s/.*VERSION = '\([^']*\)'.*/\1/p" sdks/php/src/Constants.php)"
+          git branch -f php-split "$(git subtree split --prefix=sdks/php)"
+          cd mirror
+          git fetch .. php-split
+          git push --force origin FETCH_HEAD:refs/heads/main
+          git push origin "FETCH_HEAD:refs/tags/${VERSION}"

@@ -11,6 +11,7 @@
  * - sdks/rust/Cargo.toml
  * - sdks/rust/Cargo.lock
  * - sdks/go/constants.go
+ * - sdks/php/src/Constants.php
  */
 
 const fs = require('fs');
@@ -127,6 +128,18 @@ if (fs.existsSync(csharpConstantsPath)) {
   );
   fs.writeFileSync(csharpConstantsPath, constantsContent);
   console.log(`  Updated sdks/csharp/src/DarkStrata.CredentialCheck/Constants.cs`);
+}
+
+// Update PHP Constants.php
+const phpConstantsPath = path.join(rootDir, 'sdks', 'php', 'src', 'Constants.php');
+if (fs.existsSync(phpConstantsPath)) {
+  let phpContent = fs.readFileSync(phpConstantsPath, 'utf8');
+  phpContent = phpContent.replace(
+    /VERSION = '[^']+'/,
+    `VERSION = '${version}'`
+  );
+  fs.writeFileSync(phpConstantsPath, phpContent);
+  console.log(`  Updated sdks/php/src/Constants.php`);
 }
 
 console.log(`\nAll SDKs updated to version ${version}`);
