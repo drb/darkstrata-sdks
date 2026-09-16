@@ -327,12 +327,12 @@ jobs:
         run: composer install --no-interaction --prefer-dist && composer test && composer test:laravel
 
       # Packagist reads composer.json from the root of a git repo, so sdks/php is
-      # mirrored to darkstrata/credential-check-php via subtree split. Packagist's
+      # mirrored to darkstrata/darkstrata-credential-check-php via subtree split. Packagist's
       # GitHub hook on the mirror picks up the new tag automatically.
       - name: Checkout Packagist mirror repo
         uses: actions/checkout@v4
         with:
-          repository: darkstrata/credential-check-php
+          repository: darkstrata/darkstrata-credential-check-php
           token: ${{ secrets.PHP_MIRROR_TOKEN }}
           path: mirror
 
