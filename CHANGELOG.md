@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/darkstrata/darkstrata-sdks/compare/v2.5.1...v2.6.0) (2026-09-16)
+
+
+### Features
+
+* **php:** add PHP SDK published to Packagist ([#21](https://github.com/darkstrata/darkstrata-sdks/issues/21)) ([21a296d](https://github.com/darkstrata/darkstrata-sdks/commit/21a296db511a4c17cd01dcaec9d2ce03fdce7d43))
+
 ## [2.5.1](https://github.com/darkstrata/darkstrata-sdks/compare/v2.5.0...v2.5.1) (2026-09-14)
 
 

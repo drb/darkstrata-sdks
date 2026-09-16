@@ -60,7 +60,7 @@ class RetryDefaults:
 RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
 
 # SDK version for user-agent headers.
-SDK_VERSION = "2.5.1"
+SDK_VERSION = "2.6.0"
 
 # SDK name for user-agent headers.
 SDK_NAME = "darkstrata-credential-check-python"
