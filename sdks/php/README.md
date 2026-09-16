@@ -57,6 +57,7 @@ if ($result->found) {
 - **Response caching** - In-memory, per-client, with TTL and server key-window awareness
 - **Typed exceptions** - Every error reports whether it is retryable
 - **Wide PHP support** - 7.4 through 8.5
+- **Laravel integration** - Blocks compromised logins and passwords out of the box, see [Laravel](#laravel)
 
 ## How It Works
 
@@ -251,18 +252,111 @@ $hash = Crypto::hashCredential($email, $password);
 $result = $client->checkHash($hash);
 ```
 
-### Framework integration
+### Other frameworks
 
 The client has no framework dependencies. Register it as a singleton in your container and inject it wherever logins are handled:
 
-```php
-// Laravel: AppServiceProvider::register()
-$this->app->singleton(Client::class, fn() => new Client(['apiKey' => config('services.darkstrata.key')]));
-
-// Symfony: services.yaml
-// DarkStrata\CredentialCheck\Client:
-//     arguments: [{ apiKey: '%env(DARKSTRATA_API_KEY)%' }]
+```yaml
+# Symfony: services.yaml
+DarkStrata\CredentialCheck\Client:
+    arguments: [{ apiKey: '%env(DARKSTRATA_API_KEY)%' }]
 ```
+
+## Laravel
+
+The package ships a Laravel integration that stops compromised credentials being used on your site, the same as the [Umbraco package](../csharp/src/DarkStrata.CredentialCheck.Umbraco/README.md). When someone logs in or sets a password, the email + password pair is hashed locally and checked against the breach corpus. Passwords never leave your server.
+
+Supports Laravel 10 through 13. The service provider is auto-discovered; nothing to register.
+
+### What it does
+
+| Hook | Behaviour |
+|---|---|
+| Login (`Auth::attempt()`) | After the password is verified and before the session starts, a compromised pair throws `CompromisedCredentialException` (default) or is allowed with a warning. Wrong passwords never cost an API call. |
+| Password set / change / reset | Add the `NotCompromisedCredential` rule to the form. A compromised pair fails validation with the configured message. |
+| Any hit | Dispatches `CompromisedCredentialDetected` so you can run your own workflow. |
+| Health check | `php artisan darkstrata:check` confirms the key is configured and accepted. |
+
+### Configure
+
+Set the key in `.env`:
+
+```
+DARKSTRATA_API_KEY=ds_live_...
+```
+
+Create it in [app.darkstrata.io](https://app.darkstrata.io) under **Integrations → API keys** with the `credential_check:read` scope. Then check it works:
+
+```bash
+php artisan darkstrata:check
+```
+
+To change anything else, publish the config:
+
+```bash
+php artisan vendor:publish --tag=darkstrata-config
+```
+
+| Setting | Env | Default | Meaning |
+|---|---|---|---|
+| `api_key` | `DARKSTRATA_API_KEY` | - | Required. With no key every check is skipped and a warning is logged at boot. |
+| `validate_passwords` | `DARKSTRATA_VALIDATE_PASSWORDS` | `true` | Let the `NotCompromisedCredential` rule reject compromised pairs. |
+| `check_logins` | `DARKSTRATA_CHECK_LOGINS` | `true` | Check every successful login. |
+| `login_action` | `DARKSTRATA_LOGIN_ACTION` | `deny` | `deny` fails the login. `warn` allows it, logs a warning and dispatches the event. |
+| `fail_open` | `DARKSTRATA_FAIL_OPEN` | `true` | If the API is unreachable, allow the operation. `false` rejects instead. |
+| `email_field` | | `email` | The credentials key and request field holding the email. |
+| `messages.login`, `messages.password` | | | Wording shown to the person. Translate by publishing the config and using `__()`. |
+
+### Password forms
+
+```php
+use DarkStrata\CredentialCheck\Laravel\NotCompromisedCredential;
+
+// Registration or reset: the email is read from the same request
+$request->validate([
+    'email' => ['required', 'email'],
+    'password' => ['required', 'confirmed', Password::defaults(), new NotCompromisedCredential()],
+]);
+
+// Change password for the logged-in user: pass the email explicitly
+$request->validate([
+    'password' => ['required', 'confirmed', new NotCompromisedCredential($request->user()->email, $request->user()->id)],
+]);
+```
+
+This differs from Laravel's built-in `Password::uncompromised()`, which asks Have I Been Pwned whether the password alone has ever leaked. DarkStrata checks whether this email **and** this password have appeared together, which is what credential-stuffing attacks actually use.
+
+### Login
+
+Nothing to wire up. `CompromisedCredentialException` is a `ValidationException` on the email field, so Breeze, Fortify, Jetstream and hand-written controllers that call `Auth::attempt()` show the configured message on the login form, and the failed attempt still counts towards your rate limiter.
+
+If you'd rather handle it yourself:
+
+```php
+use DarkStrata\CredentialCheck\Laravel\CompromisedCredentialException;
+
+try {
+    Auth::attempt($credentials);
+} catch (CompromisedCredentialException $e) {
+    return redirect()->route('password.request')->with('status', $e->errors()['email'][0]);
+}
+```
+
+### React to a hit
+
+```php
+use DarkStrata\CredentialCheck\Laravel\CompromisedCredentialDetected;
+
+Event::listen(CompromisedCredentialDetected::class, function (CompromisedCredentialDetected $event) {
+    // $event->source: 'login' or 'password'
+    // $event->email, $event->userId
+    // e.g. notify the security team, force a reset, lock the account
+});
+```
+
+### Pause or uninstall
+
+Remove the key to pause: every check is skipped and behaviour is as if the package were not installed. Set `login_action=warn` to keep checking without blocking anyone, useful for a trial period. To uninstall, `composer remove darkstrata/credential-check` and delete any `NotCompromisedCredential` rules and listeners you added. The package writes nothing to your database.
 
 ## Examples
 
@@ -276,7 +370,8 @@ See the [`examples/`](./examples) directory:
 
 ```bash
 composer install
-composer test
+composer test          # SDK, PHP 7.4+
+composer test:laravel  # Laravel integration, PHP 8.1+
 ```
 
 ## Licence

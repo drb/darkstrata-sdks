@@ -13,6 +13,7 @@ Official SDKs and platform integrations for [DarkStrata](https://darkstrata.io) 
 - [Integrations](#integrations)
   - [Splunk Technology Add-on](#splunk-technology-add-on)
   - [Umbraco CMS Package](#umbraco-cms-package)
+  - [Laravel Integration](#laravel-integration)
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -317,6 +318,22 @@ Block compromised passwords for Umbraco members and backoffice users, check back
 dotnet add package DarkStrata.CredentialCheck.Umbraco
 ```
 
+---
+
+### Laravel Integration
+
+Deny or warn on compromised logins, reject compromised passwords with a validation rule, and react to hits with an event. Bundled in the PHP SDK and auto-discovered, so there is nothing to register.
+
+| | |
+|---|---|
+| **Packagist** | [darkstrata/credential-check](https://packagist.org/packages/darkstrata/credential-check) |
+| **Compatibility** | Laravel 10, 11, 12 and 13 |
+| **Documentation** | [Laravel section of the PHP SDK guide](./sdks/php/README.md#laravel) |
+
+```bash
+composer require darkstrata/credential-check
+```
+
 ## Getting Started
 
 1. **Get an API key** from your [DarkStrata dashboard](https://app.darkstrata.io)
@@ -341,6 +358,7 @@ dotnet add package DarkStrata.CredentialCheck.Umbraco
 
 - [Splunk Technology Add-on Documentation](./integrations/splunk-ta/README.md)
 - [Umbraco CMS Package Documentation](./sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/README.md)
+- [Laravel Integration Documentation](./sdks/php/README.md#laravel)
 
 ### General
 
