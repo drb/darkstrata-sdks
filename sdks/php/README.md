@@ -2,6 +2,8 @@
 
 Check if credentials have been exposed in data breaches using k-anonymity to protect user privacy.
 
+> This SDK is developed in the [darkstrata-sdks](https://github.com/darkstrata/darkstrata-sdks) monorepo under `sdks/php`. The [credential-check-php](https://github.com/darkstrata/credential-check-php) repository is a read-only mirror published for Packagist. Please open issues and pull requests in the monorepo.
+
 ## Installation
 
 ```bash
