@@ -24,6 +24,7 @@ on:
       - 'sdks/go/**'
       # PHP SDK
       - 'sdks/php/src/**'
+      - 'sdks/php/config/**'
       - 'sdks/php/composer.json'
       # Workflow itself
       - '.github/workflows/release.yml'
@@ -323,7 +324,7 @@ jobs:
 
       - name: Run tests
         working-directory: sdks/php
-        run: composer install --no-interaction --prefer-dist && composer test
+        run: composer install --no-interaction --prefer-dist && composer test && composer test:laravel
 
       # Packagist reads composer.json from the root of a git repo, so sdks/php is
       # mirrored to darkstrata/credential-check-php via subtree split. Packagist's
