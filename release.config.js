@@ -51,6 +51,7 @@ module.exports = {
         'sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj',
         'sdks/python/src/darkstrata_credential_check/constants.py',
         'sdks/go/constants.go',
+        'sdks/php/src/Constants.php',
       ],
       message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
     }],
