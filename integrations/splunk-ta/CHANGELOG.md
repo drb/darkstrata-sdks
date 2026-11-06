@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- DarkStrata Ghost Events modular input (`darkstrata_ghost_events`). It reads
+  ghost (honeytoken) events from the `/ghosts/events` JSON feed with its
+  cursor, saving each event's `seq` so every event is indexed once across
+  restarts. Sourcetype `darkstrata:ghost:event`, `_time` from `received_at`
+  (falling back to `observed_at`). Options: include test events (off by
+  default) and a minimum severity. Needs the `ghost:read` API key permission;
+  a 403 is logged as such.
+- CIM Intrusion Detection mapping for `ghost.seen` events (eventtype
+  `darkstrata_ghost_seen`, tags `ids` and `attack`; test events excluded), with
+  `signature`, `severity`, `user`, `dest`, `category`, `vendor_product` and
+  per-event MITRE ATT&CK fields.
+- Correlation searches **DarkStrata - Ghost Seen** (severity, risk score and
+  ATT&CK techniques from the event; annotated T1589.001 and T1589.002) and
+  **DarkStrata - Ghost Retired** (medium tamper alarm; annotated T1562).
+- Disabled template searches for DC-side honey accounts: **DarkStrata - Honey
+  SPN Kerberos Service Ticket** (4769, T1558.003) and **DarkStrata - Honey
+  Account AS-REP Roasting** (4768 without pre-authentication, T1558.004), with
+  the `darkstrata_honey_accounts` lookup and the `darkstrata_windows_security`
+  macro for customers to fill in.
+
 ## [1.2.0] - 2026-10-19
 
 ### Added

@@ -4,6 +4,7 @@ DarkStrata Modular Inputs for Splunk
 Ingests threat intelligence from DarkStrata API endpoints:
 - /stix/indicators - Compromised credential indicators
 - /stix/alerts - Credential exposure alerts
+- /ghosts/events - Ghost (honeytoken) events, read with a keyset cursor
 
 Uses checkpoint-based incremental sync to efficiently fetch only new data.
 """
@@ -12,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import ssl
 import sys
 from collections.abc import Generator
@@ -42,6 +44,12 @@ DEFAULT_PAGE_LIMIT = 100
 MAX_PAGE_LIMIT = 500
 SOURCETYPE_OBSERVED_DATA = "darkstrata:stix:observed-data"
 SOURCETYPE_ALERT = "darkstrata:stix:alert"
+SOURCETYPE_GHOST_EVENT = "darkstrata:ghost:event"
+GHOST_EVENTS_ENDPOINT = "/ghosts/events"
+GHOST_PAGE_LIMIT = 100  # API maximum
+GHOST_SEVERITIES = ("INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL")
+# A ghost feed cursor is the seq of the last event received: digits only.
+GHOST_CURSOR_RE = re.compile(r"^[0-9]{1,19}$")
 USER_AGENT = "Splunk/TA-DarkStrata/1.2.0"
 
 
@@ -238,6 +246,59 @@ class DarkStrataAPIClient:
                 break
 
             params["page"] = current_page + 1
+
+    def fetch_ghost_events(
+        self,
+        cursor: str | None = None,
+        include_test: bool = False,
+        min_severity: str | None = None,
+        limit: int = GHOST_PAGE_LIMIT,
+    ) -> Generator[dict[str, Any], None, None]:
+        """
+        Fetch ghost (honeytoken) events from the /ghosts/events JSON feed.
+
+        Yields event envelopes oldest first (ascending seq), paging while the
+        API reports has_more. The caller checkpoints each event's seq, which is
+        the cursor to resume from. Needs the ghost:read API key permission.
+        """
+        if cursor is not None and not GHOST_CURSOR_RE.match(cursor):
+            raise ValueError(f"Invalid ghost events cursor: {cursor!r}")
+        if min_severity is not None and min_severity not in GHOST_SEVERITIES:
+            raise ValueError(f"Invalid min_severity: {min_severity!r}")
+
+        params: dict[str, Any] = {
+            "limit": max(1, min(limit, GHOST_PAGE_LIMIT)),
+            "include_test": "true" if include_test else "false",
+        }
+        if min_severity:
+            params["min_severity"] = min_severity
+
+        while True:
+            if cursor:
+                params["cursor"] = cursor
+            self.logger.info("Fetching ghost events (cursor=%s, limit=%d)", cursor, params["limit"])
+
+            try:
+                data, _headers = self._get_response_headers(GHOST_EVENTS_ENDPOINT, params)
+            except requests.exceptions.HTTPError as e:
+                if e.response is not None and e.response.status_code == 403:
+                    self.logger.error(
+                        "DarkStrata API key lacks the ghost:read permission; ghost events cannot be collected. "
+                        "Grant ghost:read to the key (default API keys have it)."
+                    )
+                raise
+
+            yield from data.get("events") or []
+
+            next_cursor = data.get("next_cursor")
+            if next_cursor is not None and not GHOST_CURSOR_RE.match(str(next_cursor)):
+                raise ValueError(f"API returned an invalid next_cursor: {next_cursor!r}")
+
+            # Stop when the feed is drained, or if the cursor fails to advance
+            # (a has_more that never moves would otherwise loop forever).
+            if not data.get("has_more") or next_cursor is None or str(next_cursor) == cursor:
+                break
+            cursor = str(next_cursor)
 
 
 class DarkStrataIndicatorsInput(base_modinput.BaseModInput):

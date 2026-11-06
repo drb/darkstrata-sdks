@@ -478,6 +478,109 @@
                             "help": "Hash email addresses using SHA-256 for privacy compliance"
                         }
                     ]
+                },
+                {
+                    "name": "darkstrata_ghost_events",
+                    "title": "DarkStrata Ghost Events",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this input",
+                            "required": true
+                        },
+                        {
+                            "type": "interval",
+                            "label": "Interval",
+                            "defaultValue": "300",
+                            "field": "interval",
+                            "help": "Collection interval in seconds. Minimum recommended: 300 (5 minutes)",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Index",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of index name should be between 1 and 80",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                }
+                            ],
+                            "defaultValue": "default",
+                            "options": {
+                                "endpointUrl": "data/indexes",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "field": "index",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Account",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Select the DarkStrata account to use",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Include Test Events",
+                            "defaultValue": false,
+                            "field": "include_test",
+                            "help": "Also collect test events sent from the DarkStrata console (is_test=true). Leave off in production; the correlation searches ignore test events either way."
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Minimum Severity",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "INFO",
+                                        "label": "Info"
+                                    },
+                                    {
+                                        "value": "LOW",
+                                        "label": "Low"
+                                    },
+                                    {
+                                        "value": "MEDIUM",
+                                        "label": "Medium"
+                                    },
+                                    {
+                                        "value": "HIGH",
+                                        "label": "High"
+                                    },
+                                    {
+                                        "value": "CRITICAL",
+                                        "label": "Critical"
+                                    }
+                                ]
+                            },
+                            "field": "min_severity",
+                            "required": false,
+                            "help": "Only collect ghost events at or above this severity. Leave empty to collect every event."
+                        }
+                    ]
                 }
             ],
             "title": "Inputs",

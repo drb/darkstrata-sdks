@@ -648,3 +648,96 @@ class TestConnectionPooling:
         assert "User-Agent" in headers
         assert "Accept" in headers
         assert headers["Accept"] == "application/json"
+
+
+class TestFetchGhostEvents:
+    """Tests for the /ghosts/events cursor feed."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, mock_splunk_libs: dict[str, MagicMock], api_base_url: str, api_key: str) -> None:
+        from darkstrata_inputs import DarkStrataAPIClient
+
+        self.client = DarkStrataAPIClient(api_base_url=api_base_url, api_key=api_key)
+        self.url = f"{api_base_url}/ghosts/events"
+
+    @staticmethod
+    def _page(seqs: list[str], next_cursor: str | None, has_more: bool) -> dict[str, Any]:
+        return {
+            "events": [{"seq": s, "event_type": "ghost.seen"} for s in seqs],
+            "next_cursor": next_cursor,
+            "has_more": has_more,
+        }
+
+    @responses.activate
+    def test_pages_while_has_more(self) -> None:
+        responses.add(
+            responses.GET,
+            self.url,
+            json=self._page(["1", "2"], "2", True),
+            match=[matchers.query_param_matcher({"limit": "100", "include_test": "false"})],
+        )
+        responses.add(
+            responses.GET,
+            self.url,
+            json=self._page(["3"], "3", False),
+            match=[matchers.query_param_matcher({"limit": "100", "include_test": "false", "cursor": "2"})],
+        )
+
+        seqs = [e["seq"] for e in self.client.fetch_ghost_events()]
+
+        assert seqs == ["1", "2", "3"]
+        assert len(responses.calls) == 2
+        assert responses.calls[0].request.headers["x-api-key"] == "test-api-key-12345"
+
+    @responses.activate
+    def test_empty_page_echoing_cursor_stops(self) -> None:
+        responses.add(responses.GET, self.url, json=self._page([], "50", False))
+
+        assert list(self.client.fetch_ghost_events(cursor="50")) == []
+        assert len(responses.calls) == 1
+        assert "cursor=50" in responses.calls[0].request.url
+
+    @responses.activate
+    def test_has_more_without_progress_stops(self) -> None:
+        responses.add(responses.GET, self.url, json=self._page([], "50", True))
+
+        assert list(self.client.fetch_ghost_events(cursor="50")) == []
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_include_test_and_min_severity_passed(self) -> None:
+        responses.add(
+            responses.GET,
+            self.url,
+            json=self._page([], None, False),
+            match=[
+                matchers.query_param_matcher({"limit": "100", "include_test": "true", "min_severity": "HIGH"}),
+            ],
+        )
+
+        assert list(self.client.fetch_ghost_events(include_test=True, min_severity="HIGH")) == []
+
+    def test_rejects_bad_cursor_and_severity(self) -> None:
+        with pytest.raises(ValueError):
+            list(self.client.fetch_ghost_events(cursor="1 OR 1=1"))
+        with pytest.raises(ValueError):
+            list(self.client.fetch_ghost_events(min_severity="SEVERE"))
+
+    @responses.activate
+    def test_rejects_bad_next_cursor(self) -> None:
+        responses.add(responses.GET, self.url, json=self._page([], "abc", True))
+
+        with pytest.raises(ValueError):
+            list(self.client.fetch_ghost_events())
+
+    @responses.activate
+    def test_403_logs_ghost_read_permission(self) -> None:
+        import requests
+
+        responses.add(responses.GET, self.url, json={"error": "forbidden"}, status=403)
+        self.client.logger = MagicMock()
+
+        with pytest.raises(requests.exceptions.HTTPError):
+            list(self.client.fetch_ghost_events())
+        logged = " ".join(str(c.args[0]) for c in self.client.logger.error.call_args_list)
+        assert "ghost:read" in logged

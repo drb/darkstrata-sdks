@@ -286,6 +286,10 @@ class TestSavedSearchesConf:
             "DarkStrata - Malware Credential Detected": ["T1555.003", "T1589.001"],
             "DarkStrata - Third Party Credential Exposure": ["T1589.001"],
             "DarkStrata - Potential Malware Campaign": ["T1555.003", "T1589.001"],
+            "DarkStrata - Ghost Seen": ["T1589.001", "T1589.002"],
+            "DarkStrata - Ghost Retired": ["T1562"],
+            "DarkStrata - Honey SPN Kerberos Service Ticket": ["T1558.003"],
+            "DarkStrata - Honey Account AS-REP Roasting": ["T1558.004"],
         }
         correlation = [
             s
@@ -299,3 +303,15 @@ class TestSavedSearchesConf:
             assert all(re.fullmatch(r"T\d{4}(\.\d{3})?", t) for t in techniques)
             assert savedsearches_conf.get(section, "action.correlationsearch.label").strip()
             assert "annotations.mitre_attack" in savedsearches_conf.get(section, "search"), section
+
+    def test_honey_account_searches_ship_disabled(self, savedsearches_conf: configparser.ConfigParser) -> None:
+        """DC-side honey-account searches are templates the customer enables."""
+        for section in (
+            "DarkStrata - Honey SPN Kerberos Service Ticket",
+            "DarkStrata - Honey Account AS-REP Roasting",
+        ):
+            assert savedsearches_conf.get(section, "disabled") == "1", section
+
+    def test_ghost_searches_ignore_test_events(self, savedsearches_conf: configparser.ConfigParser) -> None:
+        for section in ("DarkStrata - Ghost Seen", "DarkStrata - Ghost Retired"):
+            assert "is_test=false" in savedsearches_conf.get(section, "search"), section

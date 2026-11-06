@@ -56,6 +56,7 @@ ignore = ["E501"]
 # Splunk UCC TAs require import_declare_test before all other imports
 "package/bin/darkstrata_alerts.py" = ["E402", "I001"]
 "package/bin/darkstrata_indicators.py" = ["E402", "I001"]
+"package/bin/darkstrata_ghost_events.py" = ["E402", "I001"]
 # Tests mock sys.modules before importing project modules
 "tests/test_adaptive_response.py" = ["E402", "I001"]
 

@@ -48,6 +48,18 @@ export = system
 [savedsearches/DarkStrata - Potential Malware Campaign]
 export = system
 
+[savedsearches/DarkStrata - Ghost Seen]
+export = system
+
+[savedsearches/DarkStrata - Ghost Retired]
+export = system
+
+[savedsearches/DarkStrata - Honey SPN Kerberos Service Ticket]
+export = system
+
+[savedsearches/DarkStrata - Honey Account AS-REP Roasting]
+export = system
+
 # Adaptive Response Actions
 [alert_actions]
 export = system

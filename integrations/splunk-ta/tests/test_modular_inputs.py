@@ -1,6 +1,6 @@
 """
 Tests for the modular-input entry points (darkstrata_alerts.py,
-darkstrata_indicators.py).
+darkstrata_indicators.py, darkstrata_ghost_events.py).
 
 These modules subclass ``splunklib.modularinput.Script`` and call
 ``Scheme``/``Argument``/``Event``, none of which can be subclassed or
@@ -134,7 +134,7 @@ def smi_stub(monkeypatch: pytest.MonkeyPatch, mock_splunk_libs: dict[str, MagicM
     monkeypatch.setitem(sys.modules, "splunklib.modularinput", smi)
 
     # Force fresh imports so the input classes bind to the real stubs above.
-    for name in ("darkstrata_inputs", "darkstrata_alerts", "darkstrata_indicators"):
+    for name in ("darkstrata_inputs", "darkstrata_alerts", "darkstrata_indicators", "darkstrata_ghost_events"):
         monkeypatch.delitem(sys.modules, name, raising=False)
 
     _FakeCheckpointer.store = {}
@@ -331,3 +331,130 @@ def test_indicators_stream_events_fetch_error_reraises(smi_stub: Any, monkeypatc
         mod.DarkStrataIndicators().stream_events(
             _FakeInputs("darkstrata_indicators://x", {"account": "acct"}), MagicMock()
         )
+
+
+# --- stream_events: ghost events ---------------------------------------------
+
+GHOST_INPUT = "darkstrata_ghost_events://test"
+GHOST_CKPT_KEY = f"darkstrata_ghost_events_{GHOST_INPUT}"
+
+
+def _ghost_event(seq: str, received_at: str | None = "2026-11-06T10:00:00.000Z", **extra: Any) -> dict[str, Any]:
+    return {
+        "schema_version": 1,
+        "event_id": f"00000000-0000-4000-8000-{int(seq):012d}",
+        "seq": seq,
+        "event_type": "ghost.seen",
+        "kind": "IDENTITY",
+        "severity": "HIGH",
+        "is_test": False,
+        "observed_at": "2026-11-06T09:00:00.000Z",
+        "received_at": received_at,
+        **extra,
+    }
+
+
+def _ghost_client(pages: list[list[dict[str, Any]]], calls: list[dict[str, Any]]):
+    """Fake client whose fetch_ghost_events yields the next page per run."""
+
+    class FakeClient:
+        def __init__(self, **kwargs: Any) -> None:
+            pass
+
+        def fetch_ghost_events(self, **kwargs: Any):
+            calls.append(kwargs)
+            yield from pages[len(calls) - 1]
+
+    return FakeClient
+
+
+def test_ghost_get_scheme(smi_stub: Any) -> None:
+    mod = _load("darkstrata_ghost_events")
+    scheme = mod.DarkStrataGhostEvents().get_scheme()
+    assert scheme.title == "darkstrata_ghost_events"
+    assert {"name", "account", "include_test", "min_severity"} <= {a.name for a in scheme.arguments}
+
+
+def test_ghost_cursor_advances_and_resumes(smi_stub: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    mod = _load("darkstrata_ghost_events")
+    calls: list[dict[str, Any]] = []
+    pages = [[_ghost_event("41"), _ghost_event("42")], [_ghost_event("43")]]
+    _wire(monkeypatch, mod, _make_conf_manager(_account()), _ghost_client(pages, calls))
+    inputs = _FakeInputs(GHOST_INPUT, {"account": "acct", "index": "main"})
+
+    ew = MagicMock()
+    mod.DarkStrataGhostEvents().stream_events(inputs, ew)
+    assert calls[0]["cursor"] is None
+    assert ew.write_event.call_count == 2
+    assert all(c.args[0].sourcetype == "darkstrata:ghost:event" for c in ew.write_event.call_args_list)
+    assert _FakeCheckpointer.store[GHOST_CKPT_KEY]["cursor"] == "42"
+
+    # A restart resumes strictly after the last event written.
+    ew2 = MagicMock()
+    mod.DarkStrataGhostEvents().stream_events(inputs, ew2)
+    assert calls[1]["cursor"] == "42"
+    assert ew2.write_event.call_count == 1
+    assert _FakeCheckpointer.store[GHOST_CKPT_KEY]["cursor"] == "43"
+
+
+def test_ghost_empty_page_keeps_cursor(smi_stub: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    mod = _load("darkstrata_ghost_events")
+    _FakeCheckpointer.store[GHOST_CKPT_KEY] = {"cursor": "99"}
+    calls: list[dict[str, Any]] = []
+    _wire(monkeypatch, mod, _make_conf_manager(_account()), _ghost_client([[]], calls))
+    ew = MagicMock()
+
+    mod.DarkStrataGhostEvents().stream_events(_FakeInputs(GHOST_INPUT, {"account": "acct"}), ew)
+
+    assert calls[0]["cursor"] == "99"
+    ew.write_event.assert_not_called()
+    assert _FakeCheckpointer.store[GHOST_CKPT_KEY] == {"cursor": "99"}
+
+
+def test_ghost_passes_include_test_and_min_severity(smi_stub: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    mod = _load("darkstrata_ghost_events")
+    calls: list[dict[str, Any]] = []
+    _wire(monkeypatch, mod, _make_conf_manager(_account()), _ghost_client([[], []], calls))
+
+    mod.DarkStrataGhostEvents().stream_events(
+        _FakeInputs(GHOST_INPUT, {"account": "acct", "include_test": "1", "min_severity": "high"}), MagicMock()
+    )
+    mod.DarkStrataGhostEvents().stream_events(
+        _FakeInputs(GHOST_INPUT, {"account": "acct", "min_severity": "bogus"}), MagicMock()
+    )
+
+    assert calls[0]["include_test"] is True
+    assert calls[0]["min_severity"] == "HIGH"
+    assert calls[1]["include_test"] is False
+    assert calls[1]["min_severity"] is None
+
+
+def test_ghost_time_from_received_at_then_observed_at(smi_stub: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    mod = _load("darkstrata_ghost_events")
+    pages = [[_ghost_event("1"), _ghost_event("2", received_at=None)]]
+    _wire(monkeypatch, mod, _make_conf_manager(_account()), _ghost_client(pages, []))
+    ew = MagicMock()
+
+    mod.DarkStrataGhostEvents().stream_events(_FakeInputs(GHOST_INPUT, {"account": "acct"}), ew)
+
+    times = [c.args[0].time for c in ew.write_event.call_args_list]
+    assert times[0] == pytest.approx(mod._parse_timestamp("2026-11-06T10:00:00.000Z"))
+    assert times[1] == pytest.approx(mod._parse_timestamp("2026-11-06T09:00:00.000Z"))
+
+
+def test_ghost_fetch_error_keeps_written_events_checkpointed(smi_stub: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    mod = _load("darkstrata_ghost_events")
+
+    class FakeClient:
+        def __init__(self, **kwargs: Any) -> None:
+            pass
+
+        def fetch_ghost_events(self, **kwargs: Any):
+            yield _ghost_event("7")
+            raise RuntimeError("api down")
+
+    _wire(monkeypatch, mod, _make_conf_manager(_account()), FakeClient)
+
+    with pytest.raises(RuntimeError, match="api down"):
+        mod.DarkStrataGhostEvents().stream_events(_FakeInputs(GHOST_INPUT, {"account": "acct"}), MagicMock())
+    assert _FakeCheckpointer.store[GHOST_CKPT_KEY]["cursor"] == "7"

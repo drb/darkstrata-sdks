@@ -15,6 +15,7 @@ Ingest DarkStrata threat intelligence into Splunk Enterprise Security. This Tech
 - [Event Types and Tags](#event-types-and-tags)
 - [CIM Field Mappings](#cim-field-mappings)
 - [Enterprise Security Integration](#enterprise-security-integration)
+- [Ghost (Honeytoken) Events](#ghost-honeytoken-events)
 - [Adaptive Response Actions](#adaptive-response-actions)
 - [SOAR Integration](#soar-integration)
 - [Performance Tuning](#performance-tuning)
@@ -193,8 +194,9 @@ For Splunk Cloud deployments:
 
 | Scope       | Description                     | Required      |
 | ----------- | ------------------------------- | ------------- |
-| `siem:read` | Read STIX indicators and alerts | Yes           |
-| `data:read` | Read raw credential data        | No (optional) |
+| `siem:read`  | Read STIX indicators and alerts | Yes           |
+| `ghost:read` | Read ghost (honeytoken) events  | For the Ghost Events input; default API keys have it |
+| `data:read`  | Read raw credential data        | No (optional) |
 
 ---
 
@@ -255,6 +257,11 @@ Collects credential exposure alert bundles from `/stix/alerts`.
 | **Confidence Threshold** | Minimum STIX confidence (0-100)     | `0` (all)           |
 | **Hash Emails**          | SHA-256 hash emails for privacy     | Disabled            |
 
+#### Ghost Events Input
+
+Collects ghost (honeytoken) events from `/ghosts/events`. See
+[Ghost (Honeytoken) Events](#ghost-honeytoken-events).
+
 ### Step 3: Configure Proxy (Optional)
 
 If your Splunk instance requires a proxy for outbound connections:
@@ -308,6 +315,17 @@ If your Splunk instance requires a proxy for outbound connections:
 | `confidence_threshold` | integer | `0`        | Minimum STIX confidence (0-100)        |
 | `hash_emails`          | boolean | `false`    | SHA-256 hash email addresses           |
 
+### Ghost Events Input Parameters
+
+| Parameter      | Type    | Default    | Description                                                    |
+| -------------- | ------- | ---------- | -------------------------------------------------------------- |
+| `name`         | string  | (required) | Unique input identifier                                        |
+| `interval`     | integer | `300`      | Collection interval in seconds                                 |
+| `index`        | string  | `default`  | Target Splunk index                                            |
+| `account`      | string  | (required) | Account configuration to use                                   |
+| `include_test` | boolean | `false`    | Also collect test events sent from the DarkStrata console      |
+| `min_severity` | string  | (none)     | Only collect events at or above `INFO`/`LOW`/`MEDIUM`/`HIGH`/`CRITICAL` |
+
 ### Confidence Threshold Mapping
 
 The confidence threshold maps to DarkStrata threat scores:
@@ -330,6 +348,7 @@ The confidence threshold maps to DarkStrata threat scores:
 | ------------------------------- | ----------------------------------- | ------ |
 | `darkstrata:stix:observed-data` | Individual credential indicators    | High   |
 | `darkstrata:stix:alert`         | Alert bundles (report + indicators) | Low    |
+| `darkstrata:ghost:event`        | Ghost (honeytoken) events (JSON)    | Low    |
 
 ### Sample Event: observed-data
 
@@ -537,6 +556,11 @@ user, description, threat_key, weight, first_seen, last_seen, email
 | **DarkStrata - Third Party Credential Exposure**       | Outbound flow           | Medium   | 50         |
 | **DarkStrata - Potential Malware Campaign**            | 3+ users from malware   | High     | 90         |
 | **DarkStrata - New Alert Received**                    | New alert bundles       | Info     | -          |
+| **DarkStrata - Ghost Seen**                            | `ghost.seen` events     | From event | From event |
+| **DarkStrata - Ghost Retired**                         | `ghost.retired` events  | Medium   | -          |
+
+The ghost and honey-account searches are described in
+[Ghost (Honeytoken) Events](#ghost-honeytoken-events).
 
 Each correlation search carries static MITRE ATT&CK annotations, shown in ES
 on the notable event and used by the `mitre_attack` risk annotations:
@@ -578,6 +602,146 @@ The correlation searches assign risk scores to users:
 | Critical severity exposure | 80         | user        |
 | High severity exposure     | 80         | user        |
 | Third-party exposure       | 50         | user        |
+
+---
+
+## Ghost (Honeytoken) Events
+
+DarkStrata Ghost plants ghosts: honeytoken identities (an email address and
+password) that no real person uses. Each ghost is seeded in one place, so when
+it turns up in a stealer log, breach or combolist, you know someone holds data
+from that place. The **DarkStrata Ghost Events** input brings these hits into
+Splunk.
+
+### Setting Up the Input
+
+1. Make sure the account's API key has `ghost:read` (default API keys do). A
+   key without it gets HTTP 403, and the input logs
+   `DarkStrata API key lacks the ghost:read permission`.
+2. Navigate to **Inputs** > **Create New Input** > **DarkStrata Ghost Events**.
+3. Choose the account, index and interval. Leave **Include Test Events** off in
+   production. Set **Minimum Severity** only if you want to drop low-severity
+   events at source.
+
+The input reads the `/ghosts/events` feed with a cursor: each event has a
+sequence number (`seq`), and the input saves the `seq` of every event it
+writes to the `ta_darkstrata_checkpoints` KV Store collection. After a restart
+it carries on from the next event, so each event is indexed once. (If Splunk
+stops in the instant between writing an event and saving its checkpoint, that
+one event is indexed again; deduplicate on `event_id` if that matters.) On
+each run the input pages until the feed is drained, then waits for the next
+interval.
+
+The API holds events back for 60 seconds before serving them, and serves
+events for 30 days. If the input is stopped for more than 30 days, older
+events are not collected. Lower the interval (for example to `60`) to see hits
+sooner.
+
+### Sourcetype and Fields
+
+Events have sourcetype `darkstrata:ghost:event`, one JSON envelope per event.
+`_time` is the event's `received_at` (when DarkStrata ingested the leaked
+data), falling back to `observed_at`.
+
+| Field                      | Source                                 | Notes                                           |
+| -------------------------- | -------------------------------------- | ----------------------------------------------- |
+| `event_type`               | envelope                               | `ghost.seen`, `ghost.deployed`, `ghost.retired` |
+| `subtype`                  | `ghost.seen` only                      | `EXACT_PAIR`, `EMAIL_OTHER_PASSWORD`, `EMAIL_ONLY` |
+| `ghost_id`, `ghost_label`  | `ghost.id`, `ghost.label`              | The label is text your team wrote               |
+| `ghost_kind`               | `kind`                                 | `IDENTITY` today                                |
+| `match_source`             | `match.source`                         | `STEALER_LOG`, `BREACH`, `COMBOLIST`            |
+| `is_test`                  | envelope                               | `true` for console test events                  |
+| `console_url`              | envelope                               | Opens the event in DarkStrata                   |
+| `mitre_technique_id`       | `mitre.techniques{}.id`                | Also `mitre_technique` and `annotations.mitre_attack` |
+| `mitre_technique_name`     | `mitre.techniques{}.name`              |                                                 |
+| `mitre_tactic_id`          | `mitre.techniques{}.tactic_ids{}`      | TA0043 Reconnaissance for ghost hits            |
+
+`ghost.label`, `match.corpus_name` and `match.provenance` come from your team
+or from leaked data. Treat them as untrusted text: the shipped searches only
+display them and never build a search from them. Do the same in your own
+drilldowns.
+
+### CIM Mapping
+
+`ghost.seen` events that are not tests carry eventtype `darkstrata_ghost_seen`
+with tags `ids` and `attack`, so they appear in the **Intrusion Detection**
+data model:
+
+| CIM Field        | Value                                                          |
+| ---------------- | -------------------------------------------------------------- |
+| `signature`      | `event_type:subtype`, for example `ghost.seen:EXACT_PAIR`      |
+| `signature_id`   | `event_type`                                                   |
+| `severity`       | Event severity in CIM form (`informational` to `critical`)     |
+| `user`           | `ghost.email`                                                  |
+| `dest`           | Domain of `ghost.email` (`ghost.id` if there is no email)      |
+| `category`       | `honeytoken`                                                   |
+| `action`         | `allowed`                                                      |
+| `ids_type`       | `application`                                                  |
+| `vendor_product` | `DarkStrata Ghost`                                             |
+
+Ghost events are not mapped to the Authentication data model: a ghost turning
+up in leaked data is not a sign-in. The honey-account searches below run on
+your domain controllers' Kerberos events, which the Splunk Add-on for Microsoft
+Windows already maps to Authentication.
+
+All ghost events, including `ghost.deployed` and `ghost.retired`, carry
+eventtype `darkstrata_ghost_events`. Base macro: `darkstrata_ghost_events`.
+
+### Correlation Searches
+
+| Search                          | Triggers on                    | Severity   | `annotations.mitre_attack` |
+| ------------------------------- | ------------------------------ | ---------- | -------------------------- |
+| **DarkStrata - Ghost Seen**     | `ghost.seen`, not a test       | From event | T1589.001, T1589.002       |
+| **DarkStrata - Ghost Retired**  | `ghost.retired`, not a test    | Medium     | T1562                      |
+
+**Ghost Seen** raises a notable for each hit. The notable's `severity` and
+`risk_score` come from the event's severity, and the per-event
+`annotations.mitre_attack` field carries the event's own techniques (T1589.001
+for `EXACT_PAIR` and `EMAIL_OTHER_PASSWORD`, T1589.002 for `EMAIL_ONLY`).
+
+**Ghost Retired** is a tamper alarm. Retiring a ghost, or deleting the domain
+it belongs to, stops it raising alerts. Check each retirement against
+`retired_by` and `reason`.
+
+Both searches look back 30 days but only at events indexed in the last
+10 minutes, so a late or backfilled event still raises a notable. They are
+throttled on `event_id` for 24 hours so the overlap between runs does not raise
+it twice.
+
+### DC-Side Honey-Account Searches (Templates)
+
+These two searches ship **disabled**. They are for honey accounts you create in
+Active Directory, and need Windows Security logs from your domain controllers.
+They do not use DarkStrata data.
+
+| Search                                               | Windows event                        | Technique |
+| ---------------------------------------------------- | ------------------------------------ | --------- |
+| **DarkStrata - Honey SPN Kerberos Service Ticket**   | 4769 for a honey SPN account         | T1558.003 Kerberoasting |
+| **DarkStrata - Honey Account AS-REP Roasting**       | 4768 with pre-auth type 0 for a honey account | T1558.004 AS-REP Roasting |
+
+To enable them:
+
+1. Create the honey accounts: one with a service principal name (for
+   Kerberoasting), and one with **Do not require Kerberos preauthentication**
+   set (for AS-REP roasting). Give them no rights, and never use them.
+2. List them in `lookups/darkstrata_honey_accounts.csv` (copy it to `local/`
+   first, or upload it through **Settings** > **Lookups**):
+
+   ```csv
+   account,type,description
+   svc_sqlbackup,spn,Honey SPN account
+   j.adams,asrep,Honey AS-REP account
+   ```
+
+   `account` is the sAMAccountName (case does not matter); `type` is `spn` or
+   `asrep`.
+3. Edit the `darkstrata_windows_security` macro so it points at your DC
+   Security log index (the default is `index=wineventlog`).
+4. Enable the searches in **Content Management**.
+
+Nothing legitimate uses a honey account, so any match is hostile. Both
+searches work with classic (`WinEventLog`) and XML (`XmlWinEventLog`) Windows
+events.
 
 ---
 
@@ -841,6 +1005,9 @@ Reduce batch size if memory consumption is excessive.
 | -------------------------- | -------------------------------------------- | ------------------------ |
 | `darkstrata_observed_data` | `sourcetype="darkstrata:stix:observed-data"` | All observed-data events |
 | `darkstrata_alerts`        | `sourcetype="darkstrata:stix:alert"`         | All alert bundles        |
+| `darkstrata_ghost_events`  | `sourcetype="darkstrata:ghost:event"`        | All ghost events         |
+| `darkstrata_windows_security` | `index=wineventlog source IN (...)`       | DC Security log, for the honey-account searches |
+| `darkstrata_honey_account(type)` | Lookup filter                          | Keep honey accounts of `type` (`spn`/`asrep`) |
 
 ### Field Extraction
 
