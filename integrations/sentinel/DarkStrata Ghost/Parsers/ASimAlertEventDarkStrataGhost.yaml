@@ -1,0 +1,113 @@
+Parser:
+  Title: Alert Event ASIM parser for DarkStrata Ghost
+  Version: '0.1.0'
+  LastUpdated: Nov 06, 2026
+Product:
+  Name: DarkStrata Ghost
+Normalization:
+  Schema: AlertEvent
+  Version: '0.1'
+References:
+  - Title: ASIM Alert Event Schema
+    Link: https://aka.ms/ASimAlertEventDoc
+  - Title: ASIM
+    Link: https://aka.ms/AboutASIM
+  - Title: DarkStrata Ghost
+    Link: https://darkstrata.io
+Description: |
+  This ASIM parser normalises DarkStrata Ghost `ghost.seen` events (a honeytoken found in leaked data)
+  from DarkStrataGhostEvents_CL to the ASIM Alert Event schema. Self-test events are excluded.
+  GhostLabel, CorpusName and MatchProvenance are customer-written or leaked text: treat them as untrusted.
+ParserName: ASimAlertEventDarkStrataGhost
+EquivalentBuiltInParser: _ASim_AlertEvent_DarkStrataGhost
+ParserParams:
+  - Name: disabled
+    Type: bool
+    Default: false
+ParserQuery: |
+  // ATT&CK v20 tactic names (TA0005 is Stealth, TA0112 Defense Impairment)
+  let TacticNames = dynamic({"TA0043":"Reconnaissance","TA0042":"Resource Development","TA0001":"Initial Access","TA0002":"Execution","TA0003":"Persistence","TA0004":"Privilege Escalation","TA0005":"Stealth","TA0112":"Defense Impairment","TA0006":"Credential Access","TA0007":"Discovery","TA0008":"Lateral Movement","TA0009":"Collection","TA0011":"Command and Control","TA0010":"Exfiltration","TA0040":"Impact"});
+  let SeverityNames = dynamic({"INFO":"Informational","LOW":"Low","MEDIUM":"Medium","HIGH":"High","CRITICAL":"High"});
+  let parser = (
+    starttime: datetime = datetime(null),
+    endtime: datetime = datetime(null),
+    ipaddr_has_any_prefix: dynamic = dynamic([]),
+    hostname_has_any: dynamic = dynamic([]),
+    username_has_any: dynamic = dynamic([]),
+    attacktactics_has_any: dynamic = dynamic([]),
+    attacktechniques_has_any: dynamic = dynamic([]),
+    threatcategory_has_any: dynamic = dynamic([]),
+    alertverdict_has_any: dynamic = dynamic([]),
+    eventseverity_has_any: dynamic = dynamic([]),
+    disabled: bool = false
+  ) {
+    DarkStrataGhostEvents_CL
+    | where not(disabled)
+    | where (isnull(starttime) or TimeGenerated >= starttime) and (isnull(endtime) or TimeGenerated <= endtime)
+    // Ghost events carry no device IP or hostname, so an IP or hostname filter matches nothing
+    | where array_length(ipaddr_has_any_prefix) == 0 and array_length(hostname_has_any) == 0
+    | where EventType == "ghost.seen" and not(IsTest)
+    | where array_length(username_has_any) == 0 or GhostEmail has_any (username_has_any)
+    | mv-apply Technique = MitreTechniques on (
+        mv-expand TacticId = Technique.tactic_ids to typeof(string)
+        | extend TacticName = tostring(TacticNames[TacticId])
+        | summarize
+            TechniqueSet = make_set(strcat(tostring(Technique.name), " (", tostring(Technique.id), ")")),
+            TacticSet = make_set_if(TacticName, isnotempty(TacticName))
+      )
+    | extend
+        AttackTactics = strcat_array(TacticSet, ", "),
+        AttackTechniques = strcat_array(TechniqueSet, ", "),
+        EventSeverity = tostring(SeverityNames[Severity]),
+        EventOriginalType = EventType,
+        ThreatCategory = "Unknown",
+        AlertVerdict = "True Positive"
+    | where array_length(attacktactics_has_any) == 0 or AttackTactics has_any (attacktactics_has_any)
+    | where array_length(attacktechniques_has_any) == 0 or AttackTechniques has_any (attacktechniques_has_any)
+    | where array_length(threatcategory_has_any) == 0 or ThreatCategory has_any (threatcategory_has_any)
+    | where array_length(alertverdict_has_any) == 0 or AlertVerdict has_any (alertverdict_has_any)
+    | where array_length(eventseverity_has_any) == 0 or EventSeverity has_any (eventseverity_has_any)
+    | extend
+        EventCount = int(1),
+        EventStartTime = coalesce(ObservedAt, ReceivedAt, TimeGenerated),
+        EventEndTime = coalesce(ReceivedAt, TimeGenerated),
+        EventType = "Alert",
+        EventSubType = "Threat",
+        EventUid = EventId,
+        EventOriginalUid = tostring(Seq),
+        EventOriginalSubType = Subtype,
+        EventOriginalSeverity = Severity,
+        EventProduct = "Ghost",
+        EventVendor = "DarkStrata",
+        EventSchema = "AlertEvent",
+        EventSchemaVersion = "0.1",
+        EventReportUrl = ConsoleUrl,
+        EventMessage = strcat("DarkStrata found ghost '", GhostLabel, "' (", Kind, ") in ", MatchSource, " data: ", CorpusName),
+        AlertName = strcat("DarkStrata Ghost seen: ", Kind, " ", Subtype),
+        AlertStatus = "Active",
+        DetectionMethod = "Threat Intelligence",
+        ThreatName = CorpusName,
+        ThreatOriginalCategory = MatchSource,
+        ThreatFirstReportedTime = ObservedAt,
+        ThreatIsActive = true,
+        IndicatorType = "Email",
+        IndicatorAssociation = "Targeted",
+        Username = GhostEmail,
+        UsernameType = "UPN",
+        AttackRemediationSteps = "A ghost exists only to be stolen, so this sighting means the place it was seeded has leaked. Open the console link, identify the seed location and investigate that system for compromise.",
+        AdditionalFields = bag_pack(
+          "GhostId", GhostId, "GhostLabel", GhostLabel, "GhostMode", GhostMode, "GhostSeedUrl", GhostSeedUrl,
+          "GhostDisplayName", GhostDisplayName, "MatchKind", MatchKind, "MatchSource", MatchSource,
+          "CorpusName", CorpusName, "RowIngestedAt", RowIngestedAt, "MatchProvenance", MatchProvenance,
+          "MitreAttackVersion", MitreAttackVersion)
+    | extend
+        AlertId = EventUid,
+        AlertDescription = EventMessage,
+        User = Username
+    | project-away
+        EventId, Seq, Kind, Subtype, Severity, IsTest, ObservedAt, ReceivedAt, GhostId, GhostLabel, GhostSeedUrl,
+        GhostMode, GhostEmail, GhostDisplayName, MatchKind, MatchSource, CorpusName, RowIngestedAt, MatchProvenance,
+        Incident, MitreAttackVersion, MitreDomain, MitreTechniques, MitreSoftware, RetiredById, RetiredByName,
+        RetiredReason, ConsoleUrl, SchemaVersion, TacticSet, TechniqueSet
+  };
+  parser(disabled = disabled)

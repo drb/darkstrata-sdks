@@ -1,0 +1,72 @@
+id: ec4f8844-f242-4d45-a475-943424fed7dc
+name: DarkStrata Ghost - Identity ghost seen
+description: |
+  'A ghost identity (a honeytoken email address, optionally with a password) was found in leaked data: a stealer log, breach or
+  combolist. A ghost exists only to be stolen, so a sighting means the place it was seeded has leaked.
+  Self-test events are excluded. Severity and tactics come from the event. Label and corpus name are customer-written
+  or leaked text and are shown for context only.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: DarkStrataGhostCCFDefinition
+    dataTypes:
+      - DarkStrataGhostEvents_CL
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - Reconnaissance
+relevantTechniques:
+  - T1589.001
+  - T1589.002
+query: |
+  // ATT&CK tactic id -> Sentinel tactic. Sentinel has no Stealth or Defense Impairment, so TA0005 and TA0112 map to DefenseEvasion
+  let SentinelTactics = dynamic({"TA0043":"Reconnaissance","TA0042":"ResourceDevelopment","TA0001":"InitialAccess","TA0002":"Execution","TA0003":"Persistence","TA0004":"PrivilegeEscalation","TA0005":"DefenseEvasion","TA0112":"DefenseEvasion","TA0006":"CredentialAccess","TA0007":"Discovery","TA0008":"LateralMovement","TA0009":"Collection","TA0011":"CommandAndControl","TA0010":"Exfiltration","TA0040":"Impact"});
+  let SentinelSeverity = dynamic({"INFO":"Informational","LOW":"Low","MEDIUM":"Medium","HIGH":"High","CRITICAL":"High"});
+  DarkStrataGhostEvents_CL
+  | where EventType == "ghost.seen" and Kind == "IDENTITY" and not(IsTest)
+  | mv-apply Technique = MitreTechniques on (
+      mv-expand TacticId = Technique.tactic_ids to typeof(string)
+      | extend Tactic = tostring(SentinelTactics[TacticId])
+      | summarize Tactics = make_set_if(Tactic, isnotempty(Tactic)), Techniques = make_set(tostring(Technique.id))
+    )
+  | extend
+      AlertSeverity = tostring(SentinelSeverity[Severity]),
+      AlertTactics = strcat_array(Tactics, ","),
+      AttackTechniques = strcat_array(Techniques, ","),
+      // Untrusted text, trimmed to fit the alert name and description limits
+      DisplayLabel = substring(GhostLabel, 0, 100),
+      DisplayCorpus = substring(CorpusName, 0, 200)
+  | extend AccountName = tostring(split(GhostEmail, "@")[0]), AccountUPNSuffix = tostring(split(GhostEmail, "@")[1])
+  | project TimeGenerated, EventId, Seq, Kind, Subtype, Severity, AlertSeverity, AlertTactics, AttackTechniques,
+      GhostId, DisplayLabel, GhostEmail, AccountName, AccountUPNSuffix, MatchKind, MatchSource, DisplayCorpus, ObservedAt, ReceivedAt, ConsoleUrl
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: FullName
+        columnName: GhostEmail
+      - identifier: Name
+        columnName: AccountName
+      - identifier: UPNSuffix
+        columnName: AccountUPNSuffix
+eventGroupingSettings:
+  aggregationKind: AlertPerResult
+customDetails:
+  GhostId: GhostId
+  GhostLabel: DisplayLabel
+  Corpus: DisplayCorpus
+  MatchSource: MatchSource
+  MatchKind: MatchKind
+  AttackTechniques: AttackTechniques
+  EventId: EventId
+alertDetailsOverride:
+  alertDisplayNameFormat: 'DarkStrata Ghost seen: {{DisplayLabel}}'
+  alertDescriptionFormat: 'Ghost {{DisplayLabel}} (Identity) was found in {{MatchSource}} data: {{DisplayCorpus}}. Open the DarkStrata console link for the seed location.'
+  alertSeverityColumnName: AlertSeverity
+  alertTacticsColumnName: AlertTactics
+  alertDynamicProperties:
+    - alertProperty: AlertLink
+      value: ConsoleUrl
+version: 1.0.0
+kind: Scheduled

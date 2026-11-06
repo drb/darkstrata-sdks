@@ -1,0 +1,98 @@
+{
+  "name": "DarkStrataGhostCCFDefinition",
+  "apiVersion": "2022-09-01-preview",
+  "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+  "location": "{{location}}",
+  "kind": "Customizable",
+  "properties": {
+    "connectorUiConfig": {
+      "id": "DarkStrataGhostCCFDefinition",
+      "title": "DarkStrata Ghost (via Codeless Connector Framework)",
+      "publisher": "DarkStrata",
+      "descriptionMarkdown": "The DarkStrata Ghost data connector ingests ghost (honeytoken) events from the DarkStrata Ghost event feed into Microsoft Sentinel. A ghost is a decoy identity that exists only to be stolen: when DarkStrata finds one in a stealer log, breach or combolist, a `ghost.seen` event is raised. `ghost.deployed` and `ghost.retired` events record the ghost lifecycle, and an unexpected `ghost.retired` is a tamper alarm.\n\nThe connector polls `GET /v1/ghosts/events` every 5 minutes, follows the feed cursor so no event is skipped or duplicated, and writes typed rows to the `DarkStrataGhostEvents_CL` table.",
+      "graphQueriesTableName": "DarkStrataGhostEvents_CL",
+      "graphQueries": [
+        {
+          "metricName": "Total events received",
+          "legend": "DarkStrata Ghost events",
+          "baseQuery": "{{graphQueriesTableName}}"
+        }
+      ],
+      "sampleQueries": [
+        {
+          "description": "Latest ghost sightings (excluding self-tests)",
+          "query": "{{graphQueriesTableName}}\n| where EventType == \"ghost.seen\" and not(IsTest)\n| project TimeGenerated, Kind, Severity, GhostLabel, GhostEmail, MatchSource, CorpusName, ConsoleUrl\n| sort by TimeGenerated desc\n| take 10"
+        },
+        {
+          "description": "Ghost tamper events (retired)",
+          "query": "{{graphQueriesTableName}}\n| where EventType == \"ghost.retired\"\n| project TimeGenerated, GhostLabel, RetiredByName, RetiredReason, ConsoleUrl\n| sort by TimeGenerated desc"
+        }
+      ],
+      "dataTypes": [
+        {
+          "name": "{{graphQueriesTableName}}",
+          "lastDataReceivedQuery": "{{graphQueriesTableName}}\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+        }
+      ],
+      "connectivityCriteria": [
+        {
+          "type": "HasDataConnectors"
+        }
+      ],
+      "availability": {
+        "status": 1,
+        "isPreview": false
+      },
+      "permissions": {
+        "resourceProvider": [
+          {
+            "provider": "Microsoft.OperationalInsights/workspaces",
+            "permissionsDisplayText": "Read and Write permissions are required.",
+            "providerDisplayName": "Workspace",
+            "scope": "Workspace",
+            "requiredPermissions": {
+              "read": true,
+              "write": true,
+              "delete": true,
+              "action": false
+            }
+          }
+        ],
+        "customs": [
+          {
+            "name": "DarkStrata API key",
+            "description": "A DarkStrata API key with the `ghost:read` permission (default API keys have it). Create one in the DarkStrata console (app.darkstrata.io)."
+          }
+        ]
+      },
+      "instructionSteps": [
+        {
+          "title": "Connect DarkStrata Ghost to Microsoft Sentinel",
+          "description": "Enter your DarkStrata API key and select **Connect**. The first poll replays the last 30 days of ghost events; after that only new events are fetched. Events appear about a minute after DarkStrata records them.",
+          "instructions": [
+            {
+              "type": "Textbox",
+              "parameters": {
+                "label": "API key",
+                "placeholder": "DarkStrata API key with ghost:read",
+                "type": "password",
+                "name": "apiKey",
+                "validations": {
+                  "required": true
+                }
+              }
+            },
+            {
+              "type": "ConnectionToggleButton",
+              "parameters": {
+                "connectLabel": "Connect",
+                "name": "toggle"
+              }
+            }
+          ]
+        }
+      ],
+      "isConnectivityCriteriasMatchSome": false
+    }
+  }
+}

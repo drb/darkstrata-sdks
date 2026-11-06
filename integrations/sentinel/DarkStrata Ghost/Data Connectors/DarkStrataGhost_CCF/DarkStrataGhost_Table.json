@@ -1,0 +1,169 @@
+{
+  "name": "DarkStrataGhostEvents_CL",
+  "apiVersion": "2022-10-01",
+  "type": "Microsoft.OperationalInsights/workspaces/tables",
+  "location": "{{location}}",
+  "properties": {
+    "schema": {
+      "name": "DarkStrataGhostEvents_CL",
+      "columns": [
+        {
+          "name": "TimeGenerated",
+          "type": "datetime",
+          "description": "Time the event was ingested into the workspace."
+        },
+        {
+          "name": "SchemaVersion",
+          "type": "int",
+          "description": "Envelope schema version (1)."
+        },
+        {
+          "name": "EventId",
+          "type": "string",
+          "description": "Unique event id (UUID)."
+        },
+        {
+          "name": "Seq",
+          "type": "long",
+          "description": "Feed sequence number; the connector's cursor."
+        },
+        {
+          "name": "EventType",
+          "type": "string",
+          "description": "ghost.seen, ghost.deployed or ghost.retired."
+        },
+        {
+          "name": "Kind",
+          "type": "string",
+          "description": "Ghost kind: IDENTITY today; TOKEN, DECOY, SENSOR later."
+        },
+        {
+          "name": "Subtype",
+          "type": "string",
+          "description": "ghost.seen match subtype: EXACT_PAIR, EMAIL_OTHER_PASSWORD or EMAIL_ONLY."
+        },
+        {
+          "name": "Severity",
+          "type": "string",
+          "description": "DarkStrata severity: INFO, LOW, MEDIUM, HIGH or CRITICAL."
+        },
+        {
+          "name": "IsTest",
+          "type": "boolean",
+          "description": "True for self-test events."
+        },
+        {
+          "name": "ObservedAt",
+          "type": "datetime",
+          "description": "When the leak was observed, if known."
+        },
+        {
+          "name": "ReceivedAt",
+          "type": "datetime",
+          "description": "When DarkStrata recorded the event."
+        },
+        {
+          "name": "GhostId",
+          "type": "string",
+          "description": "Ghost public id."
+        },
+        {
+          "name": "GhostLabel",
+          "type": "string",
+          "description": "Customer-written ghost label. Untrusted text."
+        },
+        {
+          "name": "GhostSeedUrl",
+          "type": "string",
+          "description": "Where the ghost was seeded, if recorded."
+        },
+        {
+          "name": "GhostMode",
+          "type": "string",
+          "description": "asset or pool."
+        },
+        {
+          "name": "GhostEmail",
+          "type": "string",
+          "description": "Ghost address (ghost.seen only)."
+        },
+        {
+          "name": "GhostDisplayName",
+          "type": "string",
+          "description": "Ghost display name (ghost.seen only)."
+        },
+        {
+          "name": "MatchKind",
+          "type": "string",
+          "description": "How the ghost matched the leaked row."
+        },
+        {
+          "name": "MatchSource",
+          "type": "string",
+          "description": "STEALER_LOG, BREACH or COMBOLIST."
+        },
+        {
+          "name": "CorpusName",
+          "type": "string",
+          "description": "Name of the leaked corpus. Untrusted text."
+        },
+        {
+          "name": "RowIngestedAt",
+          "type": "datetime",
+          "description": "When DarkStrata ingested the leaked row."
+        },
+        {
+          "name": "MatchProvenance",
+          "type": "dynamic",
+          "description": "Provenance details from the leak. Untrusted text."
+        },
+        {
+          "name": "Incident",
+          "type": "dynamic",
+          "description": "Reserved; null today."
+        },
+        {
+          "name": "MitreAttackVersion",
+          "type": "string",
+          "description": "ATT&CK version of the tags."
+        },
+        {
+          "name": "MitreDomain",
+          "type": "string",
+          "description": "ATT&CK domain (enterprise-attack)."
+        },
+        {
+          "name": "MitreTechniques",
+          "type": "dynamic",
+          "description": "Array of {id, name, parent_name, tactic_ids, basis}."
+        },
+        {
+          "name": "MitreSoftware",
+          "type": "dynamic",
+          "description": "Array of ATT&CK software tags."
+        },
+        {
+          "name": "RetiredById",
+          "type": "string",
+          "description": "ghost.retired: id of the user or API key that retired the ghost."
+        },
+        {
+          "name": "RetiredByName",
+          "type": "string",
+          "description": "ghost.retired: name of the user or API key."
+        },
+        {
+          "name": "RetiredReason",
+          "type": "string",
+          "description": "ghost.retired: asset_deleted when the ghost's domain was deleted."
+        },
+        {
+          "name": "ConsoleUrl",
+          "type": "string",
+          "description": "Link to the ghost in the DarkStrata console."
+        }
+      ]
+    },
+    "retentionInDays": 90
+  }
+}

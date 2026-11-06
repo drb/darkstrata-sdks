@@ -1,0 +1,105 @@
+[
+  {
+    "name": "DarkStrataGhostDCR",
+    "apiVersion": "2022-06-01",
+    "type": "Microsoft.Insights/dataCollectionRules",
+    "location": "{{location}}",
+    "properties": {
+      "dataCollectionEndpointId": "{{dataCollectionEndpointId}}",
+      "streamDeclarations": {
+        "Custom-DarkStrataGhostEvents": {
+          "columns": [
+            {
+              "name": "schema_version",
+              "type": "int"
+            },
+            {
+              "name": "event_id",
+              "type": "string"
+            },
+            {
+              "name": "seq",
+              "type": "string"
+            },
+            {
+              "name": "event_type",
+              "type": "string"
+            },
+            {
+              "name": "kind",
+              "type": "string"
+            },
+            {
+              "name": "subtype",
+              "type": "string"
+            },
+            {
+              "name": "severity",
+              "type": "string"
+            },
+            {
+              "name": "is_test",
+              "type": "boolean"
+            },
+            {
+              "name": "observed_at",
+              "type": "string"
+            },
+            {
+              "name": "received_at",
+              "type": "string"
+            },
+            {
+              "name": "ghost",
+              "type": "dynamic"
+            },
+            {
+              "name": "match",
+              "type": "dynamic"
+            },
+            {
+              "name": "incident",
+              "type": "dynamic"
+            },
+            {
+              "name": "mitre",
+              "type": "dynamic"
+            },
+            {
+              "name": "retired_by",
+              "type": "dynamic"
+            },
+            {
+              "name": "reason",
+              "type": "string"
+            },
+            {
+              "name": "console_url",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "destinations": {
+        "logAnalytics": [
+          {
+            "workspaceResourceId": "{{workspaceResourceId}}",
+            "name": "clv2ws1"
+          }
+        ]
+      },
+      "dataFlows": [
+        {
+          "streams": [
+            "Custom-DarkStrataGhostEvents"
+          ],
+          "destinations": [
+            "clv2ws1"
+          ],
+          "transformKql": "source | extend TimeGenerated = now() | project TimeGenerated, SchemaVersion = toint(schema_version), EventId = tostring(event_id), Seq = tolong(seq), EventType = tostring(event_type), Kind = tostring(['kind']), Subtype = tostring(subtype), Severity = tostring(severity), IsTest = tobool(is_test), ObservedAt = todatetime(observed_at), ReceivedAt = todatetime(received_at), GhostId = tostring(ghost.id), GhostLabel = tostring(ghost.label), GhostSeedUrl = tostring(ghost.seed_url), GhostMode = tostring(ghost.mode), GhostEmail = tostring(ghost.email), GhostDisplayName = tostring(ghost.display_name), MatchKind = tostring(['match'].kind), MatchSource = tostring(['match'].source), CorpusName = tostring(['match'].corpus_name), RowIngestedAt = todatetime(['match'].row_ingested_at), MatchProvenance = ['match'].provenance, Incident = incident, MitreAttackVersion = tostring(mitre.attack_version), MitreDomain = tostring(mitre.domain), MitreTechniques = mitre.techniques, MitreSoftware = mitre.software, RetiredById = tostring(retired_by.id), RetiredByName = tostring(retired_by.name), RetiredReason = tostring(reason), ConsoleUrl = tostring(console_url)",
+          "outputStream": "Custom-DarkStrataGhostEvents_CL"
+        }
+      ]
+    }
+  }
+]

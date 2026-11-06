@@ -1,0 +1,26 @@
+{
+  "Name": "DarkStrata Ghost",
+  "Author": "DarkStrata - support@darkstrata.io",
+  "Logo": "<img src=\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Logos/Azure_Sentinel.svg\" width=\"75px\" height=\"75px\">",
+  "Description": "The [DarkStrata](https://darkstrata.io) Ghost solution brings DarkStrata Ghost (honeytoken) events into Microsoft Sentinel. A ghost is a decoy identity that exists only to be stolen: when DarkStrata finds one in a stealer log, breach or combolist, the solution raises a high-fidelity alert tagged with MITRE ATT&CK. It also alerts when a ghost is retired (a tamper alarm) and ships templates for domain controller honey-account detections.\n\n**Underlying Microsoft Technologies used:**\n\nThis solution takes a dependency on the following technologies, and some of these dependencies either may be in [Preview](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) state or might result in additional ingestion or operational costs:\n\n a. [Codeless Connector Framework](https://learn.microsoft.com/azure/sentinel/create-codeless-connector)\n\n b. [Azure Monitor Logs Ingestion API and data collection rules](https://learn.microsoft.com/azure/azure-monitor/logs/logs-ingestion-api-overview)",
+  "Data Connectors": [
+    "DarkStrata Ghost/Data Connectors/DarkStrataGhost_CCF/DarkStrataGhost_ConnectorDefinition.json"
+  ],
+  "Analytic Rules": [
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostDecoySeen.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostIdentitySeen.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostRetired.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostSensorSeen.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostTokenSeen.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataHoneyAsRepNoPreauth.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataHoneySpnServiceTicket.yaml"
+  ],
+  "Workbooks": [
+    "DarkStrata Ghost/Workbooks/DarkStrataGhost.json"
+  ],
+  "Metadata": "SolutionMetadata.json",
+  "BasePath": "C:\\GitHub\\Azure-Sentinel\\Solutions\\DarkStrata Ghost",
+  "Version": "3.0.0",
+  "TemplateSpec": true,
+  "Is1PConnector": false
+}

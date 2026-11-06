@@ -1,0 +1,64 @@
+id: 3a43d213-b69b-45d7-8afe-7eceb4ac14f7
+name: DarkStrata Ghost - Kerberos service ticket requested for a honey SPN
+description: |
+  'A domain controller issued (or refused) a Kerberos service ticket (event 4769) for a honey service account. The
+  honey account has an SPN but no real service uses it, so any ticket request for it is Kerberoasting.
+  TEMPLATE: enable after you create the honey account and add it to the DarkStrataHoneyAccounts watchlist with
+  Type = SPN (see the solution README). Needs 4769 (Audit Kerberos Service Ticket Operations) in SecurityEvent.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: SecurityEvents
+    dataTypes:
+      - SecurityEvent
+  - connectorId: WindowsSecurityEvents
+    dataTypes:
+      - SecurityEvent
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - CredentialAccess
+relevantTechniques:
+  - T1558.003
+query: |
+  let HoneySpnAccounts = _GetWatchlist('DarkStrataHoneyAccounts')
+    | where tostring(Type) =~ "SPN"
+    | project HoneyAccount = tolower(trim_end(@"\$", tostring(SearchKey)));
+  SecurityEvent
+  | where EventID == 4769
+  | parse EventData with * 'ServiceName">' HoneySpn '<' *
+  | parse EventData with * 'TicketEncryptionType">' EncryptionType '<' *
+  | parse EventData with * 'Status">' KerberosStatus '<' *
+  | extend HoneyAccount = tolower(trim_end(@"\$", HoneySpn))
+  | where HoneyAccount in (HoneySpnAccounts)
+  | extend
+      ClientIp = trim_start(@"::ffff:", IpAddress),
+      RequestingAccount = tostring(split(TargetUserName, "@")[0]),
+      RequestingDomain = TargetDomainName
+  | project TimeGenerated, Computer, HoneySpn, RequestingAccount, RequestingDomain, ClientIp, EncryptionType, KerberosStatus
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: RequestingAccount
+      - identifier: NTDomain
+        columnName: RequestingDomain
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: ClientIp
+  - entityType: Host
+    fieldMappings:
+      - identifier: FullName
+        columnName: Computer
+customDetails:
+  HoneySpn: HoneySpn
+  EncryptionType: EncryptionType
+  KerberosStatus: KerberosStatus
+alertDetailsOverride:
+  alertDisplayNameFormat: 'Kerberoasting: service ticket requested for honey SPN {{HoneySpn}}'
+  alertDescriptionFormat: '{{RequestingAccount}} requested a service ticket for honey account {{HoneySpn}} from {{ClientIp}}. No real service uses this account.'
+version: 1.0.0
+kind: Scheduled

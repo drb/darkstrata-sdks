@@ -1,0 +1,62 @@
+id: 050a6d06-9dd1-4991-8b07-25b53dad81e8
+name: DarkStrata Ghost - AS-REP requested without pre-authentication for a honey account
+description: |
+  'A domain controller answered a Kerberos TGT request with no pre-authentication (event 4768, PreAuthType 0) for a
+  honey account. The honey account has "Do not require Kerberos preauthentication" set as bait and is never used, so
+  any such request is AS-REP roasting.
+  TEMPLATE: enable after you create the honey account and add it to the DarkStrataHoneyAccounts watchlist with
+  Type = ASREP (see the solution README). Needs 4768 (Audit Kerberos Authentication Service) in SecurityEvent.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: SecurityEvents
+    dataTypes:
+      - SecurityEvent
+  - connectorId: WindowsSecurityEvents
+    dataTypes:
+      - SecurityEvent
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - CredentialAccess
+relevantTechniques:
+  - T1558.004
+query: |
+  let HoneyAsRepAccounts = _GetWatchlist('DarkStrataHoneyAccounts')
+    | where tostring(Type) =~ "ASREP"
+    | project HoneyAccount = tolower(tostring(SearchKey));
+  SecurityEvent
+  | where EventID == 4768
+  | parse EventData with * 'PreAuthType">' PreAuthTypeValue '<' *
+  | where PreAuthTypeValue == "0"
+  | extend HoneyAccount = tolower(TargetUserName)
+  | where HoneyAccount in (HoneyAsRepAccounts)
+  | parse EventData with * 'TicketEncryptionType">' EncryptionType '<' *
+  | parse EventData with * 'Status">' KerberosStatus '<' *
+  | extend ClientIp = trim_start(@"::ffff:", IpAddress)
+  | project TimeGenerated, Computer, TargetUserName, TargetDomainName, ClientIp, PreAuthTypeValue, EncryptionType, KerberosStatus
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: TargetUserName
+      - identifier: NTDomain
+        columnName: TargetDomainName
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: ClientIp
+  - entityType: Host
+    fieldMappings:
+      - identifier: FullName
+        columnName: Computer
+customDetails:
+  EncryptionType: EncryptionType
+  KerberosStatus: KerberosStatus
+alertDetailsOverride:
+  alertDisplayNameFormat: 'AS-REP roasting: no-pre-auth TGT requested for honey account {{TargetUserName}}'
+  alertDescriptionFormat: 'A TGT without pre-authentication was requested for honey account {{TargetUserName}} from {{ClientIp}}. This account is never used.'
+version: 1.0.0
+kind: Scheduled

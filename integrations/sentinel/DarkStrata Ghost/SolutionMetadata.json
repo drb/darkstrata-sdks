@@ -1,0 +1,21 @@
+{
+  "publisherId": "darkstrata",
+  "offerId": "azure-sentinel-solution-darkstrata-ghost",
+  "firstPublishDate": "2026-11-06",
+  "providers": [
+    "DarkStrata"
+  ],
+  "categories": {
+    "domains": [
+      "Security - Threat Intelligence",
+      "Identity"
+    ],
+    "verticals": []
+  },
+  "support": {
+    "name": "DarkStrata",
+    "email": "support@darkstrata.io",
+    "tier": "Partner",
+    "link": "https://darkstrata.io"
+  }
+}

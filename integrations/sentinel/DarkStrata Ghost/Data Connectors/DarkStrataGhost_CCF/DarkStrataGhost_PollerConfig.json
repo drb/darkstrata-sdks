@@ -1,0 +1,55 @@
+[
+  {
+    "name": "DarkStrataGhostEventsPoller",
+    "apiVersion": "2022-12-01-preview",
+    "type": "Microsoft.SecurityInsights/dataConnectors",
+    "location": "{{location}}",
+    "kind": "RestApiPoller",
+    "properties": {
+      "connectorDefinitionName": "DarkStrataGhostCCFDefinition",
+      "dataType": "DarkStrataGhostEvents_CL",
+      "dcrConfig": {
+        "streamName": "Custom-DarkStrataGhostEvents",
+        "dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+        "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
+      },
+      "auth": {
+        "type": "APIKey",
+        "ApiKey": "[[parameters('apiKey')]",
+        "ApiKeyName": "X-Api-Key",
+        "ApiKeyIdentifier": ""
+      },
+      "request": {
+        "apiEndpoint": "https://api.darkstrata.io/v1/ghosts/events",
+        "httpMethod": "GET",
+        "queryWindowInMin": 5,
+        "rateLimitQPS": 1,
+        "paginatedCallsPerSecond": 1,
+        "retryCount": 3,
+        "timeoutInSeconds": 60,
+        "headers": {
+          "Accept": "application/json",
+          "User-Agent": "DarkStrata-Sentinel-CCF/1.0.0"
+        },
+        "queryParameters": {
+          "include_test": "true"
+        }
+      },
+      "paging": {
+        "pagingType": "PersistentToken",
+        "nextPageTokenJsonPath": "$.next_cursor",
+        "nextPageParaName": "cursor",
+        "hasNextFlagJsonPath": "$.has_more",
+        "pageSizeParameterName": "limit",
+        "pageSize": 100,
+        "pagingInfoPlacement": "QueryString"
+      },
+      "response": {
+        "eventsJsonPaths": [
+          "$.events"
+        ],
+        "format": "json"
+      }
+    }
+  }
+]

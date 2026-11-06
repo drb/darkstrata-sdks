@@ -1,0 +1,3 @@
+| **Version** | **Date Modified (DD-MM-YYYY)** | **Change History** |
+|-------------|--------------------------------|--------------------|
+| 3.0.0       | Unreleased                     | Initial solution: DarkStrata Ghost CCF data connector (`DarkStrataGhostEvents_CL`), ASIM Alert Event parsers, analytics rules for IDENTITY ghost sightings and ghost retirement (tamper alarm), disabled-until-available templates for TOKEN, DECOY and SENSOR ghosts, domain controller honey-account templates (4769 honey SPN, 4768 AS-REP without pre-authentication) and the DarkStrata Ghost workbook. ASIM Authentication, NetworkSession, WebSession and Dns parsers will follow with the ghost kinds that produce those events. |

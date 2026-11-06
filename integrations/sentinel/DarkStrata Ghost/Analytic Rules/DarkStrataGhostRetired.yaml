@@ -1,0 +1,50 @@
+id: bb4a6a49-d2ac-4093-a006-e7124d689ef6
+name: DarkStrata Ghost - Ghost retired (tamper alarm)
+description: |
+  'A ghost was retired in DarkStrata. Retiring a ghost switches that tripwire off, so an attacker with console or API
+  access may retire ghosts to avoid detection. Confirm the user or API key that retired it was expected to.
+  RetiredReason is asset_deleted when the ghost went because its domain was deleted from DarkStrata.
+  Self-test events are excluded.'
+severity: Medium
+status: Available
+requiredDataConnectors:
+  - connectorId: DarkStrataGhostCCFDefinition
+    dataTypes:
+      - DarkStrataGhostEvents_CL
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - DefenseEvasion
+relevantTechniques:
+  - T1562
+query: |
+  DarkStrataGhostEvents_CL
+  | where EventType == "ghost.retired" and not(IsTest)
+  | extend
+      DisplayLabel = substring(GhostLabel, 0, 100),
+      RetiredReason = iff(isempty(RetiredReason), "manual", RetiredReason)
+  | project TimeGenerated, EventId, Seq, Kind, GhostId, DisplayLabel, RetiredById, RetiredByName, RetiredReason, ReceivedAt, ConsoleUrl
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: RetiredByName
+eventGroupingSettings:
+  aggregationKind: AlertPerResult
+customDetails:
+  GhostId: GhostId
+  GhostLabel: DisplayLabel
+  GhostKind: Kind
+  RetiredById: RetiredById
+  RetiredReason: RetiredReason
+  EventId: EventId
+alertDetailsOverride:
+  alertDisplayNameFormat: 'DarkStrata Ghost retired: {{DisplayLabel}}'
+  alertDescriptionFormat: 'Ghost {{DisplayLabel}} was retired by {{RetiredByName}} (reason: {{RetiredReason}}). Confirm this was expected.'
+  alertDynamicProperties:
+    - alertProperty: AlertLink
+      value: ConsoleUrl
+version: 1.0.0
+kind: Scheduled
