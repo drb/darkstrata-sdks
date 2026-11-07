@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## DarkStrata Ghost\nGhost (honeytoken) events from the DarkStrata Ghost connector. A `ghost.seen` event means a ghost was found in leaked data; `ghost.retired` is a tamper alarm. Labels and corpus names are customer-written or leaked text."
+        "json": "## DarkStrata Ghost\nGhost (honeytoken) events from the DarkStrata Ghost connector. A `ghost.seen` event means a ghost was found in leaked data; `ghost.retired` is a tamper alarm; `ghost.verified` is the monthly proof of life for each armed ghost. Labels and corpus names are customer-written or leaked text."
       },
       "name": "header"
     },
@@ -189,6 +189,36 @@
         "noDataMessage": "No ghosts retired in this time range."
       },
       "name": "tamper-events"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DarkStrataGhostEvents_CL\n| where TimeGenerated > ago(90d) and not(IsTest)\n| summarize LastVerified = maxif(TimeGenerated, EventType == \"ghost.verified\"), Deployed = maxif(TimeGenerated, EventType == \"ghost.deployed\"), Retired = maxif(TimeGenerated, EventType == \"ghost.retired\"), LastCheckedAt = max(LastCheckedAt), Label = take_any(GhostLabel), ConsoleUrl = take_any(ConsoleUrl) by GhostId\n| where isnull(Retired)\n| extend Status = iff(coalesce(LastVerified, Deployed) < ago(33d), \"Not armed\", \"Armed\")\n| project Label, Status, LastVerified, LastCheckedAt, ConsoleUrl\n| sort by Status desc, LastVerified asc",
+        "size": 0,
+        "title": "Proof of life per ghost (fixed 90 days; a live ghost not verified in 33 days is no longer armed)",
+        "timeContext": {
+          "durationMs": 7776000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ConsoleUrl",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Url",
+                "linkLabel": "Open in DarkStrata"
+              }
+            }
+          ],
+          "filter": true
+        },
+        "noDataMessage": "No ghosts retired in this time range."
+      },
+      "name": "proof-of-life"
     }
   ],
   "fallbackResourceIds": [],

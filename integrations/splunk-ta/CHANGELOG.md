@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correlation searches **DarkStrata - Ghost Seen** (severity, risk score and
   ATT&CK techniques from the event; annotated T1589.001 and T1589.002) and
   **DarkStrata - Ghost Retired** (medium tamper alarm; annotated T1562).
+- Correlation search **DarkStrata - Ghost Proof of Life Missing** (daily; one
+  medium notable per ghost, at most weekly, when a ghost that is not retired
+  has had no monthly `ghost.verified` for 33 days; annotated T1562).
 - Disabled template searches for DC-side honey accounts: **DarkStrata - Honey
   SPN Kerberos Service Ticket** (4769, T1558.003) and **DarkStrata - Honey
   Account AS-REP Roasting** (4768 without pre-authentication, T1558.004), with

@@ -30,7 +30,7 @@
         {
           "name": "EventType",
           "type": "string",
-          "description": "ghost.seen, ghost.deployed or ghost.retired."
+          "description": "ghost.seen, ghost.deployed, ghost.retired or ghost.verified."
         },
         {
           "name": "Kind",
@@ -156,6 +156,21 @@
           "name": "RetiredReason",
           "type": "string",
           "description": "ghost.retired: asset_deleted when the ghost's domain was deleted."
+        },
+        {
+          "name": "VerifiedArmed",
+          "type": "boolean",
+          "description": "ghost.verified: true (only armed ghosts get the monthly proof of life)."
+        },
+        {
+          "name": "LastCheckedAt",
+          "type": "datetime",
+          "description": "ghost.verified: when DarkStrata last finished a check of the ghost's domain."
+        },
+        {
+          "name": "LastTestAt",
+          "type": "datetime",
+          "description": "ghost.verified: the ghost's last self-test alert, if any."
         },
         {
           "name": "ConsoleUrl",

@@ -1,0 +1,41 @@
+id: 4bfbf05a-c13c-46c9-ab05-c876d1f53edd
+name: DarkStrata Ghost - Proof of life missing
+description: |
+  'DarkStrata sends a ghost.verified event for every armed ghost on the 1st of each month. This rule runs on the 2nd
+  and alerts when none has arrived since the 1st: either no ghost is armed any more (its domain was disabled, lost
+  its verification or has not been checked in 48 hours), or events have stopped reaching this workspace. Both
+  silence the tripwire, so check the Ghosts page in DarkStrata and the connector status.
+  Analytics rules look back at most 14 days, so this checks the workspace as a whole, not each ghost; the
+  workbook lists the last proof of life per ghost. Enable it once you have deployed at least one ghost.'
+severity: Medium
+status: Available
+requiredDataConnectors:
+  - connectorId: DarkStrataGhostCCFDefinition
+    dataTypes:
+      - DarkStrataGhostEvents_CL
+queryFrequency: 1d
+queryPeriod: 14d
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - DefenseEvasion
+relevantTechniques:
+  - T1562
+query: |
+  DarkStrataGhostEvents_CL
+  | where not(IsTest)
+  | summarize
+      VerifiedThisMonth = countif(EventType == "ghost.verified" and TimeGenerated >= startofmonth(now())),
+      LastEventAt = max(TimeGenerated)
+  // summarize always returns one row, so an empty table (connector stopped) still alerts
+  | where VerifiedThisMonth == 0 and dayofmonth(now()) == 2
+  | extend LastEvent = iff(isnull(LastEventAt), "none in 14 days", tostring(LastEventAt))
+eventGroupingSettings:
+  aggregationKind: SingleAlert
+customDetails:
+  LastEvent: LastEvent
+alertDetailsOverride:
+  alertDisplayNameFormat: 'DarkStrata Ghost: no proof of life this month'
+  alertDescriptionFormat: 'No ghost.verified event has arrived since the 1st (last ghost event: {{LastEvent}}). Check that your ghosts are armed in DarkStrata and that the connector is running.'
+version: 1.0.0
+kind: Scheduled

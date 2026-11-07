@@ -558,6 +558,7 @@ user, description, threat_key, weight, first_seen, last_seen, email
 | **DarkStrata - New Alert Received**                    | New alert bundles       | Info     | -          |
 | **DarkStrata - Ghost Seen**                            | `ghost.seen` events     | From event | From event |
 | **DarkStrata - Ghost Retired**                         | `ghost.retired` events  | Medium   | -          |
+| **DarkStrata - Ghost Proof of Life Missing**           | Ghost not armed         | Medium   | -          |
 
 The ghost and honey-account searches are described in
 [Ghost (Honeytoken) Events](#ghost-honeytoken-events).
@@ -645,13 +646,14 @@ data), falling back to `observed_at`.
 
 | Field                      | Source                                 | Notes                                           |
 | -------------------------- | -------------------------------------- | ----------------------------------------------- |
-| `event_type`               | envelope                               | `ghost.seen`, `ghost.deployed`, `ghost.retired` |
+| `event_type`               | envelope                               | `ghost.seen`, `ghost.deployed`, `ghost.retired`, `ghost.verified` |
 | `subtype`                  | `ghost.seen` only                      | `EXACT_PAIR`, `EMAIL_OTHER_PASSWORD`, `EMAIL_ONLY` |
 | `ghost_id`, `ghost_label`  | `ghost.id`, `ghost.label`              | The label is text your team wrote               |
 | `ghost_kind`               | `kind`                                 | `IDENTITY` today                                |
 | `match_source`             | `match.source`                         | `STEALER_LOG`, `BREACH`, `COMBOLIST`            |
 | `is_test`                  | envelope                               | `true` for console test events                  |
 | `console_url`              | envelope                               | Opens the event in DarkStrata                   |
+| `verification.last_checked_at`, `verification.last_test_at` | `ghost.verified` only | Last finished check of the ghost's domain; last self-test alert |
 | `mitre_technique_id`       | `mitre.techniques{}.id`                | Also `mitre_technique` and `annotations.mitre_attack` |
 | `mitre_technique_name`     | `mitre.techniques{}.name`              |                                                 |
 | `mitre_tactic_id`          | `mitre.techniques{}.tactic_ids{}`      | TA0043 Reconnaissance for ghost hits            |
@@ -684,7 +686,7 @@ up in leaked data is not a sign-in. The honey-account searches below run on
 your domain controllers' Kerberos events, which the Splunk Add-on for Microsoft
 Windows already maps to Authentication.
 
-All ghost events, including `ghost.deployed` and `ghost.retired`, carry
+All ghost events, including `ghost.deployed`, `ghost.retired` and `ghost.verified`, carry
 eventtype `darkstrata_ghost_events`. Base macro: `darkstrata_ghost_events`.
 
 ### Correlation Searches
@@ -693,6 +695,7 @@ eventtype `darkstrata_ghost_events`. Base macro: `darkstrata_ghost_events`.
 | ------------------------------- | ------------------------------ | ---------- | -------------------------- |
 | **DarkStrata - Ghost Seen**     | `ghost.seen`, not a test       | From event | T1589.001, T1589.002       |
 | **DarkStrata - Ghost Retired**  | `ghost.retired`, not a test    | Medium     | T1562                      |
+| **DarkStrata - Ghost Proof of Life Missing** | No `ghost.verified` for a live ghost in 33 days | Medium | T1562 |
 
 **Ghost Seen** raises a notable for each hit. The notable's `severity` and
 `risk_score` come from the event's severity, and the per-event
@@ -707,6 +710,15 @@ Both searches look back 30 days but only at events indexed in the last
 10 minutes, so a late or backfilled event still raises a notable. They are
 throttled on `event_id` for 24 hours so the overlap between runs does not raise
 it twice.
+
+**Ghost Proof of Life Missing** runs daily at 09:00. DarkStrata sends
+`ghost.verified` on the 1st of each month for every armed ghost (its domain is
+enabled, verified and was checked in the last 48 hours); an unarmed ghost gets
+none. The search raises a notable for each ghost that is not retired and has had
+no `ghost.verified` (or, if new, its `ghost.deployed`) for 33 days, throttled on
+`ghost_id` for 7 days. It also fires if the input stops or a minimum severity
+above `INFO` filters `ghost.verified` out. It looks back 62 days, so index ghost
+events for at least that long.
 
 ### DC-Side Honey-Account Searches (Templates)
 

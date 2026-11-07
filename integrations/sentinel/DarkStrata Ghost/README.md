@@ -11,10 +11,11 @@ Bring DarkStrata Ghost events into Microsoft Sentinel. A ghost is a honeytoken: 
 | Data connector | DarkStrata Ghost (via Codeless Connector Framework) | Polls the Ghost event feed every 5 minutes into `DarkStrataGhostEvents_CL` |
 | Analytics rule | DarkStrata Ghost - Identity ghost seen | Alerts on every IDENTITY ghost sighting |
 | Analytics rule | DarkStrata Ghost - Ghost retired (tamper alarm) | Alerts when a ghost is retired |
+| Analytics rule | DarkStrata Ghost - Proof of life missing | Alerts on the 2nd of the month when no `ghost.verified` arrived on the 1st |
 | Analytics rule (template) | DarkStrata Ghost - Token / Decoy / Sensor ghost seen | For ghost kinds that are not available yet |
 | Analytics rule (template) | Kerberos service ticket requested for a honey SPN | Domain controller 4769 for a honey SPN (Kerberoasting, T1558.003) |
 | Analytics rule (template) | AS-REP requested without pre-authentication for a honey account | Domain controller 4768 without pre-auth (AS-REP roasting, T1558.004) |
-| Workbook | DarkStrata Ghost | Events over time, sightings by kind and severity, latest sightings, tamper events |
+| Workbook | DarkStrata Ghost | Events over time, sightings by kind and severity, latest sightings, tamper events, proof of life per ghost |
 | ASIM parsers | `ASimAlertEventDarkStrataGhost`, `vimAlertEventDarkStrataGhost` | `ghost.seen` normalised to the ASIM Alert Event schema |
 
 ## Prerequisites
@@ -28,7 +29,7 @@ Bring DarkStrata Ghost events into Microsoft Sentinel. A ghost is a honeytoken: 
 1. Install the **DarkStrata Ghost** solution from Content Hub (once published). Until then, build the package with Microsoft's [solution packaging tool](https://github.com/Azure/Azure-Sentinel/tree/master/Tools/Create-Azure-Sentinel-Solution/V3) against `Data/Solution_DarkStrataGhost.json`, and deploy the generated `Package/mainTemplate.json` to your workspace's resource group.
 2. In Sentinel, open **Data connectors > DarkStrata Ghost (via Codeless Connector Framework)**, paste your API key and select **Connect**. The connector creates the `DarkStrataGhostEvents_CL` table, a data collection rule and the poller.
 3. The first poll replays the last 30 days of events. After that, events arrive about a minute after DarkStrata records them (the feed holds back the newest minute so nothing is skipped), plus up to 5 minutes polling interval.
-4. Open **Analytics > Rule templates**, filter by the DarkStrata Ghost solution and create rules from **Identity ghost seen** and **Ghost retired (tamper alarm)**. Content Hub never enables rules for you; leave the other templates until you need them (see below).
+4. Open **Analytics > Rule templates**, filter by the DarkStrata Ghost solution and create rules from **Identity ghost seen**, **Ghost retired (tamper alarm)** and, once you have a ghost, **Proof of life missing**. Content Hub never enables rules for you; leave the other templates until you need them (see below).
 5. Optionally, deploy the ASIM parsers (see [ASIM parsers](#asim-parsers)).
 
 Self-test events (`is_test`) are ingested so you can check the pipeline end to end; every rule and the ASIM parsers exclude them, and the workbook hides them unless you choose **Include**.
@@ -43,7 +44,7 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | SchemaVersion | int | `schema_version` | `1` |
 | EventId | string | `event_id` | UUID |
 | Seq | long | `seq` | Feed cursor |
-| EventType | string | `event_type` | `ghost.seen`, `ghost.deployed`, `ghost.retired` |
+| EventType | string | `event_type` | `ghost.seen`, `ghost.deployed`, `ghost.retired`, `ghost.verified` |
 | Kind | string | `kind` | `IDENTITY` today; `TOKEN`, `DECOY`, `SENSOR` later |
 | Subtype | string | `subtype` | `EXACT_PAIR`, `EMAIL_OTHER_PASSWORD`, `EMAIL_ONLY` |
 | Severity | string | `severity` | `INFO` to `CRITICAL` |
@@ -69,16 +70,20 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | RetiredById | string | `retired_by.id` | `ghost.retired` only |
 | RetiredByName | string | `retired_by.name` | `ghost.retired` only |
 | RetiredReason | string | `reason` | `asset_deleted`, or empty for a manual retire |
+| VerifiedArmed | boolean | `verification.armed` | `ghost.verified` only (always true) |
+| LastCheckedAt | datetime | `verification.last_checked_at` | `ghost.verified` only: last finished check of the ghost's domain |
+| LastTestAt | datetime | `verification.last_test_at` | `ghost.verified` only: last self-test alert |
 | ConsoleUrl | string | `console_url` | Link to the ghost in the DarkStrata console |
 
 `GhostLabel`, `CorpusName` and `MatchProvenance` are written by your users or come from the leak itself. Treat them as untrusted text: display them, never act on them in automation.
 
 ## Analytics rules
 
-All ghost rules run every 15 minutes, raise one alert per event, exclude self-tests and link each alert to the ghost in the DarkStrata console (`AlertLink`).
+The sighting and tamper rules run every 15 minutes, raise one alert per event, exclude self-tests and link each alert to the ghost in the DarkStrata console (`AlertLink`).
 
 - **Identity ghost seen** (High). Fires on `ghost.seen` for `IDENTITY` ghosts. Alert severity comes from the event (`INFO` to Informational, `LOW` to Low, `MEDIUM` to Medium, `HIGH` and `CRITICAL` to High). Tactics come from the event's `mitre.techniques[].tactic_ids` (today TA0043, Reconnaissance; techniques T1589.001 for a password match and T1589.002 for an email-only match). Maps the ghost address to an Account entity. The alert name and description carry the ghost label and corpus name.
 - **Ghost retired (tamper alarm)** (Medium, Defense Evasion, T1562). Retiring a ghost switches that tripwire off, so check that whoever retired it meant to. `RetiredReason` is `asset_deleted` when the ghost went because its domain was deleted from DarkStrata.
+- **Proof of life missing** (Medium, Defense Evasion, T1562). DarkStrata sends `ghost.verified` on the 1st of each month for every armed ghost (domain enabled, verified and checked in the last 48 hours). An unarmed ghost gets none. The rule runs daily, acts only on the 2nd and raises one alert when no `ghost.verified` has arrived since the 1st, which also catches a stopped connector. Analytics rules look back at most 14 days, so it cannot check each ghost; the workbook's **Proof of life per ghost** table does.
 - **Token / Decoy / Sensor ghost seen**. Templates for ghost kinds DarkStrata has not shipped yet. They match nothing until those kinds exist, and their tactics and techniques are provisional; each alert takes its real tactics from the event.
 
 Sentinel's tactic list has no Stealth or Defense Impairment (both new in ATT&CK v20), so the rules map TA0005 and TA0112 to `DefenseEvasion`. The full mapping is in each rule's query.
@@ -105,7 +110,7 @@ Nobody has a reason to request a ticket for these accounts, so any hit is worth 
 
 ## Workbook
 
-**DarkStrata Ghost** shows ghost events over time by event type, sightings by kind and severity, the latest sightings (label, corpus, match kind and source, console link) and tamper events (ghosts retired). A toggle includes or excludes self-test events.
+**DarkStrata Ghost** shows ghost events over time by event type, sightings by kind and severity, the latest sightings (label, corpus, match kind and source, console link) tamper events (ghosts retired) and proof of life per ghost over a fixed 90 days (a ghost not retired and not verified in 33 days shows as **Not armed**). A toggle includes or excludes self-test events.
 
 ## ASIM parsers
 

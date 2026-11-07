@@ -74,6 +74,10 @@
               "type": "string"
             },
             {
+              "name": "verification",
+              "type": "dynamic"
+            },
+            {
               "name": "console_url",
               "type": "string"
             }
@@ -96,7 +100,7 @@
           "destinations": [
             "clv2ws1"
           ],
-          "transformKql": "source | extend TimeGenerated = now() | project TimeGenerated, SchemaVersion = toint(schema_version), EventId = tostring(event_id), Seq = tolong(seq), EventType = tostring(event_type), Kind = tostring(['kind']), Subtype = tostring(subtype), Severity = tostring(severity), IsTest = tobool(is_test), ObservedAt = todatetime(observed_at), ReceivedAt = todatetime(received_at), GhostId = tostring(ghost.id), GhostLabel = tostring(ghost.label), GhostSeedUrl = tostring(ghost.seed_url), GhostMode = tostring(ghost.mode), GhostEmail = tostring(ghost.email), GhostDisplayName = tostring(ghost.display_name), MatchKind = tostring(['match'].kind), MatchSource = tostring(['match'].source), CorpusName = tostring(['match'].corpus_name), RowIngestedAt = todatetime(['match'].row_ingested_at), MatchProvenance = ['match'].provenance, Incident = incident, MitreAttackVersion = tostring(mitre.attack_version), MitreDomain = tostring(mitre.domain), MitreTechniques = mitre.techniques, MitreSoftware = mitre.software, RetiredById = tostring(retired_by.id), RetiredByName = tostring(retired_by.name), RetiredReason = tostring(reason), ConsoleUrl = tostring(console_url)",
+          "transformKql": "source | extend TimeGenerated = now() | project TimeGenerated, SchemaVersion = toint(schema_version), EventId = tostring(event_id), Seq = tolong(seq), EventType = tostring(event_type), Kind = tostring(['kind']), Subtype = tostring(subtype), Severity = tostring(severity), IsTest = tobool(is_test), ObservedAt = todatetime(observed_at), ReceivedAt = todatetime(received_at), GhostId = tostring(ghost.id), GhostLabel = tostring(ghost.label), GhostSeedUrl = tostring(ghost.seed_url), GhostMode = tostring(ghost.mode), GhostEmail = tostring(ghost.email), GhostDisplayName = tostring(ghost.display_name), MatchKind = tostring(['match'].kind), MatchSource = tostring(['match'].source), CorpusName = tostring(['match'].corpus_name), RowIngestedAt = todatetime(['match'].row_ingested_at), MatchProvenance = ['match'].provenance, Incident = incident, MitreAttackVersion = tostring(mitre.attack_version), MitreDomain = tostring(mitre.domain), MitreTechniques = mitre.techniques, MitreSoftware = mitre.software, RetiredById = tostring(retired_by.id), RetiredByName = tostring(retired_by.name), RetiredReason = tostring(reason), VerifiedArmed = tobool(verification.armed), LastCheckedAt = todatetime(verification.last_checked_at), LastTestAt = todatetime(verification.last_test_at), ConsoleUrl = tostring(console_url)",
           "outputStream": "Custom-DarkStrataGhostEvents_CL"
         }
       ]
