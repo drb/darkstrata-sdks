@@ -287,6 +287,7 @@ class TestSavedSearchesConf:
             "DarkStrata - Third Party Credential Exposure": ["T1589.001"],
             "DarkStrata - Potential Malware Campaign": ["T1555.003", "T1589.001"],
             "DarkStrata - Ghost Seen": ["T1589.001", "T1589.002"],
+            "DarkStrata - Ghost Token Used": ["T1552.001"],
             "DarkStrata - Ghost Retired": ["T1562"],
             "DarkStrata - Ghost Proof of Life Missing": ["T1562"],
             "DarkStrata - Honey SPN Kerberos Service Ticket": ["T1558.003"],

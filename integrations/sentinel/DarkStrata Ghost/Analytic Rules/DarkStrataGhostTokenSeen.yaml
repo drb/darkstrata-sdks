@@ -1,11 +1,10 @@
 id: 1eb27407-b43c-4c1f-a458-c750a73e48a6
 name: DarkStrata Ghost - Token ghost seen
 description: |
-  'A ghost token (a honeytoken credential such as an API key or cloud access key) was used or found.
-  TEMPLATE: TOKEN ghosts are not available yet. Leave this rule disabled until DarkStrata ships them; tactics and
-  techniques here are provisional and each alert takes its tactics from the event.
-  Self-test events are excluded. Severity and tactics come from the event. Label and corpus name are customer-written
-  or leaked text and are shown for context only.'
+  'A ghost token (a link, document, QR code, Entra sign-in CSS or webhook URL nobody legitimate uses) was used.
+  The alert names where it was planted and the IP address, network and software that used it; an Entra CSS token
+  names the phishing proxy. Self-test events are excluded. Severity and tactics come from the event. Label and user
+  agent are customer-written or caller-supplied text and are shown for context only.'
 severity: High
 status: Available
 requiredDataConnectors:
@@ -37,26 +36,35 @@ query: |
       AttackTechniques = strcat_array(Techniques, ","),
       // Untrusted text, trimmed to fit the alert name and description limits
       DisplayLabel = substring(GhostLabel, 0, 100),
-      DisplayCorpus = substring(CorpusName, 0, 200)
+      DisplayUserAgent = substring(UserAgent, 0, 200)
   | project TimeGenerated, EventId, Seq, Kind, Subtype, Severity, AlertSeverity, AlertTactics, AttackTechniques,
-      GhostId, DisplayLabel, MatchKind, MatchSource, DisplayCorpus, ObservedAt, ReceivedAt, ConsoleUrl
+      GhostId, DisplayLabel, TokenType, Placement, SrcIp, SrcCountry, SrcAsn, SrcAsOrg, SrcIsTor, SrcIsHosting,
+      DisplayUserAgent, PhishingHost, ObservedAt, ReceivedAt, ConsoleUrl
 eventGroupingSettings:
   aggregationKind: AlertPerResult
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: SrcIp
 customDetails:
   GhostId: GhostId
   GhostLabel: DisplayLabel
-  Corpus: DisplayCorpus
-  MatchSource: MatchSource
-  MatchKind: MatchKind
+  TokenType: TokenType
+  SrcCountry: SrcCountry
+  SrcAsOrg: SrcAsOrg
+  SrcIsTor: SrcIsTor
+  UserAgent: DisplayUserAgent
+  PhishingHost: PhishingHost
   AttackTechniques: AttackTechniques
   EventId: EventId
 alertDetailsOverride:
-  alertDisplayNameFormat: 'DarkStrata Ghost seen: {{DisplayLabel}}'
-  alertDescriptionFormat: 'Ghost {{DisplayLabel}} (Token) was found in {{MatchSource}} data: {{DisplayCorpus}}. Open the DarkStrata console link for the seed location.'
+  alertDisplayNameFormat: 'DarkStrata ghost token used: {{DisplayLabel}}'
+  alertDescriptionFormat: 'Ghost token {{DisplayLabel}} ({{TokenType}}) was used from {{SrcIp}}. Nobody legitimate uses a ghost token: treat the place it was planted as accessed. Network and software are in the custom details.'
   alertSeverityColumnName: AlertSeverity
   alertTacticsColumnName: AlertTactics
   alertDynamicProperties:
     - alertProperty: AlertLink
       value: ConsoleUrl
-version: 1.0.0
+version: 1.1.0
 kind: Scheduled

@@ -693,7 +693,8 @@ eventtype `darkstrata_ghost_events`. Base macro: `darkstrata_ghost_events`.
 
 | Search                          | Triggers on                    | Severity   | `annotations.mitre_attack` |
 | ------------------------------- | ------------------------------ | ---------- | -------------------------- |
-| **DarkStrata - Ghost Seen**     | `ghost.seen`, not a test       | From event | T1589.001, T1589.002       |
+| **DarkStrata - Ghost Seen**     | `ghost.seen` on an identity, not a test | From event | T1589.001, T1589.002 |
+| **DarkStrata - Ghost Token Used** | `ghost.seen` on a token, not a test | From event | T1552.001 |
 | **DarkStrata - Ghost Retired**  | `ghost.retired`, not a test    | Medium     | T1562                      |
 | **DarkStrata - Ghost Proof of Life Missing** | No `ghost.verified` for a live ghost in 33 days | Medium | T1562 |
 
@@ -701,6 +702,11 @@ eventtype `darkstrata_ghost_events`. Base macro: `darkstrata_ghost_events`.
 `risk_score` come from the event's severity, and the per-event
 `annotations.mitre_attack` field carries the event's own techniques (T1589.001
 for `EXACT_PAIR` and `EMAIL_OTHER_PASSWORD`, T1589.002 for `EMAIL_ONLY`).
+
+**Ghost Token Used** raises a notable when someone uses a ghost token. Its risk
+object is `src`, the IP address that used it (a `system`), with `src_country`,
+`src_as_org`, `src_is_tor` and `http_user_agent` alongside; an Entra sign-in CSS
+token also names the phishing proxy in `phishing_host`.
 
 **Ghost Retired** is a tamper alarm. Retiring a ghost, or deleting the domain
 it belongs to, stops it raising alerts. Check each retirement against

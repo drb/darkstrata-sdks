@@ -173,6 +173,56 @@
           "description": "ghost.verified: the ghost's last self-test alert, if any."
         },
         {
+          "name": "TokenType",
+          "type": "string",
+          "description": "Ghost token type (WEB_URL, QR, OFFICE_DOC, ENTRA_CSS, WEBHOOK_URL); token events only."
+        },
+        {
+          "name": "Placement",
+          "type": "string",
+          "description": "Where the ghost was planted (FILE_SHARE, WIKI, …), when the customer said."
+        },
+        {
+          "name": "SrcIp",
+          "type": "string",
+          "description": "Token hits: the IP address that used the token."
+        },
+        {
+          "name": "UserAgent",
+          "type": "string",
+          "description": "Token hits: the caller's user agent. Untrusted text."
+        },
+        {
+          "name": "SrcCountry",
+          "type": "string",
+          "description": "Token hits: country of SrcIp (ISO 3166-1 alpha-2)."
+        },
+        {
+          "name": "SrcAsn",
+          "type": "int",
+          "description": "Token hits: autonomous system number of SrcIp."
+        },
+        {
+          "name": "SrcAsOrg",
+          "type": "string",
+          "description": "Token hits: network owner of SrcIp."
+        },
+        {
+          "name": "SrcIsTor",
+          "type": "boolean",
+          "description": "Token hits: SrcIp is a Tor exit node (empty when unknown)."
+        },
+        {
+          "name": "SrcIsHosting",
+          "type": "boolean",
+          "description": "Token hits: SrcIp is on a hosting or cloud network."
+        },
+        {
+          "name": "PhishingHost",
+          "type": "string",
+          "description": "Entra CSS token hits: the adversary-in-the-middle proxy host."
+        },
+        {
           "name": "ConsoleUrl",
           "type": "string",
           "description": "Link to the ghost in the DarkStrata console."
