@@ -39,7 +39,6 @@
         "pagingType": "PersistentToken",
         "nextPageTokenJsonPath": "$.next_cursor",
         "nextPageParaName": "cursor",
-        "hasNextFlagJsonPath": "$.has_more",
         "pageSizeParameterName": "limit",
         "pageSize": 100,
         "pagingInfoPlacement": "QueryString"
