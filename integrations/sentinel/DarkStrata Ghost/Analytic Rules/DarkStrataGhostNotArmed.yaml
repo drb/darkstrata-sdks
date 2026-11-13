@@ -1,0 +1,42 @@
+id: 314d48ab-2f85-4bf0-afed-ab349a079b35
+name: DarkStrata Ghost - Ghost not armed
+description: |
+  'DarkStrata sends ghost.unarmed on the 1st of each month, next to ghost.verified, for every live ghost that is not
+  armed, so it would not raise an alert if it leaked or were used today. UnarmedReason says why: no_domain,
+  domain_disabled, domain_unverified, not_checked_recently, or domain_inactive for a ghost token. Fix the cause in
+  DarkStrata or retire the ghost. ghost.unarmed never counts as proof of life. Self-test events are excluded.'
+severity: Low
+status: Available
+requiredDataConnectors:
+  - connectorId: DarkStrataGhostCCFDefinition
+    dataTypes:
+      - DarkStrataGhostEvents_CL
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - DefenseEvasion
+relevantTechniques:
+  - T1562
+query: |
+  DarkStrataGhostEvents_CL
+  | where EventType == "ghost.unarmed" and not(IsTest)
+  | extend DisplayLabel = substring(GhostLabel, 0, 100)
+  | project TimeGenerated, EventId, Seq, Kind, TokenType, GhostId, DisplayLabel, UnarmedReason, LastCheckedAt, LastTestAt, ReceivedAt, ConsoleUrl
+eventGroupingSettings:
+  aggregationKind: AlertPerResult
+customDetails:
+  GhostId: GhostId
+  GhostLabel: DisplayLabel
+  GhostKind: Kind
+  UnarmedReason: UnarmedReason
+  EventId: EventId
+alertDetailsOverride:
+  alertDisplayNameFormat: 'DarkStrata Ghost not armed: {{DisplayLabel}}'
+  alertDescriptionFormat: 'Ghost {{DisplayLabel}} is not armed ({{UnarmedReason}}), so it would not raise an alert today. Fix the cause in DarkStrata or retire the ghost.'
+  alertDynamicProperties:
+    - alertProperty: AlertLink
+      value: ConsoleUrl
+version: 1.0.0
+kind: Scheduled

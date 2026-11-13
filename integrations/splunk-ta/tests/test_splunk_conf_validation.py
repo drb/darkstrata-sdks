@@ -290,6 +290,7 @@ class TestSavedSearchesConf:
             "DarkStrata - Ghost Token Used": ["T1552.001"],
             "DarkStrata - Ghost Retired": ["T1562"],
             "DarkStrata - Ghost Proof of Life Missing": ["T1562"],
+            "DarkStrata - Ghost Not Armed": ["T1562"],
             "DarkStrata - Honey SPN Kerberos Service Ticket": ["T1558.003"],
             "DarkStrata - Honey Account AS-REP Roasting": ["T1558.004"],
         }
@@ -315,5 +316,11 @@ class TestSavedSearchesConf:
             assert savedsearches_conf.get(section, "disabled") == "1", section
 
     def test_ghost_searches_ignore_test_events(self, savedsearches_conf: configparser.ConfigParser) -> None:
-        for section in ("DarkStrata - Ghost Seen", "DarkStrata - Ghost Retired", "DarkStrata - Ghost Proof of Life Missing"):
+        for section in ("DarkStrata - Ghost Seen", "DarkStrata - Ghost Retired", "DarkStrata - Ghost Proof of Life Missing", "DarkStrata - Ghost Not Armed"):
             assert "is_test=false" in savedsearches_conf.get(section, "search"), section
+
+    def test_unarmed_is_never_proof_of_life(self, savedsearches_conf: configparser.ConfigParser) -> None:
+        # ghost.unarmed must not satisfy Proof of Life Missing: only ghost.verified (or a new ghost.deployed) counts
+        search = savedsearches_conf.get("DarkStrata - Ghost Proof of Life Missing", "search")
+        assert "ghost.unarmed" not in search
+        assert 'event_type="ghost.unarmed"' in savedsearches_conf.get("DarkStrata - Ghost Not Armed", "search")

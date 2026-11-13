@@ -12,6 +12,7 @@ Bring DarkStrata Ghost events into Microsoft Sentinel. A ghost is a honeytoken: 
 | Analytics rule | DarkStrata Ghost - Identity ghost seen | Alerts on every IDENTITY ghost sighting |
 | Analytics rule | DarkStrata Ghost - Ghost retired (tamper alarm) | Alerts when a ghost is retired |
 | Analytics rule | DarkStrata Ghost - Proof of life missing | Alerts on the 2nd of the month when no `ghost.verified` arrived on the 1st |
+| Analytics rule | DarkStrata Ghost - Ghost not armed | Alerts on each `ghost.unarmed`, with the reason |
 | Analytics rule (template) | DarkStrata Ghost - Token / Decoy / Sensor ghost seen | For ghost kinds that are not available yet |
 | Analytics rule (template) | Kerberos service ticket requested for a honey SPN | Domain controller 4769 for a honey SPN (Kerberoasting, T1558.003) |
 | Analytics rule (template) | AS-REP requested without pre-authentication for a honey account | Domain controller 4768 without pre-auth (AS-REP roasting, T1558.004) |
@@ -44,7 +45,7 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | SchemaVersion | int | `schema_version` | `1` |
 | EventId | string | `event_id` | UUID |
 | Seq | long | `seq` | Feed cursor |
-| EventType | string | `event_type` | `ghost.seen`, `ghost.deployed`, `ghost.retired`, `ghost.verified` |
+| EventType | string | `event_type` | `ghost.seen`, `ghost.deployed`, `ghost.retired`, `ghost.verified`, `ghost.unarmed` |
 | Kind | string | `kind` | `IDENTITY` today; `TOKEN`, `DECOY`, `SENSOR` later |
 | Subtype | string | `subtype` | `EXACT_PAIR`, `EMAIL_OTHER_PASSWORD`, `EMAIL_ONLY` |
 | Severity | string | `severity` | `INFO` to `CRITICAL` |
@@ -69,10 +70,11 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | MitreSoftware | dynamic | `mitre.software` | |
 | RetiredById | string | `retired_by.id` | `ghost.retired` only |
 | RetiredByName | string | `retired_by.name` | `ghost.retired` only |
-| RetiredReason | string | `reason` | `asset_deleted`, or empty for a manual retire |
-| VerifiedArmed | boolean | `verification.armed` | `ghost.verified` only (always true) |
-| LastCheckedAt | datetime | `verification.last_checked_at` | `ghost.verified` only: last finished check of the ghost's domain |
-| LastTestAt | datetime | `verification.last_test_at` | `ghost.verified` only: last self-test alert |
+| RetiredReason | string | `reason` | `ghost.retired` only: `asset_deleted`, or empty for a manual retire |
+| UnarmedReason | string | `reason` | `ghost.unarmed` only: `no_domain`, `domain_disabled`, `domain_unverified`, `not_checked_recently`, `domain_inactive` (token) |
+| VerifiedArmed | boolean | `verification.armed` | `ghost.verified` (true) and `ghost.unarmed` (false) |
+| LastCheckedAt | datetime | `verification.last_checked_at` | `ghost.verified` and `ghost.unarmed`: last finished check of the ghost's domain |
+| LastTestAt | datetime | `verification.last_test_at` | `ghost.verified` and `ghost.unarmed`: last self-test alert |
 | ConsoleUrl | string | `console_url` | Link to the ghost in the DarkStrata console |
 
 `GhostLabel`, `CorpusName` and `MatchProvenance` are written by your users or come from the leak itself. Treat them as untrusted text: display them, never act on them in automation.
@@ -83,7 +85,8 @@ The sighting and tamper rules run every 15 minutes, raise one alert per event, e
 
 - **Identity ghost seen** (High). Fires on `ghost.seen` for `IDENTITY` ghosts. Alert severity comes from the event (`INFO` to Informational, `LOW` to Low, `MEDIUM` to Medium, `HIGH` and `CRITICAL` to High). Tactics come from the event's `mitre.techniques[].tactic_ids` (today TA0043, Reconnaissance; techniques T1589.001 for a password match and T1589.002 for an email-only match). Maps the ghost address to an Account entity. The alert name and description carry the ghost label and corpus name.
 - **Ghost retired (tamper alarm)** (Medium, Defense Evasion, T1562). Retiring a ghost switches that tripwire off, so check that whoever retired it meant to. `RetiredReason` is `asset_deleted` when the ghost went because its domain was deleted from DarkStrata.
-- **Proof of life missing** (Medium, Defense Evasion, T1562). DarkStrata sends `ghost.verified` on the 1st of each month for every armed ghost (domain enabled, verified and checked in the last 48 hours). An unarmed ghost gets none. The rule runs daily, acts only on the 2nd and raises one alert when no `ghost.verified` has arrived since the 1st, which also catches a stopped connector. Analytics rules look back at most 14 days, so it cannot check each ghost; the workbook's **Proof of life per ghost** table does.
+- **Proof of life missing** (Medium, Defense Evasion, T1562). DarkStrata sends `ghost.verified` on the 1st of each month for every armed ghost (domain enabled, verified and checked in the last 48 hours). An unarmed ghost gets `ghost.unarmed` instead, which does not count. The rule runs daily, acts only on the 2nd and raises one alert when no `ghost.verified` has arrived since the 1st, which also catches a stopped connector. Analytics rules look back at most 14 days, so it cannot check each ghost; the workbook's **Proof of life per ghost** table does, with the reason for each ghost that is not armed.
+- **Ghost not armed** (Low, Defense Evasion, T1562). Fires on each `ghost.unarmed` (sent on the 1st, one per live ghost that is not armed), excluding self-tests, with `UnarmedReason`: `no_domain`, `domain_disabled`, `domain_unverified`, `not_checked_recently`, or `domain_inactive` for a ghost token. Runs every 15 minutes, one alert per event, linked to the ghost in the console.
 - **Token / Decoy / Sensor ghost seen**. Templates for ghost kinds DarkStrata has not shipped yet. They match nothing until those kinds exist, and their tactics and techniques are provisional; each alert takes its real tactics from the event.
 
 Sentinel's tactic list has no Stealth or Defense Impairment (both new in ATT&CK v20), so the rules map TA0005 and TA0112 to `DefenseEvasion`. The full mapping is in each rule's query.

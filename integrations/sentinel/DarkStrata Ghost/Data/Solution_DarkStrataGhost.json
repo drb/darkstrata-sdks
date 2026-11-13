@@ -9,6 +9,7 @@
   "Analytic Rules": [
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostDecoySeen.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostIdentitySeen.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostNotArmed.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostProofOfLifeMissing.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostRetired.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostSensorSeen.yaml",
