@@ -288,6 +288,7 @@ class TestSavedSearchesConf:
             "DarkStrata - Potential Malware Campaign": ["T1555.003", "T1589.001"],
             "DarkStrata - Ghost Seen": ["T1589.001", "T1589.002"],
             "DarkStrata - Ghost Token Used": ["T1552.001"],
+            "DarkStrata - Ghost SMTP Send to Your Organisation": ["T1566"],
             "DarkStrata - Ghost Retired": ["T1562"],
             "DarkStrata - Ghost Proof of Life Missing": ["T1562"],
             "DarkStrata - Ghost Not Armed": ["T1562"],
@@ -316,7 +317,7 @@ class TestSavedSearchesConf:
             assert savedsearches_conf.get(section, "disabled") == "1", section
 
     def test_ghost_searches_ignore_test_events(self, savedsearches_conf: configparser.ConfigParser) -> None:
-        for section in ("DarkStrata - Ghost Seen", "DarkStrata - Ghost Retired", "DarkStrata - Ghost Proof of Life Missing", "DarkStrata - Ghost Not Armed"):
+        for section in ("DarkStrata - Ghost Seen", "DarkStrata - Ghost Retired", "DarkStrata - Ghost Proof of Life Missing", "DarkStrata - Ghost Not Armed", "DarkStrata - Ghost SMTP Send to Your Organisation"):
             assert "is_test=false" in savedsearches_conf.get(section, "search"), section
 
     def test_unarmed_is_never_proof_of_life(self, savedsearches_conf: configparser.ConfigParser) -> None:

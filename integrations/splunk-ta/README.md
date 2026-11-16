@@ -697,6 +697,7 @@ eventtype `darkstrata_ghost_events`. Base macro: `darkstrata_ghost_events`.
 | ------------------------------- | ------------------------------ | ---------- | -------------------------- |
 | **DarkStrata - Ghost Seen**     | `ghost.seen` on an identity, not a test | From event | T1589.001, T1589.002 |
 | **DarkStrata - Ghost Token Used** | `ghost.seen` on a token, not a test | From event | T1552.001 |
+| **DarkStrata - Ghost SMTP Send to Your Organisation** | A ghost SMTP send to your own people, not a test | Critical | T1566 |
 | **DarkStrata - Ghost Retired**  | `ghost.retired`, not a test    | Medium     | T1562                      |
 | **DarkStrata - Ghost Proof of Life Missing** | No `ghost.verified` for a live ghost in 33 days | Medium | T1562 |
 | **DarkStrata - Ghost Not Armed** | `ghost.unarmed`, not a test | Low | T1562 |
@@ -710,6 +711,18 @@ for `EXACT_PAIR` and `EMAIL_OTHER_PASSWORD`, T1589.002 for `EMAIL_ONLY`).
 object is `src`, the IP address that used it (a `system`), with `src_country`,
 `src_as_org`, `src_is_tor` and `http_user_agent` alongside; an Entra sign-in CSS
 token also names the phishing proxy in `phishing_host`.
+
+A `.env` token carries a mail login that works only at DarkStrata's SMTP sink,
+which keeps whatever is sent with it and never delivers it. Those hits have
+`ghost_channel=SMTP` and `ghost_smtp_stage` `AUTH` (the login) or `DATA` (a
+send). A send adds `subject` (attacker-written text), `ghost_smtp_sender_domain`,
+`ghost_smtp_rcpt_count` and `ghost_smtp_link_host`. Recipient addresses are never
+sent to you, except your own people's (`ghost_targeted_recipient`).
+
+**Ghost SMTP Send to Your Organisation** raises one critical notable per person
+at your verified domains that such a send was aimed at. Its risk object is
+`recipient` (a `user`). Warn them and look for the same subject or sender domain
+arriving by another route.
 
 **Ghost Retired** is a tamper alarm. Retiring a ghost, or deleting the domain
 it belongs to, stops it raising alerts. Check each retirement against

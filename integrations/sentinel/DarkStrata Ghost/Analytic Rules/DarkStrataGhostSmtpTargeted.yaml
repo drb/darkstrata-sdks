@@ -1,0 +1,61 @@
+id: a11ffbdd-9429-4c26-b248-5f5e4107188a
+name: DarkStrata Ghost - SMTP send aimed at your organisation
+description: |
+  'Someone used a .env ghost token's mail login at DarkStrata's SMTP sink to send mail to your own people (recipients at
+  your verified domains). DarkStrata kept the message and delivered nothing, but it is very likely phishing aimed at
+  them, and the same message may reach them another way. One alert per targeted person, with their mailbox as the entity.
+  Recipients outside your domains are never sent to you. Subject and sender domain are attacker-written text.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: DarkStrataGhostCCFDefinition
+    dataTypes:
+      - DarkStrataGhostEvents_CL
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1566
+query: |
+  DarkStrataGhostEvents_CL
+  | where EventType == "ghost.seen" and Kind == "TOKEN" and not(IsTest)
+  | where HitChannel == "SMTP" and SmtpStage == "DATA" and array_length(SmtpTargetedRecipients) > 0
+  | mv-expand Recipient = SmtpTargetedRecipients to typeof(string)
+  | extend
+      // Untrusted text, trimmed to fit the alert name and description limits
+      DisplayLabel = substring(GhostLabel, 0, 100),
+      DisplaySubject = substring(SmtpSubject, 0, 200)
+  | project TimeGenerated, EventId, GhostId, DisplayLabel, Recipient, DisplaySubject, SmtpSenderDomain, SmtpRecipientCount,
+      SmtpLinkHosts, SrcIp, SrcCountry, SrcAsOrg, ObservedAt, ConsoleUrl
+eventGroupingSettings:
+  aggregationKind: AlertPerResult
+entityMappings:
+  - entityType: Mailbox
+    fieldMappings:
+      - identifier: MailboxPrimaryAddress
+        columnName: Recipient
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: SrcIp
+customDetails:
+  GhostId: GhostId
+  GhostLabel: DisplayLabel
+  SmtpSubject: DisplaySubject
+  SmtpSenderDomain: SmtpSenderDomain
+  SmtpRecipientCount: SmtpRecipientCount
+  SmtpLinkHosts: SmtpLinkHosts
+  SrcCountry: SrcCountry
+  SrcAsOrg: SrcAsOrg
+  EventId: EventId
+alertDetailsOverride:
+  alertDisplayNameFormat: 'DarkStrata ghost: phishing aimed at {{Recipient}}'
+  alertDescriptionFormat: 'Ghost token {{DisplayLabel}} had its mail login used to send mail to {{Recipient}}. DarkStrata kept the message and delivered nothing. Warn them, look for the same subject or sender domain arriving by another route, and treat every secret in that .env as exposed.'
+  alertDynamicProperties:
+    - alertProperty: AlertLink
+      value: ConsoleUrl
+version: 1.0.0
+kind: Scheduled

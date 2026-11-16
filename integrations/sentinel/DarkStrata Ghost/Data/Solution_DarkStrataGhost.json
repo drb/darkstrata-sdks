@@ -13,6 +13,7 @@
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostProofOfLifeMissing.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostRetired.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostSensorSeen.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataGhostSmtpTargeted.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostTokenSeen.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataHoneyAsRepNoPreauth.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataHoneySpnServiceTicket.yaml"

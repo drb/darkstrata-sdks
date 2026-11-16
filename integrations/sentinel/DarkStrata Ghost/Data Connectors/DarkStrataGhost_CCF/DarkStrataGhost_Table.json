@@ -185,7 +185,7 @@
         {
           "name": "Placement",
           "type": "string",
-          "description": "Where the ghost was planted (FILE_SHARE, WIKI, …), when the customer said."
+          "description": "Where the ghost was planted (FILE_SHARE, WIKI, \u2026), when the customer said."
         },
         {
           "name": "SrcIp",
@@ -226,6 +226,41 @@
           "name": "PhishingHost",
           "type": "string",
           "description": "Entra CSS token hits: the adversary-in-the-middle proxy host."
+        },
+        {
+          "name": "HitChannel",
+          "type": "string",
+          "description": "Token hits: how the token was used (HTTP, DNS, WIREGUARD, SMTP)."
+        },
+        {
+          "name": "SmtpStage",
+          "type": "string",
+          "description": "SMTP token hits: AUTH (the .env's mail login was used at DarkStrata's SMTP sink) or DATA (a message sent after it, kept and never delivered)."
+        },
+        {
+          "name": "SmtpSubject",
+          "type": "string",
+          "description": "SMTP sends: the message subject. Attacker-written text."
+        },
+        {
+          "name": "SmtpSenderDomain",
+          "type": "string",
+          "description": "SMTP sends: the From header's registrable domain, else the envelope sender's."
+        },
+        {
+          "name": "SmtpRecipientCount",
+          "type": "int",
+          "description": "SMTP sends: how many recipients. Recipient addresses are never sent, except your own (SmtpTargetedRecipients)."
+        },
+        {
+          "name": "SmtpTargetedRecipients",
+          "type": "dynamic",
+          "description": "SMTP sends: recipients at your own verified domains, i.e. phishing aimed at your organisation."
+        },
+        {
+          "name": "SmtpLinkHosts",
+          "type": "dynamic",
+          "description": "SMTP sends: hosts the message links to (up to 10)."
         },
         {
           "name": "ConsoleUrl",
