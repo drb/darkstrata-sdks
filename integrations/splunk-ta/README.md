@@ -650,7 +650,11 @@ data), falling back to `observed_at`.
 | `event_type`               | envelope                               | `ghost.seen`, `ghost.deployed`, `ghost.retired`, `ghost.verified`, `ghost.unarmed` |
 | `subtype`                  | `ghost.seen` only                      | `EXACT_PAIR`, `EMAIL_OTHER_PASSWORD`, `EMAIL_ONLY` |
 | `ghost_id`, `ghost_label`  | `ghost.id`, `ghost.label`              | The label is text your team wrote               |
-| `ghost_kind`               | `kind`                                 | `IDENTITY` today                                |
+| `ghost_kind`               | `kind`                                 | `IDENTITY` or `TOKEN`                           |
+| `ghost_host`, `ghost_owner` | `ghost.placement_host`, `ghost.placement_owner` | Tokens from the fleet rollout: the machine and user they were planted on. Your own text: untrusted |
+| `ghost_device_id`          | `ghost.placement_device_id`            | Entra / Intune device ID of that machine         |
+| `incident_id`, `incident_hit_count` | `incident.id`, `incident.hit_count` | `ghost.seen`: hits on one ghost within its window share one incident (one DarkStrata alert) |
+| `notification_state`       | `notification.state`                   | `BUDGET_REACHED` or `SUPPRESSED` when the hourly alert budget held back email and chat for the incident |
 | `match_source`             | `match.source`                         | `STEALER_LOG`, `BREACH`, `COMBOLIST`            |
 | `is_test`                  | envelope                               | `true` for console test events                  |
 | `console_url`              | envelope                               | Opens the event in DarkStrata                   |
@@ -676,8 +680,8 @@ data model:
 | `signature`      | `event_type:subtype`, for example `ghost.seen:EXACT_PAIR`      |
 | `signature_id`   | `event_type`                                                   |
 | `severity`       | Event severity in CIM form (`informational` to `critical`)     |
-| `user`           | `ghost.email`                                                  |
-| `dest`           | Domain of `ghost.email` (`ghost.id` if there is no email)      |
+| `user`           | `ghost.email`, or a fleet token's `ghost.placement_owner`      |
+| `dest`           | A fleet token's machine (`ghost.placement_host`), else the domain of `ghost.email`, else `ghost.id` |
 | `category`       | `honeytoken`                                                   |
 | `action`         | `allowed`                                                      |
 | `ids_type`       | `application`                                                  |

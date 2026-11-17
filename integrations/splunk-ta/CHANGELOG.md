@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Account AS-REP Roasting** (4768 without pre-authentication, T1558.004), with
   the `darkstrata_honey_accounts` lookup and the `darkstrata_windows_security`
   macro for customers to fill in.
+- Ghost tokens planted by the fleet rollout name the machine and user they were
+  stolen from: `ghost_host`, `ghost_owner` and `ghost_device_id`, with CIM
+  `dest` (the machine) and `user` (the owner). **DarkStrata - Ghost Token Used**
+  shows them and asks for the machine to be investigated.
+- Incident and alert-budget fields on ghost events: `incident_id`,
+  `incident_hit_count` and `notification_state`, shown by the Ghost Seen and
+  Ghost Token Used searches.
 
 ## [1.2.0] - 2026-10-19
 
