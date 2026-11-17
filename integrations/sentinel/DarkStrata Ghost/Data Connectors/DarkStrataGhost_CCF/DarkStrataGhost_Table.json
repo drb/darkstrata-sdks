@@ -123,6 +123,21 @@
           "description": "Reserved; null today."
         },
         {
+          "name": "IncidentId",
+          "type": "string",
+          "description": "The incident (alert) this hit belongs to: hits on one ghost within its window share it."
+        },
+        {
+          "name": "IncidentHitCount",
+          "type": "int",
+          "description": "Hits in the incident so far."
+        },
+        {
+          "name": "NotificationState",
+          "type": "string",
+          "description": "BUDGET_REACHED or SUPPRESSED when the organisation's hourly alert budget held back email and chat for this incident; empty when people were notified as normal."
+        },
+        {
           "name": "MitreAttackVersion",
           "type": "string",
           "description": "ATT&CK version of the tags."
@@ -185,7 +200,22 @@
         {
           "name": "Placement",
           "type": "string",
-          "description": "Where the ghost was planted (FILE_SHARE, WIKI, \u2026), when the customer said."
+          "description": "Where the ghost was planted (FILE_SHARE, WIKI, …), when the customer said."
+        },
+        {
+          "name": "PlacementHost",
+          "type": "string",
+          "description": "Machine the token is planted on (hostname or FQDN, lowercased). Customer-supplied text."
+        },
+        {
+          "name": "PlacementOwner",
+          "type": "string",
+          "description": "User the machine or place belongs to (UPN or DOMAIN\\user). Customer-supplied text."
+        },
+        {
+          "name": "PlacementDeviceId",
+          "type": "string",
+          "description": "Microsoft Entra / Intune device ID of that machine."
         },
         {
           "name": "SrcIp",

@@ -40,7 +40,8 @@ query: |
       DisplayCorpus = substring(CorpusName, 0, 200)
   | extend AccountName = tostring(split(GhostEmail, "@")[0]), AccountUPNSuffix = tostring(split(GhostEmail, "@")[1])
   | project TimeGenerated, EventId, Seq, Kind, Subtype, Severity, AlertSeverity, AlertTactics, AttackTechniques,
-      GhostId, DisplayLabel, GhostEmail, AccountName, AccountUPNSuffix, MatchKind, MatchSource, DisplayCorpus, ObservedAt, ReceivedAt, ConsoleUrl
+      GhostId, DisplayLabel, GhostEmail, AccountName, AccountUPNSuffix, MatchKind, MatchSource, DisplayCorpus, ObservedAt, ReceivedAt, ConsoleUrl,
+      IncidentId, IncidentHitCount, NotificationState
 entityMappings:
   - entityType: Account
     fieldMappings:
@@ -59,6 +60,11 @@ customDetails:
   MatchSource: MatchSource
   MatchKind: MatchKind
   AttackTechniques: AttackTechniques
+  # Sightings of one identity group into one incident; NotificationState is set when DarkStrata's hourly alert
+  # budget held back email and chat for it, so this rule is then the only place people hear of it
+  IncidentId: IncidentId
+  IncidentHitCount: IncidentHitCount
+  NotificationState: NotificationState
   EventId: EventId
 alertDetailsOverride:
   alertDisplayNameFormat: 'DarkStrata Ghost seen: {{DisplayLabel}}'
@@ -68,5 +74,5 @@ alertDetailsOverride:
   alertDynamicProperties:
     - alertProperty: AlertLink
       value: ConsoleUrl
-version: 1.0.0
+version: 1.1.0
 kind: Scheduled

@@ -46,7 +46,7 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | EventId | string | `event_id` | UUID |
 | Seq | long | `seq` | Feed cursor |
 | EventType | string | `event_type` | `ghost.seen`, `ghost.deployed`, `ghost.retired`, `ghost.verified`, `ghost.unarmed` |
-| Kind | string | `kind` | `IDENTITY` today; `TOKEN`, `DECOY`, `SENSOR` later |
+| Kind | string | `kind` | `IDENTITY` or `TOKEN`; `DECOY`, `SENSOR` later |
 | Subtype | string | `subtype` | `EXACT_PAIR`, `EMAIL_OTHER_PASSWORD`, `EMAIL_ONLY` |
 | Severity | string | `severity` | `INFO` to `CRITICAL` |
 | IsTest | bool | `is_test` | Self-test event |
@@ -63,7 +63,10 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | CorpusName | string | `match.corpus_name` | Leaked text: untrusted |
 | RowIngestedAt | datetime | `match.row_ingested_at` | |
 | MatchProvenance | dynamic | `match.provenance` | Leaked text: untrusted |
-| Incident | dynamic | `incident` | Reserved (null) |
+| Incident | dynamic | `incident` | `ghost.seen`: `{id, status, hit_count, first_seen, last_seen}`; hits on one ghost within its window share one incident (one DarkStrata alert) |
+| IncidentId | string | `incident.id` | The incident (DarkStrata alert) the hit belongs to |
+| IncidentHitCount | int | `incident.hit_count` | Hits in the incident so far |
+| NotificationState | string | `notification.state` | `BUDGET_REACHED` or `SUPPRESSED` when the hourly alert budget held back email and chat for this incident; empty otherwise |
 | MitreAttackVersion | string | `mitre.attack_version` | |
 | MitreDomain | string | `mitre.domain` | `enterprise-attack` |
 | MitreTechniques | dynamic | `mitre.techniques` | `[{id, name, parent_name, tactic_ids, basis}]` |
@@ -75,6 +78,11 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | VerifiedArmed | boolean | `verification.armed` | `ghost.verified` (true) and `ghost.unarmed` (false) |
 | LastCheckedAt | datetime | `verification.last_checked_at` | `ghost.verified` and `ghost.unarmed`: last finished check of the ghost's domain |
 | LastTestAt | datetime | `verification.last_test_at` | `ghost.verified` and `ghost.unarmed`: last self-test alert |
+| TokenType | string | `ghost.token_type` | Ghost tokens: `WEB_URL`, `ENV_FILE`, `KUBECONFIG`, … |
+| Placement | string | `ghost.placement` | Ghost tokens: the kind of place (`ENDPOINT`, `FILE_SHARE`, …) |
+| PlacementHost | string | `ghost.placement_host` | Ghost tokens: the machine it is planted on (fleet rollout). Customer-supplied: untrusted |
+| PlacementOwner | string | `ghost.placement_owner` | Ghost tokens: the user it belongs to (UPN or `DOMAIN\user`). Customer-supplied: untrusted |
+| PlacementDeviceId | string | `ghost.placement_device_id` | Ghost tokens: Entra / Intune device ID |
 | ConsoleUrl | string | `console_url` | Link to the ghost in the DarkStrata console |
 
 `GhostLabel`, `CorpusName` and `MatchProvenance` are written by your users or come from the leak itself. Treat them as untrusted text: display them, never act on them in automation.
@@ -87,7 +95,8 @@ The sighting and tamper rules run every 15 minutes, raise one alert per event, e
 - **Ghost retired (tamper alarm)** (Medium, Defense Evasion, T1562). Retiring a ghost switches that tripwire off, so check that whoever retired it meant to. `RetiredReason` is `asset_deleted` when the ghost went because its domain was deleted from DarkStrata.
 - **Proof of life missing** (Medium, Defense Evasion, T1562). DarkStrata sends `ghost.verified` on the 1st of each month for every armed ghost (domain enabled, verified and checked in the last 48 hours). An unarmed ghost gets `ghost.unarmed` instead, which does not count. The rule runs daily, acts only on the 2nd and raises one alert when no `ghost.verified` has arrived since the 1st, which also catches a stopped connector. Analytics rules look back at most 14 days, so it cannot check each ghost; the workbook's **Proof of life per ghost** table does, with the reason for each ghost that is not armed.
 - **Ghost not armed** (Low, Defense Evasion, T1562). Fires on each `ghost.unarmed` (sent on the 1st, one per live ghost that is not armed), excluding self-tests, with `UnarmedReason`: `no_domain`, `domain_disabled`, `domain_unverified`, `not_checked_recently`, or `domain_inactive` for a ghost token. Runs every 15 minutes, one alert per event, linked to the ghost in the console.
-- **Token / Decoy / Sensor ghost seen**. Templates for ghost kinds DarkStrata has not shipped yet. They match nothing until those kinds exist, and their tactics and techniques are provisional; each alert takes its real tactics from the event.
+- **Token ghost seen** (High). Fires on `ghost.seen` for `TOKEN` ghosts with the source address as an IP entity. A token planted by the fleet rollout script also maps its machine (`PlacementHost`) to a Host entity and its user (`PlacementOwner`) to an Account entity, and the description names them: that is the machine to isolate. `IncidentId` and `IncidentHitCount` are custom details.
+- **Decoy / Sensor ghost seen**. Templates for ghost kinds DarkStrata has not shipped yet. They match nothing until those kinds exist, and their tactics and techniques are provisional; each alert takes its real tactics from the event.
 
 Sentinel's tactic list has no Stealth or Defense Impairment (both new in ATT&CK v20), so the rules map TA0005 and TA0112 to `DefenseEvasion`. The full mapping is in each rule's query.
 

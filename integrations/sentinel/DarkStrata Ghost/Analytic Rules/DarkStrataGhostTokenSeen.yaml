@@ -2,7 +2,8 @@ id: 1eb27407-b43c-4c1f-a458-c750a73e48a6
 name: DarkStrata Ghost - Token ghost seen
 description: |
   'A ghost token (a link, document, QR code, Entra sign-in CSS or webhook URL nobody legitimate uses) was used.
-  The alert names where it was planted and the IP address, network and software that used it; an Entra CSS token
+  The alert names where it was planted (for a fleet-planted token, the machine and user, mapped to Host and Account
+  entities) and the IP address, network and software that used it; an Entra CSS token
   names the phishing proxy. A .env token's mail login used at DarkStrata's SMTP sink is a hit too (HitChannel SMTP):
   SmtpStage AUTH for the login, DATA for a message sent with it, which DarkStrata keeps and never delivers.
   Self-test events are excluded. Severity and tactics come from the event. Label and user
@@ -39,11 +40,16 @@ query: |
       // Untrusted text, trimmed to fit the alert name and description limits
       DisplayLabel = substring(GhostLabel, 0, 100),
       DisplayUserAgent = substring(UserAgent, 0, 200),
-      DisplaySubject = substring(SmtpSubject, 0, 200)
+      DisplaySubject = substring(SmtpSubject, 0, 200),
+      // Customer-supplied too (the plant script sends them), so trimmed like the label
+      PlantedOn = substring(PlacementHost, 0, 253),
+      PlantedFor = substring(PlacementOwner, 0, 320)
+  | extend PlantedWhere = iif(isnotempty(PlantedOn), strcat(" It was planted on ", PlantedOn, iif(isnotempty(PlantedFor), strcat(", which belongs to ", PlantedFor), ""), ": investigate that machine."), "")
   | project TimeGenerated, EventId, Seq, Kind, Subtype, Severity, AlertSeverity, AlertTactics, AttackTechniques,
       GhostId, DisplayLabel, TokenType, Placement, SrcIp, SrcCountry, SrcAsn, SrcAsOrg, SrcIsTor, SrcIsHosting,
       DisplayUserAgent, PhishingHost, HitChannel, SmtpStage, DisplaySubject, SmtpSenderDomain, SmtpRecipientCount,
-      ObservedAt, ReceivedAt, ConsoleUrl
+      ObservedAt, ReceivedAt, ConsoleUrl, PlantedOn, PlantedFor, PlantedWhere, PlacementDeviceId, IncidentId,
+      IncidentHitCount
 eventGroupingSettings:
   aggregationKind: AlertPerResult
 entityMappings:
@@ -51,6 +57,15 @@ entityMappings:
     fieldMappings:
       - identifier: Address
         columnName: SrcIp
+  # The machine and user a fleet-planted token was stolen from (empty for tokens planted by hand)
+  - entityType: Host
+    fieldMappings:
+      - identifier: FullName
+        columnName: PlantedOn
+  - entityType: Account
+    fieldMappings:
+      - identifier: FullName
+        columnName: PlantedFor
 customDetails:
   GhostId: GhostId
   GhostLabel: DisplayLabel
@@ -66,14 +81,18 @@ customDetails:
   SmtpSenderDomain: SmtpSenderDomain
   SmtpRecipientCount: SmtpRecipientCount
   AttackTechniques: AttackTechniques
+  PlantedOn: PlantedOn
+  PlantedFor: PlantedFor
+  IncidentId: IncidentId
+  IncidentHitCount: IncidentHitCount
   EventId: EventId
 alertDetailsOverride:
   alertDisplayNameFormat: 'DarkStrata ghost token used: {{DisplayLabel}}'
-  alertDescriptionFormat: 'Ghost token {{DisplayLabel}} ({{TokenType}}) was used from {{SrcIp}}. Nobody legitimate uses a ghost token: treat the place it was planted as accessed. Network and software are in the custom details.'
+  alertDescriptionFormat: 'Ghost token {{DisplayLabel}} was used from {{SrcIp}}.{{PlantedWhere}} Nobody legitimate uses a ghost token: treat the place it was planted as accessed. Network and software are in the custom details.'
   alertSeverityColumnName: AlertSeverity
   alertTacticsColumnName: AlertTactics
   alertDynamicProperties:
     - alertProperty: AlertLink
       value: ConsoleUrl
-version: 1.2.0
+version: 1.3.0
 kind: Scheduled

@@ -1,7 +1,7 @@
 Parser:
   Title: Alert Event ASIM filtering parser for DarkStrata Ghost
-  Version: '0.1.0'
-  LastUpdated: Nov 06, 2026
+  Version: '0.2.0'
+  LastUpdated: Nov 17, 2026
 Product:
   Name: DarkStrata Ghost
 Normalization:
@@ -15,7 +15,8 @@ References:
   - Title: DarkStrata Ghost
     Link: https://darkstrata.io
 Description: |
-  This ASIM filtering parser normalises DarkStrata Ghost `ghost.seen` events (a honeytoken found in leaked data)
+  This ASIM filtering parser normalises DarkStrata Ghost `ghost.seen` events (a ghost identity found in leaked data,
+  or a ghost token used; a fleet-planted token's machine and user map to DvcHostname and Username)
   from DarkStrataGhostEvents_CL to the ASIM Alert Event schema. Self-test events are excluded.
   GhostLabel, CorpusName and MatchProvenance are customer-written or leaked text: treat them as untrusted.
 ParserName: vimAlertEventDarkStrataGhost
@@ -74,10 +75,11 @@ ParserQuery: |
     DarkStrataGhostEvents_CL
     | where not(disabled)
     | where (isnull(starttime) or TimeGenerated >= starttime) and (isnull(endtime) or TimeGenerated <= endtime)
-    // Ghost events carry no device IP or hostname, so an IP or hostname filter matches nothing
-    | where array_length(ipaddr_has_any_prefix) == 0 and array_length(hostname_has_any) == 0
+    // Ghost events carry no device IP; a ghost token planted by the fleet script names its machine and user
+    | where array_length(ipaddr_has_any_prefix) == 0
+    | where array_length(hostname_has_any) == 0 or PlacementHost has_any (hostname_has_any)
     | where EventType == "ghost.seen" and not(IsTest)
-    | where array_length(username_has_any) == 0 or GhostEmail has_any (username_has_any)
+    | where array_length(username_has_any) == 0 or GhostEmail has_any (username_has_any) or PlacementOwner has_any (username_has_any)
     | mv-apply Technique = MitreTechniques on (
         mv-expand TacticId = Technique.tactic_ids to typeof(string)
         | extend TacticName = tostring(TacticNames[TacticId])
@@ -112,24 +114,34 @@ ParserQuery: |
         EventSchema = "AlertEvent",
         EventSchemaVersion = "0.1",
         EventReportUrl = ConsoleUrl,
-        EventMessage = strcat("DarkStrata found ghost '", GhostLabel, "' (", Kind, ") in ", MatchSource, " data: ", CorpusName),
-        AlertName = strcat("DarkStrata Ghost seen: ", Kind, " ", Subtype),
+        // A token hit is a use from an address; an identity hit is a find in leaked data
+        EventMessage = iif(Kind == "TOKEN",
+          strcat("DarkStrata ghost token '", GhostLabel, "' was used from ", SrcIp, iif(isnotempty(PlacementHost), strcat(" (planted on ", PlacementHost, ")"), "")),
+          strcat("DarkStrata found ghost '", GhostLabel, "' (", Kind, ") in ", MatchSource, " data: ", CorpusName)),
+        AlertName = iif(Kind == "TOKEN", strcat("DarkStrata Ghost token used: ", TokenType), strcat("DarkStrata Ghost seen: ", Kind, " ", Subtype)),
         AlertStatus = "Active",
         DetectionMethod = "Threat Intelligence",
-        ThreatName = CorpusName,
-        ThreatOriginalCategory = MatchSource,
+        ThreatName = iif(Kind == "TOKEN", GhostLabel, CorpusName),
+        ThreatOriginalCategory = iif(Kind == "TOKEN", HitChannel, MatchSource),
         ThreatFirstReportedTime = ObservedAt,
         ThreatIsActive = true,
-        IndicatorType = "Email",
+        IndicatorType = iif(Kind == "TOKEN", "Ip", "Email"),
         IndicatorAssociation = "Targeted",
-        Username = GhostEmail,
-        UsernameType = "UPN",
-        AttackRemediationSteps = "A ghost exists only to be stolen, so this sighting means the place it was seeded has leaked. Open the console link, identify the seed location and investigate that system for compromise.",
+        // A fleet-planted token names the machine and user it was stolen from: that is the device to isolate
+        DvcHostname = PlacementHost,
+        DvcId = PlacementDeviceId,
+        DvcIdType = iif(isnotempty(PlacementDeviceId), "Other", ""),
+        Username = iif(Kind == "TOKEN", PlacementOwner, GhostEmail),
+        UsernameType = iif(Kind == "TOKEN", iif(PlacementOwner contains "@", "UPN", iif(PlacementOwner contains "\\", "Windows", "Simple")), "UPN"),
+        AttackRemediationSteps = iif(Kind == "TOKEN",
+          "Nobody legitimate uses a ghost token, so the place it was planted has been accessed. When DvcHostname is set, investigate that machine and Username for compromise; block the source address. Open the console link for the hits.",
+          "A ghost exists only to be stolen, so this sighting means the place it was seeded has leaked. Open the console link, identify the seed location and investigate that system for compromise."),
         AdditionalFields = bag_pack(
           "GhostId", GhostId, "GhostLabel", GhostLabel, "GhostMode", GhostMode, "GhostSeedUrl", GhostSeedUrl,
           "GhostDisplayName", GhostDisplayName, "MatchKind", MatchKind, "MatchSource", MatchSource,
           "CorpusName", CorpusName, "RowIngestedAt", RowIngestedAt, "MatchProvenance", MatchProvenance,
-          "MitreAttackVersion", MitreAttackVersion)
+          "MitreAttackVersion", MitreAttackVersion, "TokenType", TokenType, "SrcIp", SrcIp, "IncidentId", IncidentId,
+          "IncidentHitCount", IncidentHitCount, "NotificationState", NotificationState)
     | extend
         AlertId = EventUid,
         AlertDescription = EventMessage,
@@ -138,7 +150,8 @@ ParserQuery: |
         EventId, Seq, Kind, Subtype, Severity, IsTest, ObservedAt, ReceivedAt, GhostId, GhostLabel, GhostSeedUrl,
         GhostMode, GhostEmail, GhostDisplayName, MatchKind, MatchSource, CorpusName, RowIngestedAt, MatchProvenance,
         Incident, MitreAttackVersion, MitreDomain, MitreTechniques, MitreSoftware, RetiredById, RetiredByName,
-        RetiredReason, ConsoleUrl, SchemaVersion, TacticSet, TechniqueSet
+        RetiredReason, ConsoleUrl, SchemaVersion, TacticSet, TechniqueSet, PlacementHost, PlacementOwner,
+        PlacementDeviceId, IncidentId, IncidentHitCount, NotificationState
   };
   parser(
     starttime = starttime,
