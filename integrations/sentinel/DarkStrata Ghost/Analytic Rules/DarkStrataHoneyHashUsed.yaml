@@ -1,0 +1,69 @@
+id: cd6649d5-34d4-4af2-a0f0-4e4261589109
+name: DarkStrata Ghost - Honeyhash account used
+description: |
+  'A domain controller or server saw Kerberos or NTLM authentication (4768, 4769, 4771, 4776 or 4625) for a honeyhash
+  account. That account's credential exists only in memory on your machines, planted by the DarkStrata plant script
+  with a wrong password, and nothing uses it. Its use means someone dumped credentials from a machine (LSASS) and is
+  trying them. The attacker's client address or workstation is in the alert; the dumped machine is not.
+  TEMPLATE: enable after you create the account with Register-GhostHoneyAccounts.ps1 -Type HASH, plant it with
+  DARKSTRATA_HONEYHASH_ACCOUNT, and add it to the DarkStrataHoneyAccounts watchlist with Type = HASH (see the
+  solution README). Needs 4768/4769/4771 (Audit Kerberos Authentication Service and Service Ticket Operations) and
+  4776 (Audit Credential Validation) from your domain controllers in SecurityEvent.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: SecurityEvents
+    dataTypes:
+      - SecurityEvent
+  - connectorId: WindowsSecurityEvents
+    dataTypes:
+      - SecurityEvent
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - CredentialAccess
+  - LateralMovement
+relevantTechniques:
+  - T1003.001
+  - T1550.002
+query: |
+  let HoneyHashAccounts = _GetWatchlist('DarkStrataHoneyAccounts')
+    | where tostring(Type) =~ "HASH"
+    | project HoneyAccount = tolower(tostring(SearchKey));
+  SecurityEvent
+  | where EventID in (4768, 4769, 4771, 4776, 4625)
+  | extend HoneyAccount = tolower(tostring(split(TargetUserName, "@")[0]))
+  | where HoneyAccount in (HoneyHashAccounts)
+  | parse EventData with * 'Status">' AuthStatus '<' *
+  | parse EventData with * 'Workstation">' NtlmWorkstation '<' *
+  | extend
+      ClientIp = trim_start(@"::ffff:", IpAddress),
+      ClientWorkstation = coalesce(NtlmWorkstation, WorkstationName),
+      Protocol = iff(EventID == 4776, "NTLM", iff(EventID == 4625, "Logon", "Kerberos"))
+  | project TimeGenerated, Computer, EventID, Protocol, HoneyAccount, TargetDomainName, ClientIp, ClientWorkstation, AuthStatus
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: HoneyAccount
+      - identifier: NTDomain
+        columnName: TargetDomainName
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: ClientIp
+  - entityType: Host
+    fieldMappings:
+      - identifier: HostName
+        columnName: ClientWorkstation
+customDetails:
+  Protocol: Protocol
+  DomainController: Computer
+  AuthStatus: AuthStatus
+alertDetailsOverride:
+  alertDisplayNameFormat: 'Dumped credential used: honeyhash account {{HoneyAccount}} ({{Protocol}})'
+  alertDescriptionFormat: 'Someone tried the honeyhash account {{HoneyAccount}} from {{ClientIp}} {{ClientWorkstation}}. Its credential exists only in memory on your machines, so it was dumped from one of them.'
+version: 1.0.0
+kind: Scheduled

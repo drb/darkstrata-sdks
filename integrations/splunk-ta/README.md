@@ -754,7 +754,7 @@ minutes and is throttled on `ghost_id` for 7 days.
 
 ### DC-Side Honey-Account Searches (Templates)
 
-These two searches ship **disabled**. They are for honey accounts you create in
+These three searches ship **disabled**. They are for honey accounts you create in
 Active Directory, and need Windows Security logs from your domain controllers.
 They do not use DarkStrata data.
 
@@ -762,12 +762,19 @@ They do not use DarkStrata data.
 | ---------------------------------------------------- | ------------------------------------ | --------- |
 | **DarkStrata - Honey SPN Kerberos Service Ticket**   | 4769 for a honey SPN account         | T1558.003 Kerberoasting |
 | **DarkStrata - Honey Account AS-REP Roasting**       | 4768 with pre-auth type 0 for a honey account | T1558.004 AS-REP Roasting |
+| **DarkStrata - Honeyhash Account Used**              | 4768, 4769, 4771, 4776 or 4625 for a honeyhash account | T1003.001 LSASS Memory, T1550.002 Pass the Hash |
 
 To enable them:
 
 1. Create the honey accounts: one with a service principal name (for
-   Kerberoasting), and one with **Do not require Kerberos preauthentication**
-   set (for AS-REP roasting). Give them no rights, and never use them.
+   Kerberoasting), one with **Do not require Kerberos preauthentication**
+   set (for AS-REP roasting), and a plain one for the honeyhash. Give them no
+   rights, and never use them. `Register-GhostHoneyAccounts.ps1`, shipped with
+   the DarkStrata plant script, creates all three and prints the rows for
+   step 2. For the honeyhash, also run the plant script with
+   `DARKSTRATA_HONEYHASH_ACCOUNT=DOMAIN\account`: it keeps a logon session
+   for the account with a wrong password on each machine, so a credential
+   dump finds it.
 2. List them in `lookups/darkstrata_honey_accounts.csv` (copy it to `local/`
    first, or upload it through **Settings** > **Lookups**):
 
@@ -775,15 +782,18 @@ To enable them:
    account,type,description
    svc_sqlbackup,spn,Honey SPN account
    j.adams,asrep,Honey AS-REP account
+   adm-backup2,hash,Honeyhash account
    ```
 
-   `account` is the sAMAccountName (case does not matter); `type` is `spn` or
-   `asrep`.
+   `account` is the sAMAccountName (case does not matter); `type` is `spn`,
+   `asrep` or `hash`.
 3. Edit the `darkstrata_windows_security` macro so it points at your DC
    Security log index (the default is `index=wineventlog`).
 4. Enable the searches in **Content Management**.
 
-Nothing legitimate uses a honey account, so any match is hostile. Both
+Nothing legitimate uses a honey account, so any match is hostile. The
+honeyhash search names the attacker's address or workstation, not the machine
+the credential was dumped from: every machine holds the same account. All three
 searches work with classic (`WinEventLog`) and XML (`XmlWinEventLog`) Windows
 events.
 
@@ -1051,7 +1061,7 @@ Reduce batch size if memory consumption is excessive.
 | `darkstrata_alerts`        | `sourcetype="darkstrata:stix:alert"`         | All alert bundles        |
 | `darkstrata_ghost_events`  | `sourcetype="darkstrata:ghost:event"`        | All ghost events         |
 | `darkstrata_windows_security` | `index=wineventlog source IN (...)`       | DC Security log, for the honey-account searches |
-| `darkstrata_honey_account(type)` | Lookup filter                          | Keep honey accounts of `type` (`spn`/`asrep`) |
+| `darkstrata_honey_account(type)` | Lookup filter                          | Keep honey accounts of `type` (`spn`/`asrep`/`hash`) |
 
 ### Field Extraction
 

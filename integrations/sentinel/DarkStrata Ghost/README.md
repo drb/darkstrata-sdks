@@ -16,6 +16,7 @@ Bring DarkStrata Ghost events into Microsoft Sentinel. A ghost is a honeytoken: 
 | Analytics rule (template) | DarkStrata Ghost - Token / Decoy / Sensor ghost seen | For ghost kinds that are not available yet |
 | Analytics rule (template) | Kerberos service ticket requested for a honey SPN | Domain controller 4769 for a honey SPN (Kerberoasting, T1558.003) |
 | Analytics rule (template) | AS-REP requested without pre-authentication for a honey account | Domain controller 4768 without pre-auth (AS-REP roasting, T1558.004) |
+| Analytics rule (template) | Honeyhash account used | Domain controller 4768/4769/4771/4776 or 4625 for a honeyhash account (a dumped credential tried, T1003.001 / T1550.002) |
 | Workbook | DarkStrata Ghost | Events over time, sightings by kind and severity, latest sightings, tamper events, proof of life per ghost |
 | ASIM parsers | `ASimAlertEventDarkStrataGhost`, `vimAlertEventDarkStrataGhost` | `ghost.seen` normalised to the ASIM Alert Event schema |
 
@@ -102,9 +103,10 @@ Sentinel's tactic list has no Stealth or Defense Impairment (both new in ATT&CK 
 
 ### Domain controller honey-account rules
 
-These are templates for a later Ghost phase: you create the honey accounts in Active Directory yourself, then enable the rules.
+These are templates: they read your own domain controllers' Security logs, not DarkStrata data. `Register-GhostHoneyAccounts.ps1` (shipped with the DarkStrata plant script) creates all three kinds and prints the watchlist rows, or you create them yourself.
 
 1. Create the honey accounts. Never use them, and give them long random passwords.
+   - **Honeyhash account** (credential-dump bait): a plain user account. The plant script's `DARKSTRATA_HONEYHASH_ACCOUNT` setting holds a logon session for it with a wrong password on each machine, the way `runas /netonly` does, so a dump of LSASS finds it. An attacker who tries it shows up on a domain controller.
    - **Honey SPN** (Kerberoasting bait): a user account with a plausible service principal name, for example `MSSQLSvc/sql-legacy.corp.example:1433`.
    - **AS-REP honey account** (AS-REP roasting bait): a user account with *Do not require Kerberos preauthentication* set.
 2. Create a Sentinel watchlist with alias **`DarkStrataHoneyAccounts`**, search key `AccountName`:
@@ -113,10 +115,11 @@ These are templates for a later Ghost phase: you create the honey accounts in Ac
    AccountName,Type,Notes
    svc_sql_legacy,SPN,Honey SPN
    backup_admin_old,ASREP,AS-REP honey account
+   adm-backup2,HASH,Honeyhash account
    ```
 
-   `AccountName` is the sAMAccountName. `Type` is `SPN` or `ASREP`.
-3. Create rules from **Kerberos service ticket requested for a honey SPN** (4769, T1558.003, Credential Access) and **AS-REP requested without pre-authentication for a honey account** (4768 with `PreAuthType` 0, T1558.004, Credential Access). Both are High and map the requesting account, client IP and domain controller to entities.
+   `AccountName` is the sAMAccountName. `Type` is `SPN`, `ASREP` or `HASH`.
+3. Create rules from **Kerberos service ticket requested for a honey SPN** (4769, T1558.003, Credential Access), **AS-REP requested without pre-authentication for a honey account** (4768 with `PreAuthType` 0, T1558.004, Credential Access) and **Honeyhash account used** (4768, 4769, 4771, 4776 or 4625 for a `HASH` account; T1003.001 and T1550.002, Credential Access and Lateral Movement). All are High. The first two map the requesting account, client IP and domain controller to entities; the honeyhash rule maps the honey account, the client IP and, for NTLM, the client workstation. None of them can name the machine the credential was dumped from: every machine holds the same account.
 
 Nobody has a reason to request a ticket for these accounts, so any hit is worth an investigation.
 

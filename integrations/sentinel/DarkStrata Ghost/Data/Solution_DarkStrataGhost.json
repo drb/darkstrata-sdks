@@ -16,6 +16,7 @@
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostSmtpTargeted.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataGhostTokenSeen.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataHoneyAsRepNoPreauth.yaml",
+    "DarkStrata Ghost/Analytic Rules/DarkStrataHoneyHashUsed.yaml",
     "DarkStrata Ghost/Analytic Rules/DarkStrataHoneySpnServiceTicket.yaml"
   ],
   "Workbooks": [

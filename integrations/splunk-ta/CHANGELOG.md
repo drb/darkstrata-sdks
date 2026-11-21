@@ -30,8 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ghost.unarmed` event, naming the reason; throttled per ghost for 7 days;
   annotated T1562). `ghost.unarmed` never counts as proof of life.
 - Disabled template searches for DC-side honey accounts: **DarkStrata - Honey
-  SPN Kerberos Service Ticket** (4769, T1558.003) and **DarkStrata - Honey
-  Account AS-REP Roasting** (4768 without pre-authentication, T1558.004), with
+  SPN Kerberos Service Ticket** (4769, T1558.003), **DarkStrata - Honey
+  Account AS-REP Roasting** (4768 without pre-authentication, T1558.004) and
+  **DarkStrata - Honeyhash Account Used** (4768/4769/4771/4776/4625 for a
+  honeyhash account, T1003.001 / T1550.002), with
   the `darkstrata_honey_accounts` lookup and the `darkstrata_windows_security`
   macro for customers to fill in.
 - Ghost tokens planted by the fleet rollout name the machine and user they were
