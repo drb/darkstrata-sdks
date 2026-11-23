@@ -83,6 +83,8 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | Placement | string | `ghost.placement` | Ghost tokens: the kind of place (`ENDPOINT`, `FILE_SHARE`, …) |
 | PlacementHost | string | `ghost.placement_host` | Ghost tokens: the machine it is planted on (fleet rollout). Customer-supplied: untrusted |
 | PlacementOwner | string | `ghost.placement_owner` | Ghost tokens: the user it belongs to (UPN or `DOMAIN\user`). Customer-supplied: untrusted |
+| FromOwnNetwork | bool | `hit.own_network` | Token hits from a range the organisation declared as its own. A triage label, never a reason to drop the alert |
+| OwnNetwork | string | `hit.own_network.note` | That range's note. Customer-supplied: untrusted |
 | PlacementVerified | bool | `ghost.placement_verified` | `false` while PlacementHost and PlacementOwner are only what created the token sent (empty when neither is set): confirm them before acting on that machine or account |
 | PlacementDeviceId | string | `ghost.placement_device_id` | Ghost tokens: Entra / Intune device ID |
 | ConsoleUrl | string | `console_url` | Link to the ghost in the DarkStrata console |

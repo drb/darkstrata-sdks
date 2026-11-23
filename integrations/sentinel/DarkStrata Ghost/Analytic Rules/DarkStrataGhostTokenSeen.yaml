@@ -3,7 +3,7 @@ name: DarkStrata Ghost - Token ghost seen
 description: |
   'A ghost token (a link, document, QR code, Entra sign-in CSS or webhook URL nobody legitimate uses) was used.
   The alert names where it was planted (for a fleet-planted token, the machine and user, mapped to Host and Account
-  entities; these are what created the token sent, so PlacementVerified is false until DarkStrata checks them) and the IP address, network and software that used it; an Entra CSS token
+  entities; these are what created the token sent, so PlacementVerified is false until DarkStrata checks them). FromOwnNetwork marks a hit from a range the organisation declared as its own: a label for triage, never a reason to close it, because an insider comes from there too and the IP address, network and software that used it; an Entra CSS token
   names the phishing proxy. A .env token's mail login used at DarkStrata's SMTP sink is a hit too (HitChannel SMTP):
   SmtpStage AUTH for the login, DATA for a message sent with it, which DarkStrata keeps and never delivers.
   Self-test events are excluded. Severity and tactics come from the event. Label and user
@@ -49,7 +49,7 @@ query: |
   | project TimeGenerated, EventId, Seq, Kind, Subtype, Severity, AlertSeverity, AlertTactics, AttackTechniques,
       GhostId, DisplayLabel, TokenType, Placement, SrcIp, SrcCountry, SrcAsn, SrcAsOrg, SrcIsTor, SrcIsHosting,
       DisplayUserAgent, PhishingHost, HitChannel, SmtpStage, DisplaySubject, SmtpSenderDomain, SmtpRecipientCount,
-      ObservedAt, ReceivedAt, ConsoleUrl, PlantedOn, PlantedFor, PlantedWhere, PlacementVerified, PlacementDeviceId, IncidentId,
+      ObservedAt, ReceivedAt, ConsoleUrl, PlantedOn, PlantedFor, PlantedWhere, PlacementVerified, FromOwnNetwork, OwnNetwork, PlacementDeviceId, IncidentId,
       IncidentHitCount
 eventGroupingSettings:
   aggregationKind: AlertPerResult
@@ -85,6 +85,8 @@ customDetails:
   PlantedOn: PlantedOn
   PlantedFor: PlantedFor
   PlacementVerified: PlacementVerified
+  FromOwnNetwork: FromOwnNetwork
+  OwnNetwork: OwnNetwork
   IncidentId: IncidentId
   IncidentHitCount: IncidentHitCount
   EventId: EventId

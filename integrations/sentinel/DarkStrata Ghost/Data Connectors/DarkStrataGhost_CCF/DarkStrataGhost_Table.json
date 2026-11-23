@@ -258,6 +258,16 @@
           "description": "Token hits: SrcIp is on a hosting or cloud network."
         },
         {
+          "name": "FromOwnNetwork",
+          "type": "boolean",
+          "description": "Token hits: SrcIp is in a range the organisation declared as its own (an office or VPN egress). A label for triage, never a reason to drop the alert: an insider comes from there too."
+        },
+        {
+          "name": "OwnNetwork",
+          "type": "string",
+          "description": "Token hits from a declared own-network range: that range's note. Customer-supplied text."
+        },
+        {
           "name": "PhishingHost",
           "type": "string",
           "description": "Entra CSS token hits: the adversary-in-the-middle proxy host."

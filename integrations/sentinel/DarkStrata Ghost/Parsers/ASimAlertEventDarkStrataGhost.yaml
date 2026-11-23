@@ -121,6 +121,6 @@ ParserQuery: |
         GhostMode, GhostEmail, GhostDisplayName, MatchKind, MatchSource, CorpusName, RowIngestedAt, MatchProvenance,
         Incident, MitreAttackVersion, MitreDomain, MitreTechniques, MitreSoftware, RetiredById, RetiredByName,
         RetiredReason, ConsoleUrl, SchemaVersion, TacticSet, TechniqueSet, PlacementHost, PlacementOwner,
-        PlacementVerified, PlacementDeviceId, IncidentId, IncidentHitCount, NotificationState
+        PlacementVerified, FromOwnNetwork, OwnNetwork, PlacementDeviceId, IncidentId, IncidentHitCount, NotificationState
   };
   parser(disabled = disabled)
