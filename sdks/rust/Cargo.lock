@@ -180,7 +180,7 @@ dependencies = [
 
 [[package]]
 name = "darkstrata-credential-check"
-version = "2.7.1"
+version = "2.9.1"
 dependencies = [
  "chrono",
  "hex",

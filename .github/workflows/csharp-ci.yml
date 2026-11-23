@@ -58,8 +58,10 @@ jobs:
         run: |
           dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --no-build --configuration Release
           dotnet pack src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj --no-build --configuration Release
+          dotnet pack src/DarkStrata.CredentialCheck.Umbraco.Automate/DarkStrata.CredentialCheck.Umbraco.Automate.csproj --no-build --configuration Release
           test -f src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg || exit 1
           test -f src/DarkStrata.CredentialCheck.Umbraco/bin/Release/DarkStrata.CredentialCheck.Umbraco.*.nupkg || exit 1
+          test -f src/DarkStrata.CredentialCheck.Umbraco.Automate/bin/Release/DarkStrata.CredentialCheck.Umbraco.Automate.*.nupkg || exit 1
           echo "✓ NuGet package created successfully"
 
   test:

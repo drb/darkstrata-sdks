@@ -144,6 +144,25 @@ class TestTransformsConf:
                 lookup_file = lookups_dir / filename
                 assert lookup_file.exists(), f"transforms.conf [{section}] references missing lookup: {filename}"
 
+    def test_outputlookup_targets_resolve(self, transforms_conf: configparser.ConfigParser) -> None:
+        """Every outputlookup target is a lookup stanza or a shipped CSV (else the search errors)."""
+        collections = SplunkConfParser.parse(DEFAULT_DIR / "collections.conf")
+        searches = SplunkConfParser.parse(DEFAULT_DIR / "savedsearches.conf")
+        for section in searches.sections():
+            for target in re.findall(
+                r"outputlookup(?:\s+\w+=\S+)*\s+([\w.]+)", searches.get(section, "search", fallback="")
+            ):
+                if target.endswith(".csv"):
+                    assert (PACKAGE_DIR / "lookups" / target).exists(), f"[{section}] writes missing CSV {target}"
+                    continue
+                assert transforms_conf.has_section(target), f"[{section}] writes undefined lookup {target}"
+                if transforms_conf.get(target, "external_type", fallback="") == "kvstore":
+                    collection = transforms_conf.get(target, "collection")
+                    assert collections.has_section(collection), f"[{target}] names missing collection {collection}"
+                    fields = {f.strip() for f in transforms_conf.get(target, "fields_list").split(",")} - {"_key"}
+                    declared = {k[len("field.") :] for k in collections.options(collection) if k.startswith("field.")}
+                    assert fields <= declared, f"[{target}] fields not in collection: {fields - declared}"
+
     def test_regex_stanzas_have_format(self, transforms_conf: configparser.ConfigParser) -> None:
         """REGEX stanzas must have a FORMAT key."""
         for section in transforms_conf.sections():
@@ -294,6 +313,7 @@ class TestSavedSearchesConf:
             "DarkStrata - Ghost Not Armed": ["T1562"],
             "DarkStrata - Honey SPN Kerberos Service Ticket": ["T1558.003"],
             "DarkStrata - Honey Account AS-REP Roasting": ["T1558.004"],
+            "DarkStrata - Honeyhash Account Used": ["T1003.001", "T1550.002"],
         }
         correlation = [
             s
@@ -313,6 +333,7 @@ class TestSavedSearchesConf:
         for section in (
             "DarkStrata - Honey SPN Kerberos Service Ticket",
             "DarkStrata - Honey Account AS-REP Roasting",
+            "DarkStrata - Honeyhash Account Used",
         ):
             assert savedsearches_conf.get(section, "disabled") == "1", section
 

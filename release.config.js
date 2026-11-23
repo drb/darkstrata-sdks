@@ -49,6 +49,7 @@ module.exports = {
         'sdks/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj',
         'sdks/csharp/src/DarkStrata.CredentialCheck/Constants.cs',
         'sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj',
+        'sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco.Automate/DarkStrata.CredentialCheck.Umbraco.Automate.csproj',
         'sdks/python/src/darkstrata_credential_check/constants.py',
         'sdks/go/constants.go',
         'sdks/php/src/Constants.php',

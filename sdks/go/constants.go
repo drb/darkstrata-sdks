@@ -6,7 +6,7 @@ import "time"
 
 const (
 	// Version is the SDK version
-	Version = "2.7.1"
+	Version = "2.9.1"
 
 	// DefaultBaseURL is the default API endpoint
 	DefaultBaseURL = "https://api.darkstrata.io/v1/"

@@ -17,6 +17,7 @@ on:
       - 'sdks/csharp/src/**'
       - 'sdks/csharp/src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj'
       - 'sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj'
+      - 'sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco.Automate/DarkStrata.CredentialCheck.Umbraco.Automate.csproj'
       # Java SDK
       - 'sdks/java/src/**'
       - 'sdks/java/pom.xml'
@@ -199,9 +200,13 @@ jobs:
   publish-csharp:
     name: Publish C# SDK
     needs: release
-    if: needs.release.outputs.new_release_published == 'true'
+    # workflow_dispatch republishes whatever version is on main (retry after a failed publish)
+    if: needs.release.outputs.new_release_published == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: nuget-publish
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: sdks/csharp
@@ -232,11 +237,22 @@ jobs:
         run: |
           dotnet pack src/DarkStrata.CredentialCheck/DarkStrata.CredentialCheck.csproj --configuration Release --no-build
           dotnet pack src/DarkStrata.CredentialCheck.Umbraco/DarkStrata.CredentialCheck.Umbraco.csproj --configuration Release --no-build
+          dotnet pack src/DarkStrata.CredentialCheck.Umbraco.Automate/DarkStrata.CredentialCheck.Umbraco.Automate.csproj --configuration Release --no-build
+
+      # Trusted publishing: swaps the GitHub OIDC token for a short-lived nuget.org key.
+      - name: NuGet login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
 
       - name: Push to NuGet
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
-          dotnet nuget push src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push src/DarkStrata.CredentialCheck.Umbraco/bin/Release/DarkStrata.CredentialCheck.Umbraco.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push src/DarkStrata.CredentialCheck/bin/Release/DarkStrata.CredentialCheck.*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push src/DarkStrata.CredentialCheck.Umbraco/bin/Release/DarkStrata.CredentialCheck.Umbraco.*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push src/DarkStrata.CredentialCheck.Umbraco.Automate/bin/Release/DarkStrata.CredentialCheck.Umbraco.Automate.*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   publish-java:
     name: Publish Java SDK

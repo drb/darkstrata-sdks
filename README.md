@@ -26,7 +26,7 @@ Official SDKs and platform integrations for [DarkStrata](https://darkstrata.io) 
 
 This monorepo contains everything you need to integrate with DarkStrata:
 
-- **SDKs** - Client libraries for 7 languages to check credentials against the DarkStrata breach database using k-anonymity
+- **SDKs** - Client libraries for 7 languages to check credentials against DarkStrata's stolen-credential data (infostealer logs and other criminal sources) using k-anonymity
 - **Integrations** - Pre-built platform integrations that bring DarkStrata threat intelligence into your existing security tooling
 
 ---
@@ -75,7 +75,7 @@ const hash = hashCredential(email, password);
 const result = await client.checkHash(hash);
 
 if (result.found) {
-  console.log('Credential found in breach database!');
+  console.log('Credential found in stolen-credential data!');
 }
 ```
 
@@ -97,7 +97,7 @@ async def main():
         result = await client.check_hash(hash_value)
 
         if result.found:
-            print('Credential found in breach database!')
+            print('Credential found in stolen-credential data!')
 
 asyncio.run(main())
 ```
@@ -123,7 +123,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let result = client.check_hash(&hash, None).await?;
 
     if result.found {
-        println!("Credential found in breach database!");
+        println!("Credential found in stolen-credential data!");
     }
 
     Ok(())
@@ -151,7 +151,7 @@ var result = await client.CheckHashAsync(hash);
 
 if (result.Found)
 {
-    Console.WriteLine("Credential found in breach database!");
+    Console.WriteLine("Credential found in stolen-credential data!");
 }
 ```
 
@@ -189,7 +189,7 @@ func main() {
     }
 
     if result.Found {
-        fmt.Println("Credential found in breach database!")
+        fmt.Println("Credential found in stolen-credential data!")
     }
 }
 ```
@@ -214,7 +214,7 @@ public class Example {
             CheckResult result = client.checkHash(hash);
 
             if (result.isFound()) {
-                System.out.println("Credential found in breach database!");
+                System.out.println("Credential found in stolen-credential data!");
             }
         }
     }
@@ -239,7 +239,7 @@ $hash = Crypto::hashCredential($email, $password);
 $result = $client->checkHash($hash);
 
 if ($result->found) {
-    echo 'Credential found in breach database!';
+    echo 'Credential found in stolen-credential data!';
 }
 ```
 
@@ -317,6 +317,10 @@ Block compromised passwords for Umbraco members and backoffice users, check back
 ```bash
 dotnet add package DarkStrata.CredentialCheck.Umbraco
 ```
+
+On Umbraco 17.4+ with [Umbraco Automate](https://docs.umbraco.com/umbraco-automate), add
+[DarkStrata.CredentialCheck.Umbraco.Automate](./sdks/csharp/src/DarkStrata.CredentialCheck.Umbraco.Automate/README.md)
+for a **Compromised Credential Detected** trigger, so editors can build their own response on the Automate canvas.
 
 ---
 

@@ -4,15 +4,15 @@
   "Category": "Developer Tools",
   "PackageType": "Integration",
   "LicenseTypes": [ "Free", "Subscription" ],
-  "Description": "Stops compromised credentials being used on your Umbraco site. When a member or backoffice user logs in, sets or resets a password, the email and password pair is hashed locally and checked against the DarkStrata breach corpus using k-anonymity: only the first five characters of a SHA-256 hash ever leave your server, so passwords are never sent to DarkStrata. Compromised pairs are rejected at password set time and denied at login, counting towards Umbraco's own lockout threshold, or allowed with a warning if you prefer to observe first. Every hit publishes a notification so you can run your own workflow. A single NuGet install with no backoffice UI and no database changes. The package is open source under Apache-2.0; it calls the DarkStrata API, which needs a plan that includes Credential Check.",
+  "Description": "Stops compromised credentials being used on your Umbraco site. When a member or backoffice user logs in, sets or resets a password, the email and password pair is hashed locally and checked against stolen credentials DarkStrata finds in infostealer logs and other criminal sources, using k-anonymity: only the first five characters of a SHA-256 hash ever leave your server, so passwords are never sent to DarkStrata. Compromised pairs are rejected at password set time and denied at login, counting towards Umbraco's own lockout threshold, or allowed with a warning if you prefer to observe first. Every hit publishes a notification so you can run your own workflow. A single NuGet install with no backoffice UI and no database changes. The package is open source under Apache-2.0; it calls the DarkStrata API, which needs a plan that includes Credential Check.",
   "DocumentationUrl": "https://darkstrata.io/en/docs/umbraco/",
   "IssueTrackerUrl": "https://github.com/darkstrata/darkstrata-sdks/issues",
   "AuthorDetails": {
     "Name": "DarkStrata",
-    "Description": "DarkStrata is a threat intelligence company. We track credentials exposed in breaches and infostealer logs, and make them queryable so teams can stop the ones that matter before they are used.",
+    "Description": "DarkStrata is a threat intelligence company. We track credentials stolen by infostealer malware and leaked on criminal forums and Telegram, and make them queryable so teams can stop the ones that matter before they are used.",
     "Url": "https://darkstrata.io",
     "ImageUrl": "https://github.com/darkstrata.png",
     "SyncContributorsFromRepository": true
   },
-  "Tags": [ "security", "credentials", "breach", "passwords", "k-anonymity", "members", "backoffice" ]
+  "Tags": [ "security", "credentials", "infostealer", "stealer logs", "passwords", "k-anonymity", "members", "backoffice" ]
 }

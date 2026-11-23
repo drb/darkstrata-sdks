@@ -2,7 +2,8 @@
 
 Stops compromised credentials being used on your Umbraco site. When a member or
 backoffice user logs in or sets a password, the email + password pair is hashed
-locally and checked against the DarkStrata breach corpus using
+locally and checked against stolen credentials DarkStrata finds in infostealer logs
+and other criminal sources, using
 [k-anonymity](https://github.com/darkstrata/darkstrata-sdks#how-k-anonymity-works):
 only the first 5 characters of a SHA-256 hash ever leave your server. Passwords
 are never sent to DarkStrata. That is the package's only interaction with the API.
@@ -25,7 +26,7 @@ ever leaving your server.
 
 | Hook | Behaviour |
 |---|---|
-| Password set / change / reset (members and backoffice users) | Rejected with identity error code `DarkStrataCompromised` when the email + password pair is in the breach corpus. |
+| Password set / change / reset (members and backoffice users) | Rejected with identity error code `DarkStrataCompromised` when the email + password pair is in DarkStrata's stolen-credential data. |
 | Member and backoffice login | Compromised pair is denied as a wrong password, counting towards Umbraco's lockout threshold (default), or allowed with a warning. A denied member login returns `CompromisedCredentialSignInResult` so you can say why. |
 | Any hit | Publishes `CompromisedCredentialDetectedNotification` so you can run your own workflow. |
 | Health check | Settings → Health Check → Security shows API key and connectivity status. |
@@ -107,6 +108,7 @@ not in the CMS database.
 | `CheckLogins` | `true` | Check member and backoffice logins. |
 | `LoginAction` | `Deny` | `Deny` rejects the login like a wrong password (lockout rules apply). `Warn` allows it, logs a warning and publishes the notification. |
 | `FailOpen` | `true` | If the DarkStrata API is unreachable, allow the operation. Set `false` to reject instead. |
+| `NotificationTimeout` | `00:00:05` | How long a check waits for notification handlers. A slower handler keeps running in the background. |
 
 ## React to a hit (your workflow)
 
@@ -134,10 +136,14 @@ public class MyComposer : IComposer
 }
 ```
 
+Handlers run inside the login or password change. If one throws, the error is logged and the
+check's result stands. If handlers take longer than `NotificationTimeout`, the check stops waiting
+and they finish in the background, so keep slow work (email, HTTP calls) out of the request scope.
+
 ## Tell the person what happened
 
 The checks correlate an email address **and** a password, so the accurate message is that the
-*pair* is breached, not that the password is weak. Someone hitting this needs to change that
+*pair* is compromised, not that the password is weak. Someone hitting this needs to change that
 password everywhere they have reused it, so point them at password reset rather than just
 refusing them.
 
@@ -149,7 +155,7 @@ localised or not, wherever you render identity errors:
 foreach (var error in result.Errors)
 {
     ModelState.AddModelError("", error.Code == DarkStrataOptions.IdentityErrorCode
-        ? Localise("breachedCredentialPair")
+        ? Localise("compromisedCredentialPair")
         : error.Description);
 }
 ```
@@ -163,7 +169,7 @@ var result = await _signInManager.PasswordSignInAsync(model.Username, model.Pass
 if (result is CompromisedCredentialSignInResult)
 {
     ModelState.AddModelError("loginModel",
-        "This email address and password have appeared together in a data breach. "
+        "This email address and password have been found together in stolen login data. "
         + "Reset your password to sign in, and change it anywhere else you have used it.");
     return CurrentUmbracoPage();
 }

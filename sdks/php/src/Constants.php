@@ -6,7 +6,7 @@ namespace DarkStrata\CredentialCheck;
 
 final class Constants
 {
-    public const VERSION = '2.7.1';
+    public const VERSION = '2.9.1';
     public const DEFAULT_BASE_URL = 'https://api.darkstrata.io/v1/';
     public const DEFAULT_TIMEOUT = 30.0;
     public const DEFAULT_RETRIES = 3;

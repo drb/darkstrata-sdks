@@ -33,7 +33,7 @@ public sealed class CompromisedCredentialService
     }
 
     /// <summary>
-    /// Returns true when the pair is in the breach corpus. Returns false when the check is
+    /// Returns true when the pair is in DarkStrata's stolen-credential data. Returns false when the check is
     /// unconfigured or fails and <see cref="DarkStrataOptions.FailOpen"/> is set; throws otherwise.
     /// The result is memoised for the rest of the request, so repeated checks of the same
     /// credentials cost one API call and raise one notification.
@@ -85,10 +85,42 @@ public sealed class CompromisedCredentialService
         if (found)
         {
             _logger.LogWarning("Compromised credential detected for {Email} via {Source}", email, source);
-            await _events.PublishAsync(new CompromisedCredentialDetectedNotification(source, email, userId), cancellationToken);
+            await PublishAsync(new CompromisedCredentialDetectedNotification(source, email, userId), options, cancellationToken);
         }
 
         return found;
+    }
+
+    /// <summary>
+    /// Handlers run inside the login and password-validation path, so one that throws or stalls
+    /// (e.g. Umbraco Automate writing its outbox to a locked database) must not change the outcome
+    /// of the check. Failures are logged; a handler that overruns the timeout is left to finish.
+    /// </summary>
+    private async Task PublishAsync(CompromisedCredentialDetectedNotification notification, DarkStrataOptions options, CancellationToken cancellationToken)
+    {
+        var publish = Task.CompletedTask;
+        try
+        {
+            // Task.Run because handlers can block before returning a task (Microsoft.Data.Sqlite's
+            // "async" calls run synchronously), and the timeout cannot start until we have one.
+            publish = Task.Run(() => _events.PublishAsync(notification, cancellationToken), CancellationToken.None);
+            await publish.WaitAsync(options.NotificationTimeout, cancellationToken);
+        }
+        catch (TimeoutException) when (!publish.IsCompleted)
+        {
+            _logger.LogWarning(
+                "CompromisedCredentialDetectedNotification handlers did not finish within {Timeout}; continuing without them",
+                options.NotificationTimeout);
+            _ = publish.ContinueWith(
+                t => _logger.LogError(t.Exception, "A CompromisedCredentialDetectedNotification handler failed after the timeout"),
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+        }
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "A CompromisedCredentialDetectedNotification handler failed; the credential check result stands");
+        }
     }
 
     /// <summary>Request-cache key. The password is hashed so it is never held as a cache key.</summary>

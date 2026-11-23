@@ -11,7 +11,7 @@ public enum CompromisedCredentialSource
 }
 
 /// <summary>
-/// Published whenever a checked email/password pair is found in the DarkStrata breach corpus.
+/// Published whenever a checked email/password pair is found in DarkStrata's stolen-credential data.
 /// Handle it with an INotificationAsyncHandler to trigger your own workflow.
 /// </summary>
 public sealed class CompromisedCredentialDetectedNotification : INotification

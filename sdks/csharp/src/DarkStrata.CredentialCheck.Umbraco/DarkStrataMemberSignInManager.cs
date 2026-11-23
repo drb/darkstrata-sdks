@@ -12,7 +12,7 @@ using Umbraco.Cms.Web.Common.Security;
 namespace DarkStrata.CredentialCheck.Umbraco;
 
 /// <summary>
-/// Member sign-in manager that checks the login pair against the breach corpus.
+/// Member sign-in manager that checks the login pair against DarkStrata's stolen-credential data.
 /// A compromised pair is treated exactly like a wrong password, including Umbraco's lockout counter.
 /// </summary>
 public sealed class DarkStrataMemberSignInManager : MemberSignInManager

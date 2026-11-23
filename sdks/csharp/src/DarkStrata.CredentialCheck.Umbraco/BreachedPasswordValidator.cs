@@ -5,7 +5,7 @@ using Umbraco.Cms.Core.Security;
 namespace DarkStrata.CredentialCheck.Umbraco;
 
 /// <summary>
-/// Rejects passwords found in the DarkStrata breach corpus when a member or backoffice user sets or changes them.
+/// Rejects passwords found in DarkStrata's stolen-credential data (infostealer logs and other criminal sources) when a member or backoffice user sets or changes them.
 /// </summary>
 public sealed class BreachedPasswordValidator<TUser> : IPasswordValidator<TUser>
     where TUser : UmbracoIdentityUser
@@ -36,7 +36,7 @@ public sealed class BreachedPasswordValidator<TUser> : IPasswordValidator<TUser>
             ? IdentityResult.Failed(new IdentityError
             {
                 Code = DarkStrataOptions.IdentityErrorCode,
-                Description = "This email address and password have appeared together in a data breach. Choose a different password.",
+                Description = "This email address and password have been found together in stolen login data. Choose a different password.",
             })
             : IdentityResult.Success;
     }

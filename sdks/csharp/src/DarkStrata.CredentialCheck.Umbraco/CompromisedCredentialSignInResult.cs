@@ -4,12 +4,12 @@ namespace DarkStrata.CredentialCheck.Umbraco;
 
 /// <summary>
 /// Returned by <see cref="DarkStrataMemberSignInManager"/> when a member login is refused because the
-/// email and password were found together in the breach corpus and <see cref="LoginAction"/> is
+/// email and password were found together in DarkStrata's stolen-credential data and <see cref="LoginAction"/> is
 /// <see cref="LoginAction.Deny"/>.
 /// </summary>
 /// <remarks>
 /// It is an ordinary failed <see cref="SignInResult"/>, so existing login code keeps working unchanged.
-/// A custom surface controller can test for this type to tell the member the pair is breached and
+/// A custom surface controller can test for this type to tell the member the pair is compromised and
 /// send them to password reset, instead of the generic "invalid username or password". Umbraco's own
 /// <c>UmbLoginController</c> cannot do this: its failure message is hard-coded.
 /// </remarks>

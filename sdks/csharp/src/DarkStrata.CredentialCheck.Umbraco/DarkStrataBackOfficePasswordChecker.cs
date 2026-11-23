@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Security;
 namespace DarkStrata.CredentialCheck.Umbraco;
 
 /// <summary>
-/// Checks backoffice logins against the breach corpus. Never validates the password itself;
+/// Checks backoffice logins against DarkStrata's stolen-credential data. Never validates the password itself;
 /// always falls back to Umbraco's default checker unless the pair is compromised and the action is Deny.
 /// </summary>
 public sealed class DarkStrataBackOfficePasswordChecker : IBackOfficeUserPasswordChecker

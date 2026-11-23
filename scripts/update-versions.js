@@ -104,8 +104,8 @@ if (fs.existsSync(goConstantsPath)) {
   console.log(`  Updated sdks/go/constants.go`);
 }
 
-// Update C# .csproj files (SDK + Umbraco package)
-for (const project of ['DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.Umbraco']) {
+// Update C# .csproj files (SDK + Umbraco packages)
+for (const project of ['DarkStrata.CredentialCheck', 'DarkStrata.CredentialCheck.Umbraco', 'DarkStrata.CredentialCheck.Umbraco.Automate']) {
   const csharpPath = path.join(rootDir, 'sdks', 'csharp', 'src', project, `${project}.csproj`);
   if (fs.existsSync(csharpPath)) {
     let csharpContent = fs.readFileSync(csharpPath, 'utf8');

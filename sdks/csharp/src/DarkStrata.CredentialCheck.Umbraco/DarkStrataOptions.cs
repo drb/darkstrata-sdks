@@ -19,7 +19,7 @@ public sealed class DarkStrataOptions
     /// <summary>Reject compromised passwords when members or backoffice users set or change them.</summary>
     public bool ValidatePasswords { get; set; } = true;
 
-    /// <summary>Check member and backoffice logins against the breach corpus.</summary>
+    /// <summary>Check member and backoffice logins against DarkStrata's stolen-credential data.</summary>
     public bool CheckLogins { get; set; } = true;
 
     /// <summary>What to do when a login uses a compromised password.</summary>
@@ -27,6 +27,12 @@ public sealed class DarkStrataOptions
 
     /// <summary>When the DarkStrata API is unreachable, allow the operation (true) or reject it (false).</summary>
     public bool FailOpen { get; set; } = true;
+
+    /// <summary>
+    /// How long a check waits for <see cref="CompromisedCredentialDetectedNotification"/> handlers before
+    /// carrying on without them. Slow handlers keep running; their failures are logged, never thrown.
+    /// </summary>
+    public TimeSpan NotificationTimeout { get; set; } = TimeSpan.FromSeconds(5);
 }
 
 public enum LoginAction

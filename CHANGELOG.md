@@ -1,3 +1,30 @@
+## [2.9.1](https://github.com/darkstrata/darkstrata-sdks/compare/v2.9.0...v2.9.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **umbraco:** describe Credential Check hits as stolen credentials from infostealer logs ([#31](https://github.com/darkstrata/darkstrata-sdks/issues/31)) ([76be30d](https://github.com/darkstrata/darkstrata-sdks/commit/76be30dedfe79b9b769b7d7efb92de0865e6aa96))
+
+# [2.9.0](https://github.com/darkstrata/darkstrata-sdks/compare/v2.8.0...v2.9.0) (2026-11-14)
+
+
+### Features
+
+* **umbraco:** add Umbraco Automate trigger package ([#29](https://github.com/darkstrata/darkstrata-sdks/issues/29)) ([d30152a](https://github.com/darkstrata/darkstrata-sdks/commit/d30152abedc9b3beb8cd7c1fa57ccabe39f47abb))
+
+# [2.8.0](https://github.com/darkstrata/darkstrata-sdks/compare/v2.7.1...v2.8.0) (2026-11-14)
+
+
+### Bug Fixes
+
+* **splunk-ta:** give the threat-intel KV collections lookup definitions ([#27](https://github.com/darkstrata/darkstrata-sdks/issues/27)) ([d5ac7c3](https://github.com/darkstrata/darkstrata-sdks/commit/d5ac7c3cc742043cbddd489609a1630195c077c2))
+* **umbraco:** keep notification handler failures out of the login path ([#28](https://github.com/darkstrata/darkstrata-sdks/issues/28)) ([84223da](https://github.com/darkstrata/darkstrata-sdks/commit/84223dae0e2ea8534f27f31d5d55d681a06b8f5a))
+
+
+### Features
+
+* **splunk-ta:** add MITRE ATT&CK annotations and technique fields ([#25](https://github.com/darkstrata/darkstrata-sdks/issues/25)) ([e8e68a0](https://github.com/darkstrata/darkstrata-sdks/commit/e8e68a043601872113aa4e3a035e48a2c26419e6)), closes [#10](https://github.com/darkstrata/darkstrata-sdks/issues/10)
+
 ## [2.7.1](https://github.com/darkstrata/darkstrata-sdks/compare/v2.7.0...v2.7.1) (2026-10-06)
 
 
