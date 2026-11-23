@@ -652,6 +652,7 @@ data), falling back to `observed_at`.
 | `ghost_id`, `ghost_label`  | `ghost.id`, `ghost.label`              | The label is text your team wrote               |
 | `ghost_kind`               | `kind`                                 | `IDENTITY` or `TOKEN`                           |
 | `ghost_host`, `ghost_owner` | `ghost.placement_host`, `ghost.placement_owner` | Tokens from the fleet rollout: the machine and user they were planted on. Your own text: untrusted |
+| `ghost_placement_verified` | `ghost.placement_verified` | `false` while `ghost_host` and `ghost_owner` are only what created the token sent (empty when neither is set): confirm them before acting |
 | `ghost_device_id`          | `ghost.placement_device_id`            | Entra / Intune device ID of that machine         |
 | `incident_id`, `incident_hit_count` | `incident.id`, `incident.hit_count` | `ghost.seen`: hits on one ghost within its window share one incident (one DarkStrata alert) |
 | `notification_state`       | `notification.state`                   | `BUDGET_REACHED` or `SUPPRESSED` when the hourly alert budget held back email and chat for the incident |

@@ -213,6 +213,11 @@
           "description": "User the machine or place belongs to (UPN or DOMAIN\\user). Customer-supplied text."
         },
         {
+          "name": "PlacementVerified",
+          "type": "boolean",
+          "description": "False while PlacementHost and PlacementOwner are only what the key that created the token sent (empty when neither is set). Confirm them before acting on that machine or account."
+        },
+        {
           "name": "PlacementDeviceId",
           "type": "string",
           "description": "Microsoft Entra / Intune device ID of that machine."
