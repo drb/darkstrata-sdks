@@ -24,7 +24,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const RULE_KEYS = ['id', 'name', 'description', 'severity', 'requiredDataConnectors', 'queryFrequency', 'queryPeriod',
   'triggerOperator', 'triggerThreshold', 'tactics', 'relevantTechniques', 'query', 'version', 'kind'];
 // Only the SecurityEvent columns the honey-account rules use
-const SECURITY_EVENT = 'datatable(TimeGenerated:datetime, EventID:int, EventData:string, Computer:string, TargetUserName:string, TargetDomainName:string, IpAddress:string)[]';
+const SECURITY_EVENT = 'datatable(TimeGenerated:datetime, EventID:int, EventData:string, Computer:string, TargetUserName:string, TargetDomainName:string, IpAddress:string, WorkstationName:string)[]';
 const WATCHLIST = 'let _GetWatchlist = (alias: string) { datatable(SearchKey:string, Type:string)[] };';
 
 const errors = [];
