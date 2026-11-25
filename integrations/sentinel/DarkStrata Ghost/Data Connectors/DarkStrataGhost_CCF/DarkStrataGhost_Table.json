@@ -223,6 +223,16 @@
           "description": "Microsoft Entra / Intune device ID of that machine."
         },
         {
+          "name": "PlacementMachineId",
+          "type": "string",
+          "description": "SHA-256 (hex) of that machine's OS machine id (Windows MachineGuid and the like), as its plant script sent it: the same across renames, so it ties a machine's tokens together. Empty when the script sent none."
+        },
+        {
+          "name": "PlacementIp",
+          "type": "string",
+          "description": "Token hits: the public address the machine's plant script last checked in from, as DarkStrata saw it (a central RMM server's address if that ran the script). A pivot into DHCP, VPN and firewall logs, not where the hit came from (that is SrcIp)."
+        },
+        {
           "name": "SrcIp",
           "type": "string",
           "description": "Token hits: the IP address that used the token."

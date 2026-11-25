@@ -87,6 +87,8 @@ One row per event. `TimeGenerated` is the ingestion time, so scheduled rules see
 | OwnNetwork | string | `hit.own_network.note` | That range's note. Customer-supplied: untrusted |
 | PlacementVerified | bool | `ghost.placement_verified` | `false` while PlacementHost and PlacementOwner are only what created the token sent (empty when neither is set): confirm them before acting on that machine or account |
 | PlacementDeviceId | string | `ghost.placement_device_id` | Ghost tokens: Entra / Intune device ID |
+| PlacementMachineId | string | `ghost.placement_machine_id` | Ghost tokens: SHA-256 (hex) of the machine's OS machine id, sent by the plant script. The same across renames |
+| PlacementIp | string | `ghost.placement_ip` | Token hits: the public address the machine's plant script last checked in from (or the RMM server that ran it). A pivot into DHCP, VPN and firewall logs, not the hit's source (SrcIp) |
 | ConsoleUrl | string | `console_url` | Link to the ghost in the DarkStrata console |
 
 `GhostLabel`, `CorpusName` and `MatchProvenance` are written by your users or come from the leak itself. Treat them as untrusted text: display them, never act on them in automation.

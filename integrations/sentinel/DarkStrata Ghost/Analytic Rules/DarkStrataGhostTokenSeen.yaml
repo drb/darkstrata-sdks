@@ -3,7 +3,10 @@ name: DarkStrata Ghost - Token ghost seen
 description: |
   'A ghost token (a link, document, QR code, Entra sign-in CSS or webhook URL nobody legitimate uses) was used.
   The alert names where it was planted (for a fleet-planted token, the machine and user, mapped to Host and Account
-  entities; these are what created the token sent, so PlacementVerified is false until DarkStrata checks them). FromOwnNetwork marks a hit from a range the organisation declared as its own: a label for triage, never a reason to close it, because an insider comes from there too and the IP address, network and software that used it; an Entra CSS token
+  entities; these are what created the token sent, so PlacementVerified is false until DarkStrata checks them). PlacementIp is the address the machine's plant script last checked in from, as DarkStrata saw it (an RMM server's if that ran the script):
+  a pivot into DHCP, VPN and firewall logs to find the machine, not where the hit came from. It also names the IP address, network and
+  software that used the token; FromOwnNetwork marks a hit from a range the organisation declared as its own: a label for triage, never a
+  reason to close it, because an insider comes from there too. An Entra CSS token
   names the phishing proxy. A .env token's mail login used at DarkStrata's SMTP sink is a hit too (HitChannel SMTP):
   SmtpStage AUTH for the login, DATA for a message sent with it, which DarkStrata keeps and never delivers.
   Self-test events are excluded. Severity and tactics come from the event. Label and user
@@ -46,11 +49,16 @@ query: |
       PlantedFor = substring(PlacementOwner, 0, 320)
   // The machine and user are whatever created the token sent (PlacementVerified false), so say so rather than assert them
   | extend PlantedWhere = iif(isnotempty(PlantedOn), strcat(" It was reported as planted on ", PlantedOn, iif(isnotempty(PlantedFor), strcat(", which belongs to ", PlantedFor), ""), iif(PlacementVerified == false, " (unverified: confirm before acting)", ""), ": investigate that machine."), "")
+  // Stamped by DarkStrata from the plant call, so it is the machine's (or its RMM server's) egress, not the hit's source;
+  // kept out of the IP entity so automation that blocks SrcIp never blocks the organisation's own address
+  | extend CheckedInFrom = iif(isnotempty(PlacementIp), strcat(" Its plant script last checked in from ", PlacementIp, " (or the RMM server that ran it): look that address up in DHCP, VPN and firewall logs to find the machine."), "")
+  // One column, because the alert description allows three placeholders
+  | extend PlantedWhere = strcat(PlantedWhere, CheckedInFrom)
   | project TimeGenerated, EventId, Seq, Kind, Subtype, Severity, AlertSeverity, AlertTactics, AttackTechniques,
       GhostId, DisplayLabel, TokenType, Placement, SrcIp, SrcCountry, SrcAsn, SrcAsOrg, SrcIsTor, SrcIsHosting,
       DisplayUserAgent, PhishingHost, HitChannel, SmtpStage, DisplaySubject, SmtpSenderDomain, SmtpRecipientCount,
-      ObservedAt, ReceivedAt, ConsoleUrl, PlantedOn, PlantedFor, PlantedWhere, PlacementVerified, FromOwnNetwork, OwnNetwork, PlacementDeviceId, IncidentId,
-      IncidentHitCount
+      ObservedAt, ReceivedAt, ConsoleUrl, PlantedOn, PlantedFor, PlantedWhere, PlacementVerified, FromOwnNetwork, OwnNetwork, PlacementDeviceId, PlacementMachineId,
+      PlacementIp, IncidentId, IncidentHitCount
 eventGroupingSettings:
   aggregationKind: AlertPerResult
 entityMappings:

@@ -655,6 +655,8 @@ data), falling back to `observed_at`.
 | `ghost_own_network` | `hit.own_network.note` | A hit from a range you declared as your own network: the range's note. A label for triage, never a reason to ignore the hit |
 | `ghost_placement_verified` | `ghost.placement_verified` | `false` while `ghost_host` and `ghost_owner` are only what created the token sent (empty when neither is set): confirm them before acting |
 | `ghost_device_id`          | `ghost.placement_device_id`            | Entra / Intune device ID of that machine         |
+| `ghost_machine_id`         | `ghost.placement_machine_id`           | SHA-256 (hex) of that machine's OS machine id, sent by the plant script. The same across renames |
+| `ghost_checkin_ip`         | `ghost.placement_ip`                   | `ghost.seen` on tokens: the public address the machine's plant script last checked in from (or the RMM server that ran it). A pivot into DHCP, VPN and firewall logs, not the hit's source (`src`) |
 | `incident_id`, `incident_hit_count` | `incident.id`, `incident.hit_count` | `ghost.seen`: hits on one ghost within its window share one incident (one DarkStrata alert) |
 | `notification_state`       | `notification.state`                   | `BUDGET_REACHED` or `SUPPRESSED` when the hourly alert budget held back email and chat for the incident |
 | `match_source`             | `match.source`                         | `STEALER_LOG`, `BREACH`, `COMBOLIST`            |

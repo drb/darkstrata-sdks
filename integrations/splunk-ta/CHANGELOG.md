@@ -43,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incident and alert-budget fields on ghost events: `incident_id`,
   `incident_hit_count` and `notification_state`, shown by the Ghost Seen and
   Ghost Token Used searches.
+- `ghost_machine_id` (SHA-256 of the planted machine's OS machine id, the same
+  across renames) and `ghost_checkin_ip` (the public address its plant script
+  last checked in from, or the RMM server's that ran it: a pivot into DHCP, VPN
+  and firewall logs, not the hit's source). **DarkStrata - Ghost Token Used**
+  shows both.
 
 ## [1.2.0] - 2026-10-19
 
