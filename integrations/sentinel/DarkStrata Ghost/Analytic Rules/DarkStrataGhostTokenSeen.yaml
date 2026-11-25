@@ -90,8 +90,6 @@ customDetails:
   SmtpSenderDomain: SmtpSenderDomain
   SmtpRecipientCount: SmtpRecipientCount
   AttackTechniques: AttackTechniques
-  PlantedOn: PlantedOn
-  PlantedFor: PlantedFor
   PlacementVerified: PlacementVerified
   FromOwnNetwork: FromOwnNetwork
   OwnNetwork: OwnNetwork
